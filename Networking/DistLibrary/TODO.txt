@@ -7,5 +7,8 @@ LibBookHelper:
 LibClient:
     Clients.cs (class SimpleClients)
 
+LibServer:
+    LibServer.cs (class SequentialServer)
+
 LibUserHelper:
     UserHelper.cs (class SequentialHelper)
