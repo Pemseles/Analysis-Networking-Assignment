@@ -1,0 +1,11 @@
+to do:
+Finish folders:
+
+LibBookHelper:
+    BookHelper.cs (class SequentialHelper)
+
+LibClient:
+    Clients.cs (class SimpleClients)
+
+LibUserHelper:
+    UserHelper.cs (class SequentialHelper)
