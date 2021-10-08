@@ -23,9 +23,10 @@ namespace BookHelper
     // Note: Complete the implementation of this class. You can adjust the structure of this class.
     public class SequentialHelper
     {
+        public static string settingsJsonPath = Path.GetFullPath(@"ClientServerConfig.json");
         public static string booksJsonPath = Path.GetFullPath(@"Books.json");
 
-        public void SequentialHelper()
+        public static void SequentialHelper()
         {
             while (true) {
                 int maxByte = newBookSock.Receive(buffer);
@@ -33,11 +34,18 @@ namespace BookHelper
 
                 try {
                     string fullBooksJsonStr = System.IO.File.ReadAllText(booksJsonPath);
-                    BookData requestedBook = JsonDeserialize<BookData>(data);
-
-                    if (fullBooksJsonStr.Contains(requestedBook.Title.ToLower())) {
+                    var tempBookList = JsonConvert.DeserializeObject<List<BookData>>(fullBooksJsonStr);
+                    
+                    if (data.Type == MessageType.BookInquiryReply && fullBooksJsonStr.Contains(requestedBook.Title.ToLower())) {
                         // book was found; does not matter if borrowed or not, handled on client-side
-                        byte[] msgNew = AssembleMsg(MessageType.BookInquiryReply);
+                        foreach (BookData book in tempBookList)
+                        {
+                            if (book.Title == data.Content) {
+                                BookData requestedBook = new BookData(book.Title, book.Author, book.Status, book.BorrowedBy, book.ReturnDate);
+                            }
+                        }
+
+                        byte[] msgNew = AssembleMsg(data.Type);
                         newBookSock.Send(msgNew);
                     }
                     else {
@@ -61,7 +69,7 @@ namespace BookHelper
                 Message replyJsonData = new Message {
                     Type = MessageType.NotFound,
                     Content = "From BookHelper server: Book not found\n"
-                }
+                };
                 string replyBookNotFound = JsonSerializer.Serialize(replyJsonData);
                 byte[] msgNew = Encoding.ASCII.GetBytes(replyBookNotFound);
                 return msgNew;
@@ -72,39 +80,37 @@ namespace BookHelper
                 Message replyJsonData = new Message {
                     Type = MessageType.BookInquiryReply,
                     Content = requestedBook
-                }
+                };
                 string replyBookFound = JsonSerializer.Serialize(replyJsonData);
                 byte[] msgNew = Encoding.ASCII.GetBytes(replyBookFound);
-                return msgNew;
+                return msgNew;  
             }
             else if (messageTypeEnum == MessageType.Error) {
                 // build message if error occured
                 Message replyJsonData = new Message {
                     Type = MessageType.Error,
                     Content = "From Bookhelper server: error occured during booksearch\n"
-                }
+                };
                 string replyError = JsonSerializer.Serialize(replyJsonData);
                 byte[] msgNew = Encoding.ASCII.GetBytes(replyError);
                 return msgNew;
             }
         }
 
-        public void start()
+        public static void start()
         {
-            string ip = "127.0.0.1";
-            int port = 32000;
+            string fullSettingsJsonStr = System.IO.File.ReadAllText(settingsJsonPath);
+            Setting bookHelperSettings = JsonDeserialize<Setting>(fullSettingsJsonStr);
             
             byte[] buffer = new byte[1000];
             byte[] msg = Encoding.ASCII.GetBytes("From BookHelper server: Your message was delivered\n");
             string data = null;
 
-            IPAddress ipAddress = IPAddress.Parse(ip);
-            IPEndPoint localEndpoint = new IPEndPoint(ipAddress, port);
-
+            IPEndPoint localEndpoint = new IPEndPoint(bookHelperSettings.BookHelperIPAddress, bookHelperSettings.BookHelperPortNumber);
             Socket bookSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             bookSock.bind(localEndpoint);
-            sock.Listen(5);
+            bookSock.Listen(bookHelperSettings.ServerListeningQueue);
             Console.WriteLine("\nWaiting for main server...");
             Socket newBookSock = bookSock.Accept();
 
