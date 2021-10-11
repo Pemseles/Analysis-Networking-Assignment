@@ -26,26 +26,27 @@ namespace BookHelper
         public static string settingsJsonPath = Path.GetFullPath(@"ClientServerConfig.json");
         public static string booksJsonPath = Path.GetFullPath(@"Books.json");
 
-        public static void SequentialHelper()
+        public void SequentialHelper()
         {
             while (true) {
                 int maxByte = newBookSock.Receive(buffer);
                 data = Encoding.ASCII.GetString(buffer, 0, maxByte);
+                Message recievedMsg = JsonConvert.DeserializeObject<Message>(data);
 
                 try {
                     string fullBooksJsonStr = System.IO.File.ReadAllText(booksJsonPath);
                     var tempBookList = JsonConvert.DeserializeObject<List<BookData>>(fullBooksJsonStr);
                     
-                    if (data.Type == MessageType.BookInquiryReply && fullBooksJsonStr.Contains(requestedBook.Title.ToLower())) {
+                    if (recievedMsg.Type == MessageType.BookInquiryReply && fullBooksJsonStr.Contains(requestedBook.Title.ToLower())) {
                         // book was found; does not matter if borrowed or not, handled on client-side
                         foreach (BookData book in tempBookList)
                         {
-                            if (book.Title == data.Content) {
+                            if (book.Title == recievedMsg.Content) {
                                 BookData requestedBook = new BookData(book.Title, book.Author, book.Status, book.BorrowedBy, book.ReturnDate);
                             }
                         }
 
-                        byte[] msgNew = AssembleMsg(data.Type);
+                        byte[] msgNew = AssembleMsg(recievedMsg.Type);
                         newBookSock.Send(msgNew);
                     }
                     else {
@@ -63,7 +64,7 @@ namespace BookHelper
             }
         }
 
-        public static byte[] AssembleMsg(enum messageTypeEnum) {
+        public byte[] AssembleMsg(MessageType messageTypeEnum) {
             if (messageTypeEnum == MessageType.NotFound) {
                 // build message if book not found
                 Message replyJsonData = new Message {
@@ -97,7 +98,7 @@ namespace BookHelper
             }
         }
 
-        public static void start()
+        public void start()
         {
             string fullSettingsJsonStr = System.IO.File.ReadAllText(settingsJsonPath);
             Setting bookHelperSettings = JsonDeserialize<Setting>(fullSettingsJsonStr);

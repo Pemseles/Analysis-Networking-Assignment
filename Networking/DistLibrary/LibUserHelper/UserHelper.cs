@@ -26,21 +26,22 @@ namespace UserHelper
         public static string settingsJsonPath = Path.GetFullPath(@"ClientServerConfig.json");
         public static string userJsonPath = Path.GetFullPath(@"Users.json");
 
-        public static void SequentialHelper()
+        public void SequentialHelper()
         {
             while (true) {
                 int maxByte = newUserSock.Receive(buffer);
                 data = Encoding.ASCII.GetString(buffer, 0, maxByte);
+                Message recievedMsg = JsonConvert.DeserializeObject<Message>(data);
 
                 try {
                     string fullUserJsonStr = System.IO.File.ReadAllText(userJsonPath);
                     var tempUserList = JsonConvert.DeserializeObject<List<UserData>>(fullUserJsonStr);
 
-                    if (data.Type == MessageType.UserInquiryReply && fullUserJsonStr.Contains(data)) {
+                    if (recievedMsg.Type == MessageType.UserInquiryReply && fullUserJsonStr.Contains(data)) {
                         // message was delivered properly; send back only data of user
                         foreach (UserData user in tempUserList)
                         {
-                            if (user.User_id == data.Content) {
+                            if (user.User_id == recievedMsg.Content) {
                                 UserData requestedUser = new UserData(user.User_id, user.Name, user.Email, user.Phone);
                             }
                         }
@@ -58,7 +59,7 @@ namespace UserHelper
             }
         }
 
-        public static byte[] AssembleMsg(enum messageTypeEnum) {
+        public byte[] AssembleMsg(MessageType messageTypeEnum) {
             if (messageTypeEnum == MessageType.UserInquiryReply) {
                 // build message of requested user info
                 Message replyJsonData = new Message {
@@ -81,7 +82,7 @@ namespace UserHelper
             }
         }
 
-        public static void start()
+        public void start()
         {
             string fullSettingsJsonStr = System.IO.File.ReadAllText(settingsJsonPath);
             Setting userHelperSettings = JsonDeserialize<Setting>(fullSettingsJsonStr);
