@@ -57,6 +57,16 @@ namespace LibServer
                         if (recievedConfirmationMsg.Type == MessageType.BookInquiry || recievedConfirmationMsg.Type == MessageType.UserInquiry) {
                             // checks for types it needs to forward to Helper Servers
                             byte[] msgForward = AssembleMsg(recievedMsg);
+
+                            if (recievedConfirmationMsg.Type == MessageType.BookInquiry) {
+                                // establish connection w BookHelper Server
+                                
+                            }
+                            else if (recievedConfirmationMsg.Type == MessageType.UserInquiry) {
+                                // establish connection w UserHelper Server
+                                
+                            }
+
                             newLibServerSock.Send(msgForward);
                             Console.WriteLine("Forwarded message to Helper Server.");
                         }
