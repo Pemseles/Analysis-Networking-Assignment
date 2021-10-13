@@ -104,7 +104,6 @@ namespace BookHelper
             Setting bookHelperSettings = JsonDeserialize<Setting>(fullSettingsJsonStr);
             
             byte[] buffer = new byte[1000];
-            byte[] msg = Encoding.ASCII.GetBytes("From BookHelper server: Your message was delivered\n");
             string data = null;
 
             IPEndPoint localEndpoint = new IPEndPoint(bookHelperSettings.BookHelperIPAddress, bookHelperSettings.BookHelperPortNumber);

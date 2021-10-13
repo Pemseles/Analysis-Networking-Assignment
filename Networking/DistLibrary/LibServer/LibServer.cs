@@ -57,14 +57,26 @@ namespace LibServer
                         if (recievedConfirmationMsg.Type == MessageType.BookInquiry || recievedConfirmationMsg.Type == MessageType.UserInquiry) {
                             // checks for types it needs to forward to Helper Servers
                             byte[] msgForward = AssembleMsg(recievedMsg);
+                            string fullSettingsJsonStr = System.IO.File.ReadAllText(settingsJsonPath);
+                            Setting libServerSettings = JsonDeserialize<Setting>(fullSettingsJsonStr);
+
+                            byte[] buffer = new byte[1000];
+                            string forwardData = null;
+                            
 
                             if (recievedConfirmationMsg.Type == MessageType.BookInquiry) {
                                 // establish connection w BookHelper Server
-                                
+                                IPEndPoint BookhelperEndpoint = new IPEndPoint(libServerSettings.BookHelperIPAddress, libServerSettings.BookHelperPortNumber);
+                                Socket forwardingSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+                                forwardingSock.Connect(BookhelperEndpoint);
                             }
                             else if (recievedConfirmationMsg.Type == MessageType.UserInquiry) {
                                 // establish connection w UserHelper Server
-                                
+                                IPEndPoint UserhelperEndpoint = new IPEndPoint(libServerSettings.UserHelperIPAddress, libServerSettings.UserHelperPortNumber);
+                                Socket forwardingSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+                                forwardingSock.Connect(UserhelperEndpoint);
                             }
 
                             newLibServerSock.Send(msgForward);
@@ -122,10 +134,9 @@ namespace LibServer
             Setting libServerSettings = JsonDeserialize<Setting>(fullSettingsJsonStr);
             
             byte[] buffer = new byte[1000];
-            byte[] msg = Encoding.ASCII.GetBytes("From LibServerHelper server: Your message was delivered\n");
             string data = null;
 
-            IPEndPoint localEndpoint = new IPEndPoint(libServerSettings.BookHelperIPAddress, libServerSettings.BookHelperPortNumber);
+            IPEndPoint localEndpoint = new IPEndPoint(libServerSettings.ServerIPAddress, libServerSettings.ServerPortNumber);
             Socket libServerSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             libServerSock.bind(localEndpoint);

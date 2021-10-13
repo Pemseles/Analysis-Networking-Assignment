@@ -88,7 +88,6 @@ namespace UserHelper
             Setting userHelperSettings = JsonDeserialize<Setting>(fullSettingsJsonStr);
 
             byte[] buffer = new byte[1000];
-            byte[] msg = Encoding.ASCII.GetBytes("From UserHelper server: Your message was delivered\n");
             string data = null;
 
             IPEndPoint localEndpoint = new IPEndPoint(userHelperSettings.UserHelperIPAddress, userHelperSettings.UserHelperPortNumber);
