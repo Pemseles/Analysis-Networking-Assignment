@@ -4,7 +4,6 @@ using System.Text.Json;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
-using System.Collections.Generic;
 using LibData;
 
 namespace BookHelper
@@ -41,7 +40,7 @@ namespace BookHelper
             bookHelperSettings = JsonSerializer.Deserialize<Setting>(fullSettingsJsonStr);
             buffer = new byte[1000];
             data = null;
-            localEndpoint = new IPEndPoint((long)Convert.ToDouble(bookHelperSettings.BookHelperIPAddress), bookHelperSettings.BookHelperPortNumber);
+            localEndpoint = new IPEndPoint(IPAddress.Parse(bookHelperSettings.BookHelperIPAddress), bookHelperSettings.BookHelperPortNumber);
             bookSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
             
@@ -64,8 +63,8 @@ namespace BookHelper
             return null;
         }
 
-        public byte[] AssembleMsg(Message recievedMsg, BookData requestedBook) {
-            if (recievedMsg.Type == MessageType.NotFound) {
+        public byte[] AssembleMsg(Message msgObj, BookData requestedBook) {
+            if (requestedBook == null && msgObj != null) {
                 // build message if book not found
                 Message replyJsonData = new Message {
                     Type = MessageType.NotFound,
@@ -76,7 +75,7 @@ namespace BookHelper
                 return msgNew;
                 
             }
-            else if (recievedMsg.Type == MessageType.BookInquiryReply) {
+            else if (requestedBook != null) {
                 // build message if book found
                 Message replyJsonData = new Message {
                     Type = MessageType.BookInquiryReply,
@@ -112,17 +111,23 @@ namespace BookHelper
                     Message recievedMsg = JsonSerializer.Deserialize<Message>(data);
                     string fullBooksJsonStr = System.IO.File.ReadAllText(booksJsonPath);
                     
-                    if (recievedMsg.Type == MessageType.BookInquiryReply && fullBooksJsonStr.Contains(data)) {
+                    if (recievedMsg.Type == MessageType.BookInquiry && fullBooksJsonStr.Contains(data)) {
                         // book was found; does not matter if borrowed or not, handled on client-side
-                        
                         BookData requestedBook = GetBookData(recievedMsg, fullBooksJsonStr);
                         byte[] msgNew = AssembleMsg(recievedMsg, requestedBook);
                         newBookSock.Send(msgNew);
                     }
-                    else {
+                    else if (recievedMsg.Type == MessageType.BookInquiry && !fullBooksJsonStr.Contains(data)) {
                         // book was not found; sends back message 
                         byte[] msgNew = AssembleMsg(recievedMsg, null);
                         newBookSock.Send(msgNew);
+                    }
+                    else if (recievedMsg.Type == MessageType.EndCommunication) {
+                        // end socket & program
+                        Console.WriteLine("Closing BookHelper...");
+                        newBookSock.Close();
+                        bookSock.Close();
+                        break;
                     }
                 }
                 catch {

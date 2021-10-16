@@ -40,7 +40,7 @@ namespace UserHelper
             userHelperSettings = JsonSerializer.Deserialize<Setting>(fullSettingsJsonStr);
             buffer = new byte[1000];
             data = null;
-            localEndpoint = new IPEndPoint((long)Convert.ToDouble(userHelperSettings.UserHelperIPAddress), userHelperSettings.UserHelperPortNumber);
+            localEndpoint = new IPEndPoint(IPAddress.Parse(userHelperSettings.UserHelperIPAddress), userHelperSettings.UserHelperPortNumber);
             userSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
@@ -63,7 +63,7 @@ namespace UserHelper
         }
 
         public byte[] AssembleMsg(Message msgObj, UserData requestedUser) {
-            if (msgObj.Type == MessageType.UserInquiryReply) {
+            if (requestedUser != null) {
                 // build message of requested user info
                 Message replyJsonData = new Message {
                     Type = MessageType.UserInquiryReply,
@@ -71,6 +71,16 @@ namespace UserHelper
                 };
                 string replyUserFound = JsonSerializer.Serialize(replyJsonData);
                 byte[] msgNew = Encoding.ASCII.GetBytes(replyUserFound);
+                return msgNew;
+            }
+            else if (requestedUser == null && msgObj != null) {
+                // build message if user not found
+                Message replyJsonData = new Message {
+                    Type = MessageType.NotFound,
+                    Content = "From UserHelper server: user not found\n"
+                };
+                string replyUserNotFound = JsonSerializer.Serialize(replyJsonData);
+                byte[] msgNew = Encoding.ASCII.GetBytes(replyUserNotFound);
                 return msgNew;
             }
             else {
@@ -98,12 +108,22 @@ namespace UserHelper
                     Message recievedMsg = JsonSerializer.Deserialize<Message>(data);
                     string fullUserJsonStr = System.IO.File.ReadAllText(userJsonPath);
 
-                    if (recievedMsg.Type == MessageType.UserInquiryReply && fullUserJsonStr.Contains(data)) {
+                    if (recievedMsg.Type == MessageType.UserInquiry && fullUserJsonStr.Contains(data)) {
                         // message was delivered properly; send back only data of user
-
                         UserData desiredUser = GetUserData(recievedMsg, fullUserJsonStr);
                         byte[] msgNew = AssembleMsg(recievedMsg, desiredUser);
                         newUserSock.Send(msgNew);
+                    }
+                    else if (recievedMsg.Type == MessageType.UserInquiry && !fullUserJsonStr.Contains(data)) {
+                        // user was not found
+                        byte[] msgNew = AssembleMsg(recievedMsg, null);
+                        newUserSock.Send(msgNew);
+                    }
+                    else if (recievedMsg.Type == MessageType.EndCommunication) {
+                        Console.WriteLine("Closing UserHelper...");
+                        newUserSock.Close();
+                        userSock.Close();
+                        break;
                     }
                 }
                 catch {
