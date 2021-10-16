@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Text;
 using System.Text.Json;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
-using System.Collections.Generic;
 using LibData;
 
 namespace UserHelper
@@ -23,54 +23,57 @@ namespace UserHelper
     // Note: Complete the implementation of this class. You can adjust the structure of this class.
     public class SequentialHelper
     {
-        public static string settingsJsonPath = Path.GetFullPath(@"ClientServerConfig.json");
-        public static string userJsonPath = Path.GetFullPath(@"Users.json");
+        public string settingsJsonPath;
+        public string userJsonPath;
+        public string fullSettingsJsonStr;
+        public Setting userHelperSettings;
+        public byte[] buffer;
+        public string data;
+        public IPEndPoint localEndpoint;
+        public Socket userSock;
 
-        public void SequentialHelper()
+        public SequentialHelper()
         {
-            while (true) {
-                int maxByte = newUserSock.Receive(buffer);
-                data = Encoding.ASCII.GetString(buffer, 0, maxByte);
-                Message recievedMsg = JsonConvert.DeserializeObject<Message>(data);
-
-                try {
-                    string fullUserJsonStr = System.IO.File.ReadAllText(userJsonPath);
-                    var tempUserList = JsonConvert.DeserializeObject<List<UserData>>(fullUserJsonStr);
-
-                    if (recievedMsg.Type == MessageType.UserInquiryReply && fullUserJsonStr.Contains(data)) {
-                        // message was delivered properly; send back only data of user
-                        foreach (UserData user in tempUserList)
-                        {
-                            if (user.User_id == recievedMsg.Content) {
-                                UserData requestedUser = new UserData(user.User_id, user.Name, user.Email, user.Phone);
-                            }
-                        }
-
-                        byte[] msgNew = AssembleMsg(MessageType.UserInquiryReply);
-                        newUserSock.Send(msgNew);
-                    }
-                }
-                catch {
-                    // error occured during message thingy
-                    byte[] msgNew = AssembleMsg(MessageType.Error);
-                    newUserSock.Send(msgNew);
-                    Console.WriteLine("Error");
-                }
-            }
+            settingsJsonPath = Path.GetFullPath(@"ClientServerConfig.json");
+            userJsonPath = Path.GetFullPath(@"Users.json");
+            fullSettingsJsonStr = System.IO.File.ReadAllText(settingsJsonPath);
+            userHelperSettings = JsonSerializer.Deserialize<Setting>(fullSettingsJsonStr);
+            buffer = new byte[1000];
+            data = null;
+            localEndpoint = new IPEndPoint((long)Convert.ToDouble(userHelperSettings.UserHelperIPAddress), userHelperSettings.UserHelperPortNumber);
+            userSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
-        public byte[] AssembleMsg(MessageType messageTypeEnum) {
-            if (messageTypeEnum == MessageType.UserInquiryReply) {
+        private UserData GetUserData(Message recievedMsg, string userJsonStr) {
+            UserData[] tempUserArray = JsonSerializer.Deserialize<UserData[]>(userJsonStr);
+
+            foreach (UserData user in tempUserArray)
+            {
+                if (user.User_id == recievedMsg.Content) {
+                    UserData requestedUser = new UserData {
+                        User_id = user.User_id,
+                        Name = user.Name,
+                        Email = user.Email,
+                        Phone = user.Phone
+                    };
+                    return requestedUser;
+                }
+            }
+            return null;
+        }
+
+        public byte[] AssembleMsg(Message msgObj, UserData requestedUser) {
+            if (msgObj.Type == MessageType.UserInquiryReply) {
                 // build message of requested user info
                 Message replyJsonData = new Message {
                     Type = MessageType.UserInquiryReply,
-                    Content = requestedUser;
+                    Content = JsonSerializer.Serialize(requestedUser)
                 };
                 string replyUserFound = JsonSerializer.Serialize(replyJsonData);
                 byte[] msgNew = Encoding.ASCII.GetBytes(replyUserFound);
                 return msgNew;
             }
-            else if (messageTypeEnum == MessageType.Error) {
+            else {
                 // build message if error occured
                 Message replyJsonData = new Message {
                     Type = MessageType.Error,
@@ -82,23 +85,34 @@ namespace UserHelper
             }
         }
 
-        public void start()
-        {
-            string fullSettingsJsonStr = System.IO.File.ReadAllText(settingsJsonPath);
-            Setting userHelperSettings = JsonDeserialize<Setting>(fullSettingsJsonStr);
-
-            byte[] buffer = new byte[1000];
-            string data = null;
-
-            IPEndPoint localEndpoint = new IPEndPoint(userHelperSettings.UserHelperIPAddress, userHelperSettings.UserHelperPortNumber);
-            Socket userSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            userSock.bind(localEndpoint);
+        public void start() {
+            userSock.Bind(localEndpoint);
             userSock.Listen(userHelperSettings.ServerListeningQueue);
             Console.WriteLine("\nWaiting for main server...");
             Socket newUserSock = userSock.Accept();
 
-            SequentialHelper();
+            while (true) {
+                try {
+                    int maxByte = newUserSock.Receive(buffer);
+                    data = Encoding.ASCII.GetString(buffer, 0, maxByte);
+                    Message recievedMsg = JsonSerializer.Deserialize<Message>(data);
+                    string fullUserJsonStr = System.IO.File.ReadAllText(userJsonPath);
+
+                    if (recievedMsg.Type == MessageType.UserInquiryReply && fullUserJsonStr.Contains(data)) {
+                        // message was delivered properly; send back only data of user
+
+                        UserData desiredUser = GetUserData(recievedMsg, fullUserJsonStr);
+                        byte[] msgNew = AssembleMsg(recievedMsg, desiredUser);
+                        newUserSock.Send(msgNew);
+                    }
+                }
+                catch {
+                    // error occured during message thingy
+                    byte[] msgNew = AssembleMsg(null, null);
+                    newUserSock.Send(msgNew);
+                    Console.WriteLine("Error");
+                }
+            }
         }
     }
 }
