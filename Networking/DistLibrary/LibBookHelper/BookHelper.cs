@@ -130,11 +130,11 @@ namespace BookHelper
                         break;
                     }
                 }
-                catch {
+                catch (Exception e) {
                     // error during message recieving (not serialised etc)
                     byte[] msgNew = AssembleMsg(null, null);
                     newBookSock.Send(msgNew);
-                    Console.WriteLine("Error");
+                    Console.Out.WriteLine("Error: ", e.Message);
                 }
             }
         }

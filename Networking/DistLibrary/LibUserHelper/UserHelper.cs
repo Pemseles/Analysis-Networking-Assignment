@@ -126,11 +126,11 @@ namespace UserHelper
                         break;
                     }
                 }
-                catch {
+                catch (Exception e) {
                     // error occured during message thingy
                     byte[] msgNew = AssembleMsg(null, null);
                     newUserSock.Send(msgNew);
-                    Console.WriteLine("Error");
+                    Console.Out.WriteLine("Error: ", e.Message);
                 }
             }
         }

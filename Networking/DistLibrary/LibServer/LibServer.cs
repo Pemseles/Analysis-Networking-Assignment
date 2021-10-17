@@ -153,6 +153,7 @@ namespace LibServer
                             Console.WriteLine("Forwarded message back to client.");
                         }
                         else {
+                            // go here if client sends wrong msg type
                             Console.WriteLine("Client sent wrong msg Type");
                             newLibServerSock.Send(Encoding.ASCII.GetBytes("Message type rejected by server, please try again."));
                         }
@@ -192,11 +193,11 @@ namespace LibServer
                         Console.WriteLine("Error, client sent wrong msg type");
                     }
                 }
-                catch {
+                catch (Exception e) {
                     // error occured
                     byte[] msgNew = AssembleMsg(recievedMsg);
                     newLibServerSock.Send(msgNew);
-                    Console.WriteLine("Error");
+                    Console.Out.WriteLine("Error: ", e.Message);
                     newLibServerSock.Close();
                     break;
                 }

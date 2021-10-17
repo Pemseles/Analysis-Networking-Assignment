@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net.Sockets;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using LibData;
 
@@ -80,12 +81,68 @@ namespace LibClient
         /// <returns>The result of the request</returns>
         public Output start()
         {
-
             // todo: implement the body to communicate with the server and requests the book. Return the result as an Output object.
             // Adding extra methods to the class is permitted. The signature of this method must not change.
+            clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            clientSocket.Connect(serverEndPoint);
+            byte[] buffer = new byte[1000];
+            string data = "";
 
-            return result;
+            try {
+                // first handshake to LibServer
+                byte[] firstMsg = AssembleMsg(MessageType.Hello);
+                clientSocket.Send(firstMsg);
+                int welcomingMsgInt = clientSocket.Receive(buffer);
+                data = Encoding.ASCII.GetString(buffer, 0, welcomingMsgInt);
+                Message recievedWelcomingMsg = JsonSerializer.Deserialize<Message>(data);
+
+                if (recievedWelcomingMsg.Type == MessageType.Welcome) {
+                    while (true) {
+                        if (client_id == "Client -1") {
+                            // end communication
+                            byte[] mainMsg = AssembleMsg(MessageType.EndCommunication);
+                            clientSocket.Send(mainMsg);
+                        }
+                        else {
+                            // main function
+
+                        }
+                        return result;
+                    }
+                }
+                else {
+                    // server sent wrong msgType
+                }
+                // return type: return result
+                return null;
+            }
+            catch {
+                // error
+                return null;
+            }
         }
 
+        public byte[] AssembleMsg(MessageType desiredMsgType) {
+            if (desiredMsgType == MessageType.EndCommunication) {
+                // make ending message for closing all communication
+                Message replyJsonData = new Message {
+                    Type = desiredMsgType,
+                    Content = "Content is not important pls don't look :("
+                };
+                string endingMsg = JsonSerializer.Serialize(replyJsonData);
+                byte[] msgNew = Encoding.ASCII.GetBytes(endingMsg);
+                return msgNew;
+            }
+            else {
+                // error message
+                Message replyJsonData = new Message {
+                    Type = MessageType.Error,
+                    Content = "Error occured somewhere"
+                };
+                string errorMsg = JsonSerializer.Serialize(replyJsonData);
+                byte[] msgNew = Encoding.ASCII.GetBytes(errorMsg);
+                return msgNew;
+            }
+        }
     }
 }
