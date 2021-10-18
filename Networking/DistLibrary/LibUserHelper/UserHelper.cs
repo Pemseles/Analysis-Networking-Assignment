@@ -96,42 +96,51 @@ namespace UserHelper
         }
 
         public void start() {
-            userSock.Bind(localEndpoint);
-            userSock.Listen(userHelperSettings.ServerListeningQueue);
-            Console.WriteLine("\nWaiting for main server...");
-            Socket newUserSock = userSock.Accept();
-
             while (true) {
                 try {
-                    int maxByte = newUserSock.Receive(buffer);
-                    data = Encoding.ASCII.GetString(buffer, 0, maxByte);
-                    Message recievedMsg = JsonSerializer.Deserialize<Message>(data);
-                    string fullUserJsonStr = System.IO.File.ReadAllText(userJsonPath);
+                    userSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    userSock.Bind(localEndpoint);
+                    userSock.Listen(userHelperSettings.ServerListeningQueue);
+                    Console.WriteLine("\nWaiting for main server...");
+                    Socket newUserSock = userSock.Accept();
 
-                    if (recievedMsg.Type == MessageType.UserInquiry && fullUserJsonStr.Contains(data)) {
-                        // message was delivered properly; send back only data of user
-                        UserData desiredUser = GetUserData(recievedMsg, fullUserJsonStr);
-                        byte[] msgNew = AssembleMsg(recievedMsg, desiredUser);
-                        newUserSock.Send(msgNew);
-                    }
-                    else if (recievedMsg.Type == MessageType.UserInquiry && !fullUserJsonStr.Contains(data)) {
-                        // user was not found
-                        byte[] msgNew = AssembleMsg(recievedMsg, null);
-                        newUserSock.Send(msgNew);
-                    }
-                    else if (recievedMsg.Type == MessageType.EndCommunication) {
-                        Console.WriteLine("Closing UserHelper...");
+                    try {
+                        int maxByte = newUserSock.Receive(buffer);
+                        data = Encoding.ASCII.GetString(buffer, 0, maxByte);
+                        Message recievedMsg = JsonSerializer.Deserialize<Message>(data);
+                        string fullUserJsonStr = System.IO.File.ReadAllText(userJsonPath);
+                        Console.WriteLine("line 112; msg recieved from libserver, type: {0}", recievedMsg.Type);
+
+                        if (recievedMsg.Type == MessageType.UserInquiry && fullUserJsonStr.Contains(data)) {
+                            // message was delivered properly; send back only data of user
+                            UserData desiredUser = GetUserData(recievedMsg, fullUserJsonStr);
+                            byte[] msgNew = AssembleMsg(recievedMsg, desiredUser);
+                            newUserSock.Send(msgNew);
+                        }
+                        else if (recievedMsg.Type == MessageType.UserInquiry && !fullUserJsonStr.Contains(data)) {
+                            // user was not found
+                            byte[] msgNew = AssembleMsg(recievedMsg, null);
+                            newUserSock.Send(msgNew);
+                        }
+                        else if (recievedMsg.Type == MessageType.EndCommunication) {
+                            Console.WriteLine("Closing UserHelper...");
+                            newUserSock.Close();
+                            userSock.Close();
+                            break;
+                        }
                         newUserSock.Close();
                         userSock.Close();
-                        break;
+                    }
+                    catch (Exception e) {
+                        // error occured during message thingy
+                        byte[] msgNew = AssembleMsg(null, null);
+                        newUserSock.Send(msgNew);
+                        Console.Out.WriteLine("Error: ", e.Message);
                     }
                 }
-                catch (Exception e) {
-                    // error occured during message thingy
-                    byte[] msgNew = AssembleMsg(null, null);
-                    newUserSock.Send(msgNew);
-                    Console.Out.WriteLine("Error: ", e.Message);
-                }
+                catch {
+                    Console.WriteLine("failed to make connection with libserver");
+                } 
             }
         }
     }
