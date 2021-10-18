@@ -34,7 +34,7 @@ namespace BookHelper
 
         public SequentialHelper()
         {
-            settingsJsonPath = Path.GetFullPath(@"ClientServerConfig.json");
+            settingsJsonPath = @"../ClientServerConfig.json";
             booksJsonPath = Path.GetFullPath(@"Books.json");
             fullSettingsJsonStr = System.IO.File.ReadAllText(settingsJsonPath);
             bookHelperSettings = JsonSerializer.Deserialize<Setting>(fullSettingsJsonStr);

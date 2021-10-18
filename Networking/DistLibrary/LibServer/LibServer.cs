@@ -25,7 +25,6 @@ namespace LibServer
     public class SequentialServer
     {
         private string settingsJsonPath;
-        private string userJsonPath;
         private string fullSettingsJsonStr;
         private Setting libServerSettings;
         private byte[] buffer;
@@ -35,8 +34,7 @@ namespace LibServer
 
         public SequentialServer()
         {
-            settingsJsonPath = Path.GetFullPath(@"ClientServerConfig.json");
-            userJsonPath = Path.GetFullPath(@"Users.json");
+            settingsJsonPath = @"../ClientServerConfig.json";
             fullSettingsJsonStr = System.IO.File.ReadAllText(settingsJsonPath);
             libServerSettings = JsonSerializer.Deserialize<Setting>(fullSettingsJsonStr);
             buffer = new byte[1000];

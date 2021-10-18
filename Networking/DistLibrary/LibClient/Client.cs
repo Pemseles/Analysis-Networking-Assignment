@@ -67,6 +67,7 @@ namespace LibClient
                 string configContent = File.ReadAllText(configFile);
                 this.settings = JsonSerializer.Deserialize<Setting>(configContent);
                 this.ipAddress = IPAddress.Parse(settings.ServerIPAddress);
+                this.serverEndPoint = new IPEndPoint(this.ipAddress, this.settings.ServerPortNumber);
             }
             catch (Exception e)
             {
@@ -83,6 +84,7 @@ namespace LibClient
         {
             // todo: implement the body to communicate with the server and requests the book. Return the result as an Output object.
             // Adding extra methods to the class is permitted. The signature of this method must not change.
+
             clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             clientSocket.Connect(serverEndPoint);
             byte[] buffer = new byte[1000];
@@ -90,40 +92,106 @@ namespace LibClient
 
             try {
                 // first handshake to LibServer
-                byte[] firstMsg = AssembleMsg(MessageType.Hello);
+                byte[] firstMsg = AssembleMsg(MessageType.Hello, null);
                 clientSocket.Send(firstMsg);
+
                 int welcomingMsgInt = clientSocket.Receive(buffer);
                 data = Encoding.ASCII.GetString(buffer, 0, welcomingMsgInt);
                 Message recievedWelcomingMsg = JsonSerializer.Deserialize<Message>(data);
 
                 if (recievedWelcomingMsg.Type == MessageType.Welcome) {
-                    while (true) {
-                        if (client_id == "Client -1") {
-                            // end communication
-                            byte[] mainMsg = AssembleMsg(MessageType.EndCommunication);
-                            clientSocket.Send(mainMsg);
+                    if (client_id == "Client -1") {
+                        // end communication
+                        byte[] endingMsg = AssembleMsg(MessageType.EndCommunication, null);
+                        clientSocket.Send(endingMsg);
+                        clientSocket.Close();
+                    }
+                    else {
+                        // main function; get requested book into message & bookdata obj & check if book was found
+                        byte[] mainMsg = AssembleMsg(MessageType.BookInquiry, null);
+                        clientSocket.Send(mainMsg);
+
+                        int bookInquiryReplyMsgInt = clientSocket.Receive(buffer);
+                        data = Encoding.ASCII.GetString(buffer, 0, bookInquiryReplyMsgInt);
+                        Message bookInquiryMsg = JsonSerializer.Deserialize<Message>(data);
+
+                        if (bookInquiryMsg.Type == MessageType.NotFound) {
+                            // book was not found
+                            Console.WriteLine("Book: {0} was not found in Library, building output...", this.bookName);
+                            this.result = AssembleOutputObj(this.client_id, this.bookName, null, null, null);
                         }
                         else {
-                            // main function
+                            // book was found; check if currently being borrowed
+                            BookData recievedBookData = JsonSerializer.Deserialize<BookData>(bookInquiryMsg.Content);
+                            if (recievedBookData.Status == "Available") {
+                                // book is available; assemble output
+                                this.result = AssembleOutputObj(this.client_id, this.bookName, recievedBookData.Status, null, null);
+                            }
+                            else {
+                                // book is being borrowed; send userInquiry w borrower's user_id
+    	                        byte[] userInquiryMsg = AssembleMsg(MessageType.UserInquiry, recievedBookData);
+                                clientSocket.Send(userInquiryMsg);
+                                
+                                int UserInquiryReplyMsgInt = clientSocket.Receive(buffer);
+                                data = Encoding.ASCII.GetString(buffer, 0, UserInquiryReplyMsgInt);
+                                Message userInquiryMsgObj = JsonSerializer.Deserialize<Message>(data);
+                                UserData borrowerData = JsonSerializer.Deserialize<UserData>(userInquiryMsgObj.Content);
 
+                                this.result = AssembleOutputObj(this.client_id, this.bookName, recievedBookData.Status, borrowerData.Name, borrowerData.Email);
+                            }
                         }
-                        return result;
                     }
+                    clientSocket.Close();
+                    return result;
                 }
                 else {
-                    // server sent wrong msgType
+                    // server sent wrong msgType back
+                    Console.WriteLine("Server sent wrong msgtype, must be Welcome");
+                    clientSocket.Close();
                 }
                 // return type: return result
                 return null;
             }
             catch {
                 // error
+                this.result = AssembleOutputObj(null, null, null, null, null);
+                Console.WriteLine("Error occured somewhere in function, check if LibInput.json is in order and try again.");
                 return null;
             }
         }
 
-        public byte[] AssembleMsg(MessageType desiredMsgType) {
-            if (desiredMsgType == MessageType.EndCommunication) {
+        public byte[] AssembleMsg(MessageType desiredMsgType, BookData recievedBookData) {
+            if (desiredMsgType == MessageType.Hello) {
+                // make first handshake message, expected reply is msgType: Welcome
+                Message replyJsonData = new Message {
+                    Type = desiredMsgType,
+                    Content = this.client_id
+                };
+                string helloMsg = JsonSerializer.Serialize(replyJsonData);
+                byte[] msgNew = Encoding.ASCII.GetBytes(helloMsg);
+                return msgNew;
+            }
+            else if (desiredMsgType == MessageType.BookInquiry) {
+                // make msg when Welcome msgType is recieved
+                Message replyJsonData = new Message {
+                    Type = desiredMsgType,
+                    Content = this.bookName
+                };
+                string bookMsg = JsonSerializer.Serialize(replyJsonData);
+                byte[] msgNew = Encoding.ASCII.GetBytes(bookMsg);
+                return msgNew;
+            }
+            else if (desiredMsgType == MessageType.UserInquiry) {
+                // msg for userInquiries
+                Message replyJsonData = new Message {
+                    Type = desiredMsgType,
+                    Content = recievedBookData.BorrowedBy
+                };
+                string userMsg = JsonSerializer.Serialize(replyJsonData);
+                byte[] msgNew = Encoding.ASCII.GetBytes(userMsg);
+                return msgNew;
+            }
+            else if (desiredMsgType == MessageType.EndCommunication) {
                 // make ending message for closing all communication
                 Message replyJsonData = new Message {
                     Type = desiredMsgType,
@@ -142,6 +210,53 @@ namespace LibClient
                 string errorMsg = JsonSerializer.Serialize(replyJsonData);
                 byte[] msgNew = Encoding.ASCII.GetBytes(errorMsg);
                 return msgNew;
+            }
+        }
+
+        public Output AssembleOutputObj(string client_idNo, string bookTitle, string statusOfBook, string nameOfBorrower, string emailOfBorrower) {
+            if (statusOfBook == "Available") {
+                // output if book is available
+                Output outputObj = new Output {
+                    Client_id = client_idNo,
+                    BookName = bookTitle,
+                    Status = statusOfBook,
+                    BorrowerName = null,
+                    BorrowerEmail = null
+                };
+                return outputObj;
+            }
+            else if (statusOfBook == "Borrowed") {
+                // output if book is being borrowed
+                Output outputObj = new Output {
+                    Client_id = client_idNo,
+                    BookName = bookTitle,
+                    Status = statusOfBook,
+                    BorrowerName = nameOfBorrower,
+                    BorrowerEmail = emailOfBorrower
+                };
+                return outputObj;
+            }
+            else if (client_idNo != null && statusOfBook == null) {
+                // output if book is not in Books.json
+                Output outputObj = new Output {
+                    Client_id = client_idNo,
+                    BookName = bookTitle,
+                    Status = "NotFound",
+                    BorrowerName = null,
+                    BorrowerEmail = null
+                };
+                return outputObj;
+            }
+            else {
+                // output if error occured
+                Output outputobj = new Output {
+                    Client_id = null,
+                    BookName = null,
+                    Status = null,
+                    BorrowerName = null,
+                    BorrowerEmail = null
+                };
+                return outputobj;
             }
         }
     }

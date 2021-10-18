@@ -34,7 +34,7 @@ namespace UserHelper
 
         public SequentialHelper()
         {
-            settingsJsonPath = Path.GetFullPath(@"ClientServerConfig.json");
+            settingsJsonPath = @"../ClientServerConfig.json";
             userJsonPath = Path.GetFullPath(@"Users.json");
             fullSettingsJsonStr = System.IO.File.ReadAllText(settingsJsonPath);
             userHelperSettings = JsonSerializer.Deserialize<Setting>(fullSettingsJsonStr);
@@ -54,7 +54,7 @@ namespace UserHelper
                         User_id = user.User_id,
                         Name = user.Name,
                         Email = user.Email,
-                        Phone = user.Phone
+                        Phone = null
                     };
                     return requestedUser;
                 }

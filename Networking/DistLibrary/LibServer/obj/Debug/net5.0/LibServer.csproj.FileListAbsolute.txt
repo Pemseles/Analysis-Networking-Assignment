@@ -1,0 +1,16 @@
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\bin\Debug\net5.0\LibServer.exe
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\bin\Debug\net5.0\LibServer.deps.json
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\bin\Debug\net5.0\LibServer.runtimeconfig.json
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\bin\Debug\net5.0\LibServer.runtimeconfig.dev.json
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\bin\Debug\net5.0\LibServer.dll
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\bin\Debug\net5.0\ref\LibServer.dll
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\bin\Debug\net5.0\LibServer.pdb
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\obj\Debug\net5.0\LibServer.csproj.AssemblyReference.cache
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\obj\Debug\net5.0\LibServer.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\obj\Debug\net5.0\LibServer.AssemblyInfoInputs.cache
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\obj\Debug\net5.0\LibServer.AssemblyInfo.cs
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\obj\Debug\net5.0\LibServer.csproj.CoreCompileInputs.cache
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\obj\Debug\net5.0\LibServer.dll
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\obj\Debug\net5.0\ref\LibServer.dll
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\obj\Debug\net5.0\LibServer.pdb
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\Networking\DistLibrary\LibServer\obj\Debug\net5.0\LibServer.genruntimeconfig.cache
