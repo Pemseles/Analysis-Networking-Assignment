@@ -111,15 +111,10 @@ namespace UserHelper
                         string fullUserJsonStr = System.IO.File.ReadAllText(userJsonPath);
                         Console.WriteLine("line 112; msg recieved from libserver, type: {0}", recievedMsg.Type);
 
-                        if (recievedMsg.Type == MessageType.UserInquiry && fullUserJsonStr.Contains(data)) {
+                        if (recievedMsg.Type == MessageType.UserInquiry) {
                             // message was delivered properly; send back only data of user
                             UserData desiredUser = GetUserData(recievedMsg, fullUserJsonStr);
                             byte[] msgNew = AssembleMsg(recievedMsg, desiredUser);
-                            newUserSock.Send(msgNew);
-                        }
-                        else if (recievedMsg.Type == MessageType.UserInquiry && !fullUserJsonStr.Contains(data)) {
-                            // user was not found
-                            byte[] msgNew = AssembleMsg(recievedMsg, null);
                             newUserSock.Send(msgNew);
                         }
                         else if (recievedMsg.Type == MessageType.EndCommunication) {
@@ -136,10 +131,12 @@ namespace UserHelper
                         byte[] msgNew = AssembleMsg(null, null);
                         newUserSock.Send(msgNew);
                         Console.Out.WriteLine("Error: ", e.Message);
+                        break;
                     }
                 }
                 catch {
                     Console.WriteLine("failed to make connection with libserver");
+                    break;
                 } 
             }
         }

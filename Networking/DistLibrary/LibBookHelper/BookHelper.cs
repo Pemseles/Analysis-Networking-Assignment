@@ -46,9 +46,10 @@ namespace BookHelper
             
         private BookData GetBookData(Message recievedMsg, string bookJsonStr) {
             BookData[] tempBookArray = JsonSerializer.Deserialize<BookData[]>(bookJsonStr);
-
+            Console.WriteLine("searching for: {0}, full jsonstring: {1}", recievedMsg.Content, bookJsonStr);
             foreach (BookData book in tempBookArray)
             {
+                Console.WriteLine("current book: {0}", book.Title);
                 if (book.Title == recievedMsg.Content) {
                     BookData requestedBook = new BookData {
                         Title = book.Title,
@@ -101,28 +102,30 @@ namespace BookHelper
         {
             while (true) {
                 try {
+                    byte[] msgNew = null;
+
                     bookSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     bookSock.Bind(localEndpoint);
                     bookSock.Listen(bookHelperSettings.ServerListeningQueue);
                     Console.WriteLine("\nWaiting for main server...");
                     Socket newBookSock = bookSock.Accept();
                     try {  
+                        BookData requestedBook = null;
+
                         int maxByte = newBookSock.Receive(buffer);
                         data = Encoding.ASCII.GetString(buffer, 0, maxByte);
                         Message recievedMsg = JsonSerializer.Deserialize<Message>(data);
                         string fullBooksJsonStr = System.IO.File.ReadAllText(booksJsonPath);
                         Console.WriteLine("line 114; msg recieved from libserver, type: {0}", recievedMsg.Type);
-                        
-                        if (recievedMsg.Type == MessageType.BookInquiry && fullBooksJsonStr.Contains(data)) {
-                            // book was found; does not matter if borrowed or not, handled on client-side
-                            BookData requestedBook = GetBookData(recievedMsg, fullBooksJsonStr);
-                            byte[] msgNew = AssembleMsg(recievedMsg, requestedBook);
+                        if (recievedMsg.Type == MessageType.BookInquiry) {
+                            requestedBook = GetBookData(recievedMsg, fullBooksJsonStr);
+
+                            msgNew = AssembleMsg(recievedMsg, requestedBook);
                             newBookSock.Send(msgNew);
-                        }
-                        else if (recievedMsg.Type == MessageType.BookInquiry && !fullBooksJsonStr.Contains(data)) {
-                            // book was not found; sends back message 
-                            byte[] msgNew = AssembleMsg(recievedMsg, null);
-                            newBookSock.Send(msgNew);
+
+                            // DEBUGGING; REMOVE WHEN DONE
+                            string temp = Encoding.Default.GetString(msgNew);
+                            Console.WriteLine("reply sent back to libserver, containing: {0}", temp);
                         }
                         else if (recievedMsg.Type == MessageType.EndCommunication) {
                             // end socket & program
@@ -131,20 +134,23 @@ namespace BookHelper
                             bookSock.Close();
                             break;
                         }
+                        Console.WriteLine("reply msg sent back to libserver");
                         newBookSock.Close();
                         bookSock.Close();
                     }
-                    catch (Exception e) {
+                    catch {
                     // error during message recieving (not serialised etc)
-                    byte[] msgNew = AssembleMsg(null, null);
+                    msgNew = AssembleMsg(null, null);
                     newBookSock.Send(msgNew);
-                    Console.Out.WriteLine("Error: ", e.Message);
+                    Console.WriteLine("error occured somewhere idk");
                     newBookSock.Close();
                     bookSock.Close();
+                    break;
                     }
                 }
                 catch {
                     Console.WriteLine("failed to make connection with libserver");
+                    break;
                 }
             }
         }

@@ -85,13 +85,14 @@ namespace LibClient
             // todo: implement the body to communicate with the server and requests the book. Return the result as an Output object.
             // Adding extra methods to the class is permitted. The signature of this method must not change.
 
-            clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            clientSocket.Connect(serverEndPoint);
-            byte[] buffer = new byte[1000];
-            string data = "";
-
             try {
+                // connecting socket to libserver
+                clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                clientSocket.Connect(serverEndPoint);
+                byte[] buffer = new byte[1000];
+                string data = "";
                 Console.WriteLine("line 94, socket is connected");
+
                 // first handshake to LibServer
                 byte[] firstMsg = AssembleMsg(MessageType.Hello, null);
                 clientSocket.Send(firstMsg);
@@ -100,7 +101,7 @@ namespace LibClient
                 int welcomingMsgInt = clientSocket.Receive(buffer);
                 data = Encoding.ASCII.GetString(buffer, 0, welcomingMsgInt);
                 Message recievedWelcomingMsg = JsonSerializer.Deserialize<Message>(data);
-                Console.WriteLine("line 103, Message recieved: {0}", recievedWelcomingMsg.Content);
+                Console.WriteLine("line 103, Message recieved type: {0}", recievedWelcomingMsg.Type);
 
                 if (recievedWelcomingMsg.Type == MessageType.Welcome) {
                     if (client_id == "Client -1") {
@@ -164,14 +165,14 @@ namespace LibClient
                     // server sent wrong msgType back
                     Console.WriteLine("line 164; Server sent wrong msgtype, must be Welcome");
                     clientSocket.Close();
+                    return null;
                 }
-                // return type: return result
-                return null;
             }
             catch {
                 // error
                 this.result = AssembleOutputObj(null, null, null, null, null);
                 Console.WriteLine("Error occured somewhere in function, check if LibInput.json is in order and try again.");
+                clientSocket.Close();
                 return null;
             }
         }

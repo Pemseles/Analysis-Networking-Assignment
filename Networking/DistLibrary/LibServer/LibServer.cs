@@ -43,8 +43,8 @@ namespace LibServer
             libServerSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
-        public byte[] AssembleMsg(Message msgObj) {
-            if (msgObj.Type == MessageType.Hello) {
+        public byte[] AssembleMsg(Message msgObj, bool nullCheck) {
+            if (msgObj.Type == MessageType.Hello && nullCheck == false) {
                 // build welcoming message
                 Message replyJsonData = new Message {
                     Type = MessageType.Welcome,
@@ -54,7 +54,7 @@ namespace LibServer
                 byte[] msgNew = Encoding.ASCII.GetBytes(welcomeMsg);
                 return msgNew;
             }
-            else if (msgObj.Type == MessageType.BookInquiry || msgObj.Type == MessageType.UserInquiry || msgObj.Type == MessageType.BookInquiryReply || msgObj.Type == MessageType.UserInquiryReply || msgObj.Type == MessageType.NotFound) {
+            else if ((msgObj.Type == MessageType.BookInquiry || msgObj.Type == MessageType.UserInquiry || msgObj.Type == MessageType.BookInquiryReply || msgObj.Type == MessageType.UserInquiryReply || msgObj.Type == MessageType.NotFound) && nullCheck == false) {
                 // remake same message
                 Message replyJsonData = new Message {
                     Type = msgObj.Type,
@@ -64,8 +64,9 @@ namespace LibServer
                 byte[] msgNew = Encoding.ASCII.GetBytes(forwardMsg);
                 return msgNew;
             }
-            else if (msgObj == null) {
+            else if (nullCheck == true) {
                 // make ending msg
+                Console.WriteLine("trying to make ending msg");
                 Message replyJsonData = new Message {
                     Type = MessageType.EndCommunication,
                     Content = "not important don't look part 2 the remix :("
@@ -88,14 +89,6 @@ namespace LibServer
 
         public void start()
         {
-            // listen to client; 
-            // if msgtype = Hello; reply w msg(Welcome, [content not important])
-            // if msgtype = BookInquiry or UserInquiry; send exact message to BookHelper Server
-
-            // listen to Helper Servers;
-            // if msgtype = BookInquiryReply, UserInquiryReply or NotFound; send exact message to client
-
-            // if msgtype = EndCommunication; end all communications & make Helper Servers end as well
             while (true) {
                 try {
                     libServerSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -110,114 +103,156 @@ namespace LibServer
                     Console.WriteLine("line 110; recieved msg from client, type = {0}", recievedMsg.Type);
 
                     try {
-                        Socket forwardingSock = null;
+                        Socket forwardingSock1 = null;
+                        Socket forwardingSock2 = null;
+                        Message recievedConfirmationMsg = null;
 
                         if (recievedMsg.Type == MessageType.Hello) {
                             // client makes first contact w server
-                            byte[] welcomingMsg = AssembleMsg(recievedMsg);
+                            byte[] welcomingMsg = AssembleMsg(recievedMsg, false);
                             newLibServerSock.Send(welcomingMsg);
 
-                            // server waits for confirmation
-                            int nextHandshake = newLibServerSock.Receive(buffer);
-                            string dataNextHandshake = Encoding.ASCII.GetString(buffer, 0, nextHandshake);
-                            Message recievedConfirmationMsg = JsonSerializer.Deserialize<Message>(dataNextHandshake);
-                            Console.WriteLine("recieved 2nd msg from client, type: {0}", recievedConfirmationMsg.Type);
-
-                            if (recievedConfirmationMsg.Type == MessageType.BookInquiry || recievedConfirmationMsg.Type == MessageType.UserInquiry) {
-                                // checks for types it needs to forward to Helper Servers
-                                // exchanges info w helper servers & back to client
-                                byte[] msgForward = AssembleMsg(recievedConfirmationMsg);
-                                byte[] buffer = new byte[1000];
+                            while (true) {
+                                // server waits for confirmation
+                                int nextHandshake = newLibServerSock.Receive(buffer);
+                                string dataNextHandshake = Encoding.ASCII.GetString(buffer, 0, nextHandshake);
+                                recievedConfirmationMsg = JsonSerializer.Deserialize<Message>(dataNextHandshake);
+                                Console.WriteLine("recieved 2nd msg from client, type: {0}", recievedConfirmationMsg.Type);
 
                                 if (recievedConfirmationMsg.Type == MessageType.BookInquiry) {
+                                    // checks for types it needs to forward to Helper Servers
+                                    // exchanges info w helper servers & back to client
+                                    byte[] msgForward = AssembleMsg(recievedConfirmationMsg, false);
+
                                     // establish connection w BookHelper Server
                                     IPEndPoint bookhelperEndpoint = new IPEndPoint(IPAddress.Parse(libServerSettings.BookHelperIPAddress), libServerSettings.BookHelperPortNumber);
-                                    forwardingSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-                                    forwardingSock.Connect(bookhelperEndpoint);
+                                    forwardingSock1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                                    forwardingSock1.Connect(bookhelperEndpoint);
                                     Console.WriteLine("line 137; connected to bookhelper");
+
+                                    // forwards msg to bookhelper
+                                    forwardingSock1.Send(msgForward);
+                                    Console.WriteLine("Forwarded message to bookHelper Server, awaiting reply");
+                                    
+                                    int replyInt = forwardingSock1.Receive(buffer);
+                                    Console.WriteLine("replyint gotten");
+                                    string dataInquiryReply = Encoding.ASCII.GetString(buffer, 0, replyInt);
+                                    Console.WriteLine("replyjsonstring gotten: {0}", dataInquiryReply);
+                                    Message inquiryReplyMsg = JsonSerializer.Deserialize<Message>(dataInquiryReply);
+                                    Console.WriteLine("msg obj deserialized, type = {0} & content = {1}", inquiryReplyMsg.Type, inquiryReplyMsg.Content);
+                                    BookData bookInquiryData = null;
+                                    Console.WriteLine("bookdata made null");
+
+                                    if (inquiryReplyMsg.Type != MessageType.NotFound) {
+                                        bookInquiryData = JsonSerializer.Deserialize<BookData>(inquiryReplyMsg.Content);
+                                        Console.WriteLine("content of new msg obj deserialised into bookdata obj");
+                                        Console.WriteLine("Recieved reply from bookhelper server, type: {0} & status = {1}", inquiryReplyMsg.Type, bookInquiryData.Status);
+                                    }
+                                    else {
+                                        // REMOVE ELSE AFTER ERROR IS TRACED
+                                        Console.WriteLine("recieved reply; book was not found");
+                                    }
+                                    
+                                    
+                                    byte[] msgForwardBack = AssembleMsg(inquiryReplyMsg, false);
+                                    newLibServerSock.Send(msgForwardBack);
+                                    Console.WriteLine("reply sent back to client");
+
+                                    if (inquiryReplyMsg.Type == MessageType.NotFound || bookInquiryData.Status == "Available") {
+                                        // client will not send userinquiry
+                                        Console.WriteLine("client does not need to send userinquiry, ending relevant sockets");
+                                        break;
+                                    }
+                                    else {
+                                        // client needs to send userinquiry, expecting msg
+                                        int userInquiryFromClientInt = newLibServerSock.Receive(buffer);
+                                        string dataUserInquiry = Encoding.ASCII.GetString(buffer, 0, userInquiryFromClientInt);
+                                        Message userInquiryMsg = JsonSerializer.Deserialize<Message>(dataUserInquiry);
+                                        Console.WriteLine("Recieved user inquiry from client, establishing & forwarding to userhelper");
+
+                                        // establish connection w userhelper
+                                        IPEndPoint userhelperEndpoint = new IPEndPoint(IPAddress.Parse(libServerSettings.UserHelperIPAddress), libServerSettings.UserHelperPortNumber);
+                                        forwardingSock2 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                                        forwardingSock2.Connect(userhelperEndpoint);
+                                        Console.WriteLine("connected to userhelper, forwarding & recieving msg");
+
+                                        // make msg to forward to userhelper & forward it
+                                        byte[] msgForwardToUserhelper = AssembleMsg(userInquiryMsg, false);
+                                        forwardingSock2.Send(msgForwardToUserhelper);
+                                        Console.WriteLine("sent userinquiry to userhelper, expecting reply");
+
+                                        // recieve msgreply to userinquiry from userhelper
+                                        int replyInt2 = forwardingSock2.Receive(buffer);
+                                        string userInquiryReplyData = Encoding.ASCII.GetString(buffer, 0, replyInt2);
+                                        Message userInquiryReply = JsonSerializer.Deserialize<Message>(userInquiryReplyData);
+                                        Console.WriteLine("recieved reply from userhelper; type {0}", userInquiryReply.Type);
+
+                                        // forward reply to userinquiry back to client
+                                        byte[] msgForwardBackAgain = AssembleMsg(userInquiryReply, false);
+                                        newLibServerSock.Send(msgForwardBackAgain);  
+                                        forwardingSock2.Close();            
+                                        break;
+                                    }
                                 }
-                                else if (recievedConfirmationMsg.Type == MessageType.UserInquiry) {
-                                    // establish connection w UserHelper Server
-                                    IPEndPoint userhelperEndpoint = new IPEndPoint(IPAddress.Parse(libServerSettings.UserHelperIPAddress), libServerSettings.UserHelperPortNumber);
-                                    forwardingSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                                else if (recievedConfirmationMsg.Type == MessageType.EndCommunication) {
+                                    // turns off entire system, first send ending msg to helper servers then close itself
+                                    Console.WriteLine("User ended communication; proceeding to close all sockets");
+                                    byte[] msgEndCommunications = AssembleMsg(recievedMsg, true);
+                                    byte[] buffer = new byte[1000];
+                                    Console.WriteLine("assembled ending msg for helper servers");
+                                    
+                                    // establish connection & send ending msg to bookhelper
+                                    Console.WriteLine("establishing connection w bookhelper");
+                                    IPEndPoint BookhelperEndpoint = new IPEndPoint(IPAddress.Parse(libServerSettings.BookHelperIPAddress), libServerSettings.BookHelperPortNumber);
+                                    Socket endingSock1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                                    endingSock1.Connect(BookhelperEndpoint);
+                                    endingSock1.Send(msgEndCommunications);
+                                    Console.WriteLine("Ending message sent to BookHelper.");
+                                    endingSock1.Close();
 
-                                    forwardingSock.Connect(userhelperEndpoint);
-                                    Console.WriteLine("line 145; connected to userhelper");
-                                }
-                                // forwards msg to either user or book helper servers; depends on recieved msg type
-                                forwardingSock.Send(msgForward);
-                                Console.WriteLine("Forwarded message to Helper Server, awaiting reply");
-                                
-                                int replyInt = forwardingSock.Receive(buffer);
-                                string dataInquiryReply = Encoding.ASCII.GetString(buffer, 0, replyInt);
-                                Message inquiryReplyMsg = JsonSerializer.Deserialize<Message>(dataInquiryReply);
-                                Console.WriteLine("Recieved reply from helper server, type: {0}", inquiryReplyMsg.Type);
+                                    // establish connection & send ending msg to userhelper
+                                    Console.WriteLine("establishing connection w userhelper");
+                                    IPEndPoint UserhelperEndpoint = new IPEndPoint(IPAddress.Parse(libServerSettings.UserHelperIPAddress), libServerSettings.UserHelperPortNumber);
+                                    Socket endingSock2 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                                    endingSock2.Connect(UserhelperEndpoint);
+                                    endingSock2.Send(msgEndCommunications);
+                                    Console.WriteLine("Ending message sent to UserHelper.");
+                                    endingSock2.Close();
 
-                                byte[] msgForwardBack = AssembleMsg(recievedMsg);
-                                newLibServerSock.Send(msgForwardBack);
-
-                                if (recievedConfirmationMsg.Type == MessageType.UserInquiry) {
-                                    Console.WriteLine("Forwarded userinquiryreply message back to client, closing connection to helper server");
-                                    forwardingSock.Close();
+                                    // end libserver
+                                    Console.WriteLine("Operations complete, ending LibServer...");
+                                    newLibServerSock.Close();
+                                    libServerSock.Close();
+                                    break;
                                 }
                                 else {
-                                    Console.WriteLine("awaiting msg from client: to verify availability & get borrower's id");
-                                    
+                                    // go here if client sends wrong msg type
+                                    Console.WriteLine("Client sent wrong msg Type, should be an inquiry/ending msg, not: {0}", recievedConfirmationMsg.Type);
+                                    newLibServerSock.Send(Encoding.ASCII.GetBytes("Message type rejected by server, please try again."));
                                 }
                             }
-                            else if (recievedConfirmationMsg.Type == MessageType.BookInquiryReply || recievedConfirmationMsg.Type == MessageType.UserInquiryReply || recievedConfirmationMsg.Type == MessageType.NotFound) {
-                                // checks for types it needs to send back to the client
-                                byte[] msgForwardBack = AssembleMsg(recievedMsg);
-                                newLibServerSock.Send(msgForwardBack);
-                                Console.WriteLine("Forwarded message back to client.");
-                            }
-                            else if (recievedConfirmationMsg.Type == MessageType.EndCommunication) {
-                                // turns off entire system, first send ending msg to helper servers then close itself
-                                Console.WriteLine("User ended communication; proceeding to close all sockets");
-                                byte[] msgEndCommunications = AssembleMsg(null);
-                                byte[] buffer = new byte[1000];
-                                
-                                // establish connection & send ending msg to bookhelper
-                                IPEndPoint BookhelperEndpoint = new IPEndPoint(IPAddress.Parse(libServerSettings.BookHelperIPAddress), libServerSettings.BookHelperPortNumber);
-                                Socket endingSock1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                                endingSock1.Connect(BookhelperEndpoint);
-                                endingSock1.Send(msgEndCommunications);
-                                Console.WriteLine("Ending message sent to BookHelper.");
-                                endingSock1.Close();
-
-                                // establish connection & send ending msg to userhelper
-                                IPEndPoint UserhelperEndpoint = new IPEndPoint(IPAddress.Parse(libServerSettings.UserHelperIPAddress), libServerSettings.UserHelperPortNumber);
-                                Socket endingSock2 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                                endingSock2.Connect(UserhelperEndpoint);
-                                endingSock2.Send(msgEndCommunications);
-                                Console.WriteLine("Ending message sent to UserHelper.");
-                                endingSock2.Close();
-
-                                // end libserver
-                                Console.WriteLine("Operations complete, ending LibServer...");
-                                newLibServerSock.Close();
-                                libServerSock.Close();
-                                break;
+                            if (recievedConfirmationMsg.Type != MessageType.EndCommunication) {
+                                Console.WriteLine("Finished operations for current client");
+                                forwardingSock1.Close();
                             }
                             else {
-                                // go here if client sends wrong msg type
-                                Console.WriteLine("Client sent wrong msg Type, should be an inquiry/ending msg, not: {0}", recievedConfirmationMsg.Type);
-                                newLibServerSock.Send(Encoding.ASCII.GetBytes("Message type rejected by server, please try again."));
+                                break;
                             }
                         }
                         else {
                             // error occured
-                            byte[] msgNew = AssembleMsg(recievedMsg);
-                            forwardingSock.Send(msgNew);
-                            Console.WriteLine("Error, client sent wrong msg type");
+                            byte[] msgNew = AssembleMsg(recievedMsg, false);
+                            forwardingSock1.Send(msgNew);
+                            Console.WriteLine("Error, client did not send type hello, instead sent type {0}", recievedMsg.Type);
                         }
-                        newLibServerSock.Close();
-                        libServerSock.Close();
+                        if (recievedConfirmationMsg.Type != MessageType.EndCommunication) {
+                            newLibServerSock.Close();
+                            libServerSock.Close();
+                        }
                     }
                     catch {
                         // error occured
-                        byte[] msgNew = AssembleMsg(recievedMsg);
+                        byte[] msgNew = AssembleMsg(recievedMsg, false);
                         newLibServerSock.Send(msgNew);
                         Console.WriteLine("error Something went wrong somewhere idk where lmao");
                         newLibServerSock.Close();
