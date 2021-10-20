@@ -46,10 +46,8 @@ namespace BookHelper
             
         private BookData GetBookData(Message recievedMsg, string bookJsonStr) {
             BookData[] tempBookArray = JsonSerializer.Deserialize<BookData[]>(bookJsonStr);
-            Console.WriteLine("searching for: {0}, full jsonstring: {1}", recievedMsg.Content, bookJsonStr);
             foreach (BookData book in tempBookArray)
             {
-                Console.WriteLine("current book: {0}", book.Title);
                 if (book.Title == recievedMsg.Content) {
                     BookData requestedBook = new BookData {
                         Title = book.Title,
@@ -116,7 +114,6 @@ namespace BookHelper
                         data = Encoding.ASCII.GetString(buffer, 0, maxByte);
                         Message recievedMsg = JsonSerializer.Deserialize<Message>(data);
                         string fullBooksJsonStr = System.IO.File.ReadAllText(booksJsonPath);
-                        Console.WriteLine("line 114; msg recieved from libserver, type: {0}", recievedMsg.Type);
                         if (recievedMsg.Type == MessageType.BookInquiry) {
                             requestedBook = GetBookData(recievedMsg, fullBooksJsonStr);
 
@@ -125,16 +122,13 @@ namespace BookHelper
 
                             // DEBUGGING; REMOVE WHEN DONE
                             string temp = Encoding.Default.GetString(msgNew);
-                            Console.WriteLine("reply sent back to libserver, containing: {0}", temp);
                         }
                         else if (recievedMsg.Type == MessageType.EndCommunication) {
                             // end socket & program
-                            Console.WriteLine("Closing BookHelper...");
                             newBookSock.Close();
                             bookSock.Close();
                             break;
                         }
-                        Console.WriteLine("reply msg sent back to libserver");
                         newBookSock.Close();
                         bookSock.Close();
                     }
@@ -142,14 +136,14 @@ namespace BookHelper
                     // error during message recieving (not serialised etc)
                     msgNew = AssembleMsg(null, null);
                     newBookSock.Send(msgNew);
-                    Console.WriteLine("error occured somewhere idk");
+                    Console.WriteLine("Error occured in code, this message is for debugging purposes only");
                     newBookSock.Close();
                     bookSock.Close();
                     break;
                     }
                 }
                 catch {
-                    Console.WriteLine("failed to make connection with libserver");
+                    Console.WriteLine("Failed to connect to libserver");
                     break;
                 }
             }

@@ -109,7 +109,6 @@ namespace UserHelper
                         data = Encoding.ASCII.GetString(buffer, 0, maxByte);
                         Message recievedMsg = JsonSerializer.Deserialize<Message>(data);
                         string fullUserJsonStr = System.IO.File.ReadAllText(userJsonPath);
-                        Console.WriteLine("line 112; msg recieved from libserver, type: {0}", recievedMsg.Type);
 
                         if (recievedMsg.Type == MessageType.UserInquiry) {
                             // message was delivered properly; send back only data of user
@@ -118,7 +117,6 @@ namespace UserHelper
                             newUserSock.Send(msgNew);
                         }
                         else if (recievedMsg.Type == MessageType.EndCommunication) {
-                            Console.WriteLine("Closing UserHelper...");
                             newUserSock.Close();
                             userSock.Close();
                             break;
@@ -126,16 +124,16 @@ namespace UserHelper
                         newUserSock.Close();
                         userSock.Close();
                     }
-                    catch (Exception e) {
+                    catch {
                         // error occured during message thingy
                         byte[] msgNew = AssembleMsg(null, null);
                         newUserSock.Send(msgNew);
-                        Console.Out.WriteLine("Error: ", e.Message);
+                        Console.WriteLine("Error occured in code, this message is for debugging purposes only");
                         break;
                     }
                 }
                 catch {
-                    Console.WriteLine("failed to make connection with libserver");
+                    Console.WriteLine("Failed to connect to libserver");
                     break;
                 } 
             }
