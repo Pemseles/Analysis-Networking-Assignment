@@ -1,7 +1,7 @@
 ﻿using System;
 using Sequential;
 //using Concurrent;
-using Solution;
+//using Solution;
 
 namespace Program
 {
@@ -24,7 +24,7 @@ namespace Program
                         new SequentialClientsSimulator().SequentialSimulation();
                         break;
                     case "C":
-                        new ConcurrentClientsSimulator().ConcurrentSimulation();
+                        //new ConcurrentClientsSimulator().ConcurrentSimulation();
                         break;
                     case "E":
                         stop = true;

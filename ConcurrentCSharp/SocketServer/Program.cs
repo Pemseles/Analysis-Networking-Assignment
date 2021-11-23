@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using Sequential;
-using Concurrent;
+//using Concurrent;
 //using Solution;
 
 
@@ -48,8 +48,8 @@ namespace Program
             Console.Out.WriteLine("[Server] A concurrent server is ready ...");
             try
             {
-                ConcurrentServer server = new ConcurrentServer(settings);
-                server.prepareServer();
+                //ConcurrentServer server = new ConcurrentServer(settings);
+                //server.prepareServer();
             }
             catch (Exception e)
             {

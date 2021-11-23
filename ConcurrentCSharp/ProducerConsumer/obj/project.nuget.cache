@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "nBvn5PDRlf5m0n905Exj64jRmGtflNhJo9ltuGlsYxm0FCnTwwuO8OOOrPlDqV0aaXgoJYkNS9RIM/e1eeh2QQ==",
+  "success": true,
+  "projectFilePath": "c:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\ProducerConsumer\\ProducerConsumer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Thijmen\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\3.1.20\\microsoft.netcore.app.host.win-x64.3.1.20.nupkg.sha512"
+  ],
+  "logs": []
+}

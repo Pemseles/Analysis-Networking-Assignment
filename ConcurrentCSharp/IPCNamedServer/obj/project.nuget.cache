@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "iZ/4hrIpnBg7jpxNarovCLkRWzVUqY4LyoHtuGHIYmTXXGuGwPpC4GbGDhDAcJanhXdp3ULRVJApePC+VB+CkA==",
+  "success": true,
+  "projectFilePath": "c:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\IPCNamedServer\\IPCNamedServer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Thijmen\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\3.1.20\\microsoft.netcore.app.host.win-x64.3.1.20.nupkg.sha512"
+  ],
+  "logs": []
+}
