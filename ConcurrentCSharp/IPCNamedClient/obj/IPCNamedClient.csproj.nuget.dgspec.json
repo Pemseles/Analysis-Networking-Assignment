@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "c:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\IPCNamedClient\\IPCNamedClient.csproj": {}
+    "C:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\IPCNamedClient\\IPCNamedClient.csproj": {}
   },
   "projects": {
-    "c:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\IPCNamedClient\\IPCNamedClient.csproj": {
+    "C:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\IPCNamedClient\\IPCNamedClient.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "c:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\IPCNamedClient\\IPCNamedClient.csproj",
+        "projectUniqueName": "C:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\IPCNamedClient\\IPCNamedClient.csproj",
         "projectName": "IPCNamedClient",
-        "projectPath": "c:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\IPCNamedClient\\IPCNamedClient.csproj",
+        "projectPath": "C:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\IPCNamedClient\\IPCNamedClient.csproj",
         "packagesPath": "C:\\Users\\Thijmen\\.nuget\\packages\\",
-        "outputPath": "c:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\IPCNamedClient\\obj\\",
+        "outputPath": "C:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\IPCNamedClient\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -53,18 +53,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[3.1.20, 3.1.20]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.208\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.209\\RuntimeIdentifierGraph.json"
         }
       }
     }

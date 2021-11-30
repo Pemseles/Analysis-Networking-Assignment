@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\Processes\\Processes.csproj",
+      "projectUniqueName": "C:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\Processes\\Processes.csproj",
       "projectName": "Processes",
-      "projectPath": "c:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\Processes\\Processes.csproj",
+      "projectPath": "C:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\Processes\\Processes.csproj",
       "packagesPath": "C:\\Users\\Thijmen\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\Processes\\obj\\",
+      "outputPath": "C:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\Processes\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -60,18 +60,12 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.NETCore.App.Host.win-x64",
-            "version": "[3.1.20, 3.1.20]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.208\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.209\\RuntimeIdentifierGraph.json"
       }
     }
   }

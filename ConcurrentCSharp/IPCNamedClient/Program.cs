@@ -10,11 +10,10 @@ namespace Program
         {
             new IPCNamedClient().ipcClientCommunicate();
 
-             //SolutionIPCNamedClient client = new SolutionIPCNamedClient("MessageReversePipe");
-             //client.prepareClient();
-             //client.communicate();
+            //SolutionIPCNamedClient client = new SolutionIPCNamedClient("MessageReversePipe");
+            //client.prepareClient();
+            //client.communicate();
             
-
         }
     }
 }

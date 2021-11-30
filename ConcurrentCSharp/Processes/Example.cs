@@ -63,6 +63,19 @@ namespace Example
         public void printIdByName()
         {
             // todo: Implement the body of this method that gets an input for a process name and prints corresponding id
+            this.localProcsAll = Process.GetProcesses();
+            Console.WriteLine("enter name of process you want id for: ");
+            string procName = Console.ReadLine();
+            int pCount = 0;
+            foreach (Process p in this.localProcsAll) {
+                if (p.ProcessName.ToLower() == procName.ToLower()) {
+                    Console.WriteLine("process {0}'s ID = {1}", procName, p.Id);
+                    pCount++;
+                }
+            }
+            if (pCount == 0) {
+                Console.WriteLine("{0} process has no active processes / doesn't exist", procName);
+            }
         }
     }
 }

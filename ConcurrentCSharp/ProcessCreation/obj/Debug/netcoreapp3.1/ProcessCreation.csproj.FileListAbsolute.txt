@@ -1,0 +1,13 @@
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProcessCreation\bin\Debug\netcoreapp3.1\ProcessCreation.exe
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProcessCreation\bin\Debug\netcoreapp3.1\ProcessCreation.deps.json
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProcessCreation\bin\Debug\netcoreapp3.1\ProcessCreation.runtimeconfig.json
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProcessCreation\bin\Debug\netcoreapp3.1\ProcessCreation.runtimeconfig.dev.json
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProcessCreation\bin\Debug\netcoreapp3.1\ProcessCreation.dll
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProcessCreation\bin\Debug\netcoreapp3.1\ProcessCreation.pdb
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProcessCreation\obj\Debug\netcoreapp3.1\ProcessCreation.csprojAssemblyReference.cache
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProcessCreation\obj\Debug\netcoreapp3.1\ProcessCreation.AssemblyInfoInputs.cache
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProcessCreation\obj\Debug\netcoreapp3.1\ProcessCreation.AssemblyInfo.cs
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProcessCreation\obj\Debug\netcoreapp3.1\ProcessCreation.csproj.CoreCompileInputs.cache
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProcessCreation\obj\Debug\netcoreapp3.1\ProcessCreation.dll
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProcessCreation\obj\Debug\netcoreapp3.1\ProcessCreation.pdb
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProcessCreation\obj\Debug\netcoreapp3.1\ProcessCreation.genruntimeconfig.cache

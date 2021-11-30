@@ -1,0 +1,13 @@
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\IPCNamedClient\bin\Debug\netcoreapp3.1\IPCNamedClient.exe
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\IPCNamedClient\bin\Debug\netcoreapp3.1\IPCNamedClient.deps.json
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\IPCNamedClient\bin\Debug\netcoreapp3.1\IPCNamedClient.runtimeconfig.json
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\IPCNamedClient\bin\Debug\netcoreapp3.1\IPCNamedClient.runtimeconfig.dev.json
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\IPCNamedClient\bin\Debug\netcoreapp3.1\IPCNamedClient.dll
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\IPCNamedClient\bin\Debug\netcoreapp3.1\IPCNamedClient.pdb
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\IPCNamedClient\obj\Debug\netcoreapp3.1\IPCNamedClient.csprojAssemblyReference.cache
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\IPCNamedClient\obj\Debug\netcoreapp3.1\IPCNamedClient.AssemblyInfoInputs.cache
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\IPCNamedClient\obj\Debug\netcoreapp3.1\IPCNamedClient.AssemblyInfo.cs
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\IPCNamedClient\obj\Debug\netcoreapp3.1\IPCNamedClient.csproj.CoreCompileInputs.cache
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\IPCNamedClient\obj\Debug\netcoreapp3.1\IPCNamedClient.dll
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\IPCNamedClient\obj\Debug\netcoreapp3.1\IPCNamedClient.pdb
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\IPCNamedClient\obj\Debug\netcoreapp3.1\IPCNamedClient.genruntimeconfig.cache

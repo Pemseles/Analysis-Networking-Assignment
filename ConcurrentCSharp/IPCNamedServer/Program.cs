@@ -9,9 +9,9 @@ namespace Program
         {
             new IPCNamedServer().ipcServerCommunicate();
             
-             //SolutionIPCNamedServer server = new SolutionIPCNamedServer("MessageReversePipe");
-             //server.prepareServer();
-             //server.communicate();
+            //SolutionIPCNamedServer server = new SolutionIPCNamedServer("MessageReversePipe");
+            //server.prepareServer();
+            //server.communicate();
 
         }
     }

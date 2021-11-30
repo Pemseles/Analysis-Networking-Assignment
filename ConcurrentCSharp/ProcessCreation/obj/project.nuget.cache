@@ -1,10 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "hiRYa9Fovjast4c3L+FtpJ9NuBwgzfENx6BpqjIrq7J0xbNzzcc7INSxMadym8uwUyn/uZPxBukhUx61+curvg==",
+  "dgSpecHash": "PhnVU5tlqbF0ALVqDKSwYkOe9RLk2JHOU9G97Wsh5ksZNnMUcq2TvFVVr0i5tnfnaekjTgVpb6AYEGovotBg5A==",
   "success": true,
-  "projectFilePath": "c:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\ProcessCreation\\ProcessCreation.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\Thijmen\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\3.1.20\\microsoft.netcore.app.host.win-x64.3.1.20.nupkg.sha512"
-  ],
+  "projectFilePath": "C:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\ProcessCreation\\ProcessCreation.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }
