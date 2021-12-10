@@ -11,7 +11,7 @@ namespace Exercise
         private static void printCounts()
         {
             int c = 0, limit = 1000;
-            for (c = 0; c < limit; c++)
+            for (c = 0; c <= limit; c = c + 10)
                 Console.Write("{0},", c);
         }
 
@@ -53,9 +53,9 @@ namespace Exercise
         public void createTwoXYThreads()
         {
             Console.WriteLine("Press a key to start two threads printing separate characters ... ");
-            Console.Read();
+            string key = Console.ReadLine();
             // Check: given tasks will be overlapped ... expect interleaved prints. Discuss why?
-            Thread tOne = new Thread(() => { for (int i = 0; i < 10000; i++) Console.Write("X"); });
+            Thread tOne = new Thread(() => { for (int i = 0; i < 10000; i++) Console.Write("{0}", key); });
             Thread tTwo = new Thread(() => { for (int i = 0; i < 10000; i++) Console.Write("Y"); });
 
             tOne.Start();
@@ -93,7 +93,7 @@ namespace Exercise
                 Console.WriteLine("{0}", threads[i].ThreadState);
                 // Uncomment this to see the change of the states for each thread and its output separately
                 // otherwise the results of the threads will be interleaved
-                //Console.Read();
+                Console.Read();
             }
 
 
@@ -113,7 +113,7 @@ namespace Exercise
 
             //this.createOneThread();
 
-            this.createTwoXYThreads();
+            //this.createTwoXYThreads();
             //this.createMultipleThreads();
         }
     }

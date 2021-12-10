@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using Exercise;
 //using Concurrent;
-using Solution;
+using Concurrent;
 
 /// <summary>
 /// This example implements a concurrent version of finding and printing prime-numbers between two given numbers.
@@ -19,9 +19,9 @@ namespace Program
 
             ConPrimeNumbers pn = new ConPrimeNumbers();
 
-            pn.runSequential(min, max);
+            //pn.runSequential(min, max);
 
-            Thread.Sleep(5000);
+            //Thread.Sleep(5000);
 
             pn.runConcurrent(min, max);
 

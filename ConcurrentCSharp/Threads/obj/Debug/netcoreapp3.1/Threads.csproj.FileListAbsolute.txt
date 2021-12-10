@@ -1,0 +1,13 @@
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Threads\bin\Debug\netcoreapp3.1\Threads.exe
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Threads\bin\Debug\netcoreapp3.1\Threads.deps.json
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Threads\bin\Debug\netcoreapp3.1\Threads.runtimeconfig.json
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Threads\bin\Debug\netcoreapp3.1\Threads.runtimeconfig.dev.json
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Threads\bin\Debug\netcoreapp3.1\Threads.dll
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Threads\bin\Debug\netcoreapp3.1\Threads.pdb
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Threads\obj\Debug\netcoreapp3.1\Threads.csprojAssemblyReference.cache
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Threads\obj\Debug\netcoreapp3.1\Threads.AssemblyInfoInputs.cache
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Threads\obj\Debug\netcoreapp3.1\Threads.AssemblyInfo.cs
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Threads\obj\Debug\netcoreapp3.1\Threads.csproj.CoreCompileInputs.cache
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Threads\obj\Debug\netcoreapp3.1\Threads.dll
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Threads\obj\Debug\netcoreapp3.1\Threads.pdb
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Threads\obj\Debug\netcoreapp3.1\Threads.genruntimeconfig.cache

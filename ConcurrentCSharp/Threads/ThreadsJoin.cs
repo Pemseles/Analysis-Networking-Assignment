@@ -78,6 +78,7 @@ namespace Exercise
 
             /// The main thread waits here for both threads to join.
             t_A.Join();
+            Console.WriteLine("thread A joined");
             t_B.Join();
 
             Console.WriteLine("Both counter threads joined to the main thread.");

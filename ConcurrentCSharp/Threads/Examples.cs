@@ -12,11 +12,11 @@ namespace Exercise
 
             ThreadCreation tc = new ThreadCreation();
             // todo 2: uncomment this and check the execution
-            tc.runExample();
+//            tc.runExample();
 
             ThreadsJoin tj = new ThreadsJoin(2000);
             // todo 3: uncomment this and check the execution 
-//            tj.runExample();
+            tj.runExample();
         }
     }
 }
