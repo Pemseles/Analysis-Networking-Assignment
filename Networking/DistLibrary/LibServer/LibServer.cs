@@ -164,9 +164,10 @@ namespace LibServer
                                         string userInquiryReplyData = Encoding.ASCII.GetString(buffer, 0, replyInt2);
                                         Message userInquiryReply = JsonSerializer.Deserialize<Message>(userInquiryReplyData);
 
-                                        // forward reply to userinquiry back to client
+                                        // forward reply to userinquiry back to client;
                                         byte[] msgForwardBackAgain = AssembleMsg(userInquiryReply, false);
-                                        newLibServerSock.Send(msgForwardBackAgain);  
+                                        newLibServerSock.Send(msgForwardBackAgain);
+                                        
                                         forwardingSock2.Close();            
                                         break;
                                     }

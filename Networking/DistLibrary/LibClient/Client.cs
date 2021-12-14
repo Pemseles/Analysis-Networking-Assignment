@@ -135,9 +135,13 @@ namespace LibClient
                                 int UserInquiryReplyMsgInt = clientSocket.Receive(buffer);
                                 data = Encoding.ASCII.GetString(buffer, 0, UserInquiryReplyMsgInt);
                                 Message userInquiryMsgObj = JsonSerializer.Deserialize<Message>(data);
-                                UserData borrowerData = JsonSerializer.Deserialize<UserData>(userInquiryMsgObj.Content);
-
-                                this.result = AssembleOutputObj(this.client_id, this.bookName, recievedBookData.Status, borrowerData.Name, borrowerData.Email);
+                                try {
+                                    UserData borrowerData = JsonSerializer.Deserialize<UserData>(userInquiryMsgObj.Content);
+                                    this.result = AssembleOutputObj(this.client_id, this.bookName, recievedBookData.Status, borrowerData.Name, borrowerData.Email);
+                                }
+                                catch {
+                                    this.result = AssembleOutputObj(this.client_id, this.bookName, recievedBookData.Status, null, null);
+                                }
                             }
                         }
                     }
