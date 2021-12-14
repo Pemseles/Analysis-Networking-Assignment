@@ -25,12 +25,25 @@ namespace Exercise
             Thread.Sleep(new Random().Next(minTime, maxTime));
 
             PCInformation data;
+            int consumed = 0;
 
             if (buffer.Count > 0)
             {
-                data = buffer.First.Value;
-                buffer.RemoveFirst(); // an item is removed from the beginning of the list
+                lock(mutex) {
+                    data = buffer.First.Value;
+                    buffer.RemoveFirst(); // an item is removed from the beginning of the list
+                }
+                consumed++;
                 Console.Out.WriteLine("[Consumer] {0} is consumed", data.dataValue.ToString());
+
+                while (buffer.Count > 0) {
+                    lock(mutex) {
+                        data = buffer.First.Value;
+                        buffer.RemoveFirst();
+                    }
+                    consumed++;
+                }
+                Console.Out.WriteLine("Buffer fully consumed: {0} items consumed", consumed);
             }
             else
                 Console.Out.WriteLine("[Consumer] EMPTY BUFFER");
@@ -41,9 +54,10 @@ namespace Exercise
         {
             for (int i = 0; i < num; i++)
             {
-                this.consume();
+                lock(mutex) {
+                    this.consume();
+                }
             }
-
         }
     }
 }

@@ -1,10 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "PThB9cyz/90IgHvbpvRdS1/2YbFyh2yA7XuGLXEyIIvgKcvp+EozhVsJOmTNiAiJ+DC04J13sXkgpHu2HgALng==",
+  "dgSpecHash": "8eAWVZDHDZ0aCU1SLp81hjwNHPHm/ntlfofxF/LPCb1TpsvMLcIKKb6ADODaTYEpwo1sMUaTa4TEi3uYgQmPDQ==",
   "success": true,
-  "projectFilePath": "c:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\Synchronization\\Synchronization.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\Thijmen\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\3.1.20\\microsoft.netcore.app.host.win-x64.3.1.20.nupkg.sha512"
-  ],
+  "projectFilePath": "C:\\Users\\Thijmen\\Documents\\GitHub\\Analysis-Networking-Assignment\\ConcurrentCSharp\\Synchronization\\Synchronization.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }

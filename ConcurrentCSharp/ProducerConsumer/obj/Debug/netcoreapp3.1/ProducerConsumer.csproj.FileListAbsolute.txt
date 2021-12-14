@@ -1,0 +1,13 @@
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProducerConsumer\bin\Debug\netcoreapp3.1\ProducerConsumer.exe
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProducerConsumer\bin\Debug\netcoreapp3.1\ProducerConsumer.deps.json
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProducerConsumer\bin\Debug\netcoreapp3.1\ProducerConsumer.runtimeconfig.json
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProducerConsumer\bin\Debug\netcoreapp3.1\ProducerConsumer.runtimeconfig.dev.json
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProducerConsumer\bin\Debug\netcoreapp3.1\ProducerConsumer.dll
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProducerConsumer\bin\Debug\netcoreapp3.1\ProducerConsumer.pdb
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProducerConsumer\obj\Debug\netcoreapp3.1\ProducerConsumer.csprojAssemblyReference.cache
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProducerConsumer\obj\Debug\netcoreapp3.1\ProducerConsumer.AssemblyInfoInputs.cache
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProducerConsumer\obj\Debug\netcoreapp3.1\ProducerConsumer.AssemblyInfo.cs
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProducerConsumer\obj\Debug\netcoreapp3.1\ProducerConsumer.csproj.CoreCompileInputs.cache
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProducerConsumer\obj\Debug\netcoreapp3.1\ProducerConsumer.dll
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProducerConsumer\obj\Debug\netcoreapp3.1\ProducerConsumer.pdb
+C:\Users\Thijmen\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\ProducerConsumer\obj\Debug\netcoreapp3.1\ProducerConsumer.genruntimeconfig.cache

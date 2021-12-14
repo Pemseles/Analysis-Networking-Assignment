@@ -24,7 +24,7 @@ namespace Exercise
         // one instance of producer and one instance of consumer are working sequentially
         public void sequentialOneProducerOneConsumer()
         {
-            int iterations = 100;
+            int iterations = 25;
             Console.Out.WriteLine("[Sequential Simulator] is going to start ....");
             Producer p = new Producer(this.minTime, this.maxTime, this.buffer, this.mutexObj);
             Consumer c = new Consumer(this.minTime, this.maxTime, this.buffer, this.mutexObj);

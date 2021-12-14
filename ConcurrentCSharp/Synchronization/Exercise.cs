@@ -54,6 +54,7 @@ namespace Exercise
         {
             Counter counter = new Counter();
             Thread[] threads = new Thread[steps];
+            Console.WriteLine("Threadcount = {0}", threads.Length);
 
             for (int i = 0; i < steps; i++)
                 threads[i] = new Thread(() => { counter.incrementUpToThreadSafe(limit); });
