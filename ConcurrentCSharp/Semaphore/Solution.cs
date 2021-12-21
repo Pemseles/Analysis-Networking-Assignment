@@ -21,7 +21,7 @@ namespace Solution
             buffer[emptyIndex]++;
             Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.Out.WriteLine("[Producer {0}] wrote {1} at index {2}", pid.ToString(), buffer[emptyIndex].ToString(), emptyIndex.ToString());
-            Console.ForegroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.White;
 
             emptyIndex = (emptyIndex + 1) % buffer.Length;
         }

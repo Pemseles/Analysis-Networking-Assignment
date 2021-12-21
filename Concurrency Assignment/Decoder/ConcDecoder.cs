@@ -1,5 +1,6 @@
 ﻿using System;
 using Decoder;
+using System.Threading;
 
 namespace ConcDecoder
 {
@@ -10,6 +11,8 @@ namespace ConcDecoder
     public class ConcurrentTaskBuffer : TaskBuffer
     {
         //todo: add required fields such that satisfies a thread safe shared buffer.
+        public int[] buffer;
+        public Semaphore sem1;
 
         public ConcurrentTaskBuffer() : base()
         {

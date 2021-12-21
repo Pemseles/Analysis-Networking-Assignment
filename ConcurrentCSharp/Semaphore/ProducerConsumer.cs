@@ -28,7 +28,7 @@ namespace ProducerConsumer
             buffer[emptyIndex]++; // for simplicity we just increment the value at empty current empty index
             Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.Out.WriteLine("[Producer {0}] wrote {1} at index {2}", pid.ToString(), buffer[emptyIndex].ToString(), emptyIndex.ToString());
-            Console.ForegroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.White;
 
             emptyIndex = (emptyIndex + 1) % buffer.Length;
 
@@ -63,8 +63,10 @@ namespace ProducerConsumer
         public void produce()
         {
             Thread.Sleep(new Random().Next(minTime, maxTime));
-            //int data = new Random().Next();
+            
+            producerSemaphore.WaitOne();
             this.buffer.write(this.id); // we can ask buffer to write generated data
+            consumerSemaphore.Release();
             
         }
         public void MultiProduce(Object n)
@@ -95,7 +97,10 @@ namespace ProducerConsumer
         public void consume()
         {
             Thread.Sleep(new Random().Next(minTime, maxTime));
+
+            consumerSemaphore.WaitOne();
             int data = this.buffer.read(this.id);
+            producerSemaphore.Release();
         }
         public void MultiConsume(Object n)
         {
