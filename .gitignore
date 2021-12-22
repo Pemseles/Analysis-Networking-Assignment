@@ -19,3 +19,5 @@ Concurrency Assignment/Decoder/obj/Debug/net5.0/Decoder.GeneratedMSBuildEditorCo
 *.txt
 *.json
 ConcurrentCSharp/Asynchronous/obj/Debug/netcoreapp3.1/Asynchronous.assets.cache
+Concurrency Assignment/Decoder/obj/Decoder.csproj.nuget.g.props
+Concurrency Assignment/Decoder/obj/Decoder.csproj.nuget.g.targets

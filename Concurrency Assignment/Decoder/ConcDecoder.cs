@@ -10,13 +10,15 @@ namespace ConcDecoder
     /// </summary>
     public class ConcurrentTaskBuffer : TaskBuffer
     {
-        //todo: add required fields such that satisfies a thread safe shared buffer.
-        public int[] buffer;
-        public Semaphore sem1;
+        public int emptyIndex;
+        // pSem = Producer Semaphore & cSem = Consumer Semaphore
+        public Semaphore pSem, cSem;
 
         public ConcurrentTaskBuffer() : base()
         {
-            //todo: implement this method such that satisfies a thread safe shared buffer.
+            emptyIndex = 0;
+            pSem = new Semaphore(1, 1);
+            cSem = new Semaphore(0, 1);
         }
 
         /// <summary>
@@ -36,7 +38,7 @@ namespace ConcDecoder
         {
             //todo: implement this method such that satisfies a thread safe shared buffer.
             TaskDecryption t = null;
-
+            
             return t;
         }
 
@@ -61,6 +63,7 @@ namespace ConcDecoder
         /// <returns>Information logged during the execution.</returns>
         public string ConcurrentTaskExecution(int numOfProviders, int numOfWorkers)
         {
+            Console.WriteLine("is running rn");
             ConcurrentTaskBuffer tasks = new ConcurrentTaskBuffer();
 
             //todo: implement this method such that satisfies a thread safe shared buffer.
