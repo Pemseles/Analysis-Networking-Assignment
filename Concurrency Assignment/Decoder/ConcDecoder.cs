@@ -10,15 +10,13 @@ namespace ConcDecoder
     /// </summary>
     public class ConcurrentTaskBuffer : TaskBuffer
     {
-        public int emptyIndex;
-        // pSem = Producer Semaphore & cSem = Consumer Semaphore
-        public Semaphore pSem, cSem;
+        // pSem = Provider Semaphore & wSem = Worker Semaphore
+        public Semaphore pSem, wSem;
 
         public ConcurrentTaskBuffer() : base()
         {
-            emptyIndex = 0;
             pSem = new Semaphore(1, 1);
-            cSem = new Semaphore(0, 1);
+            wSem = new Semaphore(0, 1);
         }
 
         /// <summary>
@@ -27,7 +25,11 @@ namespace ConcDecoder
         /// <param name="task">A task to wait in the queue for the execution</param>
         public override void AddTask(TaskDecryption task)
         {
-            //todo: implement this method such that satisfies a thread safe shared buffer.
+            pSem.WaitOne();
+            base.taskBuffer.Enqueue(task);
+            wSem.Release();
+            base.numOfTasks++;
+            base.maxBuffSize = base.taskBuffer.Count > base.maxBuffSize ? base.taskBuffer.Count  : base.maxBuffSize;
         }
 
         /// <summary>
@@ -63,11 +65,44 @@ namespace ConcDecoder
         /// <returns>Information logged during the execution.</returns>
         public string ConcurrentTaskExecution(int numOfProviders, int numOfWorkers)
         {
-            Console.WriteLine("is running rn");
             ConcurrentTaskBuffer tasks = new ConcurrentTaskBuffer();
+            Provider[] providers = new Provider[FixedParams.numOfProviders];
+            Worker[] workers = new Worker[WorkingParams.numOfWorkers];
+            Thread[] pThreads = new Thread[FixedParams.numOfProviders];
+            Thread[] wThreads = new Thread[WorkingParams.numOfWorkers];
 
-            //todo: implement this method such that satisfies a thread safe shared buffer.
+            for (int i = 0; i < providers.Length; i++) {
+                providers[i] = new Provider(tasks, base.challenges);
+            }
+            for (int i = 0; i < workers.Length; i++) {
+                workers[i] = new Worker(tasks);
+            }
 
+            for (int i = 0; i < pThreads.Length; i++) {
+                for (int j = 0; j < base.challenges.Length; j++) {
+                    pThreads[i] = new Thread(() => tasks.AddTask(new TaskDecryption(j, base.challenges[j])));
+                }
+                pThreads[i + 1] = new Thread(() => tasks.AddTask(new TaskDecryption(FixedParams.terminatingTaskId, "")));
+            }
+            for (int i = 0; i < wThreads.Length; i++) {
+                wThreads[i] = new Thread(workers[i].ExecuteTasks);
+            }
+
+            foreach (Thread p in pThreads) {
+                p.Start();
+            }
+            foreach (Thread w in wThreads) {
+                w.Start();
+            }
+
+            foreach (Thread p in pThreads) {
+                p.Join();
+            }
+            foreach (Thread w in wThreads) {
+                w.Join();
+            }
+
+            Console.WriteLine("thread test a aaa ");
 
             return tasks.GetLogs();
         }
