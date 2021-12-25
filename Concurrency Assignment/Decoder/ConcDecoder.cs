@@ -25,12 +25,17 @@ namespace ConcDecoder
         /// <param name="task">A task to wait in the queue for the execution</param>
         public override void AddTask(TaskDecryption task)
         {
-            Console.WriteLine("hi im in the function :)");
             pSem.WaitOne();
+
             base.taskBuffer.Enqueue(task);
-            wSem.Release();
+            
             base.numOfTasks++;
             base.maxBuffSize = base.taskBuffer.Count > base.maxBuffSize ? base.taskBuffer.Count  : base.maxBuffSize;
+
+            base.LogVisualisation();
+            base.PrintBufferSize();
+
+            wSem.Release();
         }
 
         /// <summary>
@@ -42,6 +47,17 @@ namespace ConcDecoder
             //todo: implement this method such that satisfies a thread safe shared buffer.
             TaskDecryption t = null;
             Console.WriteLine("in GetNextTask, get next task for worker");
+            
+            wSem.WaitOne();
+            if (base.taskBuffer.Count > 0)
+            {
+                t = base.taskBuffer.Dequeue();
+                if (t.id < 0) {
+                    base.taskBuffer.Enqueue(t);
+                }
+            }
+            pSem.Release();
+
             return t;
         }
 
@@ -89,19 +105,13 @@ namespace ConcDecoder
                 if (i == 0) {
                     for (int j = 0; j < threadArr[i].Length; j++) {
                         threadArr[i][j] = new Thread[base.challenges.Length + 1];
-                        for (int k = 0; k <= base.challenges.Length; k++) {
+                        for (int k = 0; k < base.challenges.Length; k++) {
                             newK = k;
-                            //Console.WriteLine("i={0} j={1} k={2} newK={3}", i, j, k, newK);
-                            //Console.WriteLine("chalLen={0} challenge={1}", base.challenges.Length, base.challenges[newK - 1]);
-                            if (k < base.challenges.Length) {
-                                //threadArr[i][j][k] = new Thread(() => Console.WriteLine("newK={0} challenge={1}", newK, base.challenges[newK]));
-                                threadArr[i][j][k] = new Thread(() => tasks.AddTask(new TaskDecryption(newK, base.challenges[newK])));
-                            }
-                            else {
-                                //threadArr[i][j][k] = new Thread(() => Console.WriteLine("newK={0} challenge={1}", newK, base.challenges[newK]));
-                                threadArr[i][j][k] = new Thread(() => tasks.AddTask(new TaskDecryption(FixedParams.terminatingTaskId, "")));
-                            }
+                            //threadArr[i][j][k] = new Thread(() => Console.WriteLine("newK={0} challenge={1} just general provider task", newK, base.challenges[newK]));
+                            threadArr[i][j][k] = new Thread(() => tasks.AddTask(new TaskDecryption(newK, base.challenges[newK])));    
                         }
+                        //threadArr[i][j][base.challenges.Length] = new Thread(() => Console.WriteLine("newK={0} challenge={1} should be terminating provider task", newK, base.challenges[newK]));
+                        threadArr[i][j][base.challenges.Length] = new Thread(() => tasks.AddTask(new TaskDecryption(FixedParams.terminatingTaskId, "")));
                     }
                 }
                 else {
@@ -116,11 +126,8 @@ namespace ConcDecoder
             for (int i = 0; i < threadArr.Length; i++) {
                 for (int j = 0; j < threadArr[i].Length; j++) {
                     for (int k = 0; k < threadArr[i][j].Length; k++) {
-                        Console.WriteLine("i={0} j={1} k={2}", i, j, k);
-                        Console.WriteLine("len1={0} len2={1} len3={2}", threadArr.Length, threadArr[i].Length, threadArr[i][j].Length);
-                        //threadArr[i][j][k] = new Thread(() => Console.WriteLine("i={0} j={1} k={2}", i, j, k));
-                        Console.WriteLine("type={0}", threadArr[i][j][k].GetType());
                         threadArr[i][j][k].Start();
+                        Thread.Sleep(new Random().Next(WorkingParams.minSendIntervalTime, WorkingParams.maxSendIntervalTime));
                     }
                 }
             }
@@ -133,7 +140,7 @@ namespace ConcDecoder
                 }
             }
 
-            Console.WriteLine("thread test a aaa ");
+            Console.WriteLine("thread test; everything is joined i hope");
 
             return tasks.GetLogs();
         }
