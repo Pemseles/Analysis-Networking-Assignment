@@ -12,7 +12,8 @@ namespace ConcDecoder
     {
         // pSem = Provider Semaphore & wSem = Worker Semaphore
         public Semaphore pSem, wSem;
-        private readonly Object mutex = new Object();
+        private readonly Object pMutex = new Object();
+        private readonly Object wMutex = new Object();
 
         public ConcurrentTaskBuffer() : base()
         {
@@ -26,8 +27,8 @@ namespace ConcDecoder
         /// <param name="task">A task to wait in the queue for the execution</param>
         public override void AddTask(TaskDecryption task)
         {
-            pSem.WaitOne();
-            //lock(mutex) {
+            //pSem.WaitOne();
+            lock(pMutex) {
                 base.taskBuffer.Enqueue(task);
                 Console.WriteLine("enqueued taskId={0}", task.id);
             
@@ -35,9 +36,9 @@ namespace ConcDecoder
                 base.maxBuffSize = base.taskBuffer.Count > base.maxBuffSize ? base.taskBuffer.Count  : base.maxBuffSize;
 
                 base.LogVisualisation();
-                base.PrintBufferSize();
-            //}
-            wSem.Release();
+                this.PrintBufferSize();
+            }
+            //wSem.Release();
         }
 
         /// <summary>
@@ -49,18 +50,18 @@ namespace ConcDecoder
             //todo: implement this method such that satisfies a thread safe shared buffer.
             TaskDecryption t = null;
             
-            wSem.WaitOne();
-            //lock(mutex) {
+            //wSem.WaitOne();
+            lock(wMutex) {
                 if (base.taskBuffer.Count > 0)
                 {
+                    
                     t = base.taskBuffer.Dequeue();
                     if (t.id < 0) {
                         base.taskBuffer.Enqueue(t);
-                        wSem.Close();
                     }
                 }
-            //}
-            pSem.Release();
+            }
+            //pSem.Release();
 
             return t;
         }
@@ -71,6 +72,7 @@ namespace ConcDecoder
         public override void PrintBufferSize()
         {
             //todo: implement this method such that satisfies a thread safe shared buffer.
+            Console.Write("Buffer#{0} ; ", this.taskBuffer.Count);
         }
     }
 
@@ -107,19 +109,7 @@ namespace ConcDecoder
 
             foreach(Thread t in threads) {
                 t.Start();
-                Thread.Sleep(5);
-            }
-
-            int aliveCount = 0, maxCount = threads.Count, listOffset = 0;
-
-            while (aliveCount < maxCount) {
-                listOffset = 0;
-                foreach(Thread t in threads) {
-                    Console.WriteLine("thread {0} = {1}", listOffset, t.ThreadState);
-                    listOffset++;
-                    
-                }
-                Thread.Sleep(2000);
+                Thread.Sleep(50);
             }
 
             foreach(Thread t in threads) {
