@@ -1,0 +1,14 @@
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Semaphore\bin\Debug\netcoreapp3.1\Semaphore.exe
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Semaphore\bin\Debug\netcoreapp3.1\Semaphore.deps.json
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Semaphore\bin\Debug\netcoreapp3.1\Semaphore.runtimeconfig.json
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Semaphore\bin\Debug\netcoreapp3.1\Semaphore.runtimeconfig.dev.json
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Semaphore\bin\Debug\netcoreapp3.1\Semaphore.dll
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Semaphore\bin\Debug\netcoreapp3.1\Semaphore.pdb
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Semaphore\obj\Debug\netcoreapp3.1\Semaphore.csproj.AssemblyReference.cache
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Semaphore\obj\Debug\netcoreapp3.1\Semaphore.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Semaphore\obj\Debug\netcoreapp3.1\Semaphore.AssemblyInfoInputs.cache
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Semaphore\obj\Debug\netcoreapp3.1\Semaphore.AssemblyInfo.cs
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Semaphore\obj\Debug\netcoreapp3.1\Semaphore.csproj.CoreCompileInputs.cache
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Semaphore\obj\Debug\netcoreapp3.1\Semaphore.dll
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Semaphore\obj\Debug\netcoreapp3.1\Semaphore.pdb
+C:\Users\Gebruiker\Documents\GitHub\Analysis-Networking-Assignment\ConcurrentCSharp\Semaphore\obj\Debug\netcoreapp3.1\Semaphore.genruntimeconfig.cache
