@@ -12,13 +12,13 @@ namespace ConcDecoder
     {
         // pSem = Provider Semaphore & wSem = Worker Semaphore
         public Semaphore pSem, wSem;
-        private readonly Object pMutex = new Object();
-        private readonly Object wMutex = new Object();
+        private readonly Object pMutex;
+        private readonly Object wMutex;
 
         public ConcurrentTaskBuffer() : base()
         {
-            pSem = new Semaphore(1, 1);
-            wSem = new Semaphore(0, 1);
+            pMutex = new Object();
+            wMutex = new Object();
         }
 
         /// <summary>
@@ -27,10 +27,8 @@ namespace ConcDecoder
         /// <param name="task">A task to wait in the queue for the execution</param>
         public override void AddTask(TaskDecryption task)
         {
-            //pSem.WaitOne();
             lock(pMutex) {
                 base.taskBuffer.Enqueue(task);
-                Console.WriteLine("enqueued taskId={0}", task.id);
             
                 base.numOfTasks++;
                 base.maxBuffSize = base.taskBuffer.Count > base.maxBuffSize ? base.taskBuffer.Count  : base.maxBuffSize;
@@ -38,7 +36,6 @@ namespace ConcDecoder
                 base.LogVisualisation();
                 this.PrintBufferSize();
             }
-            //wSem.Release();
         }
 
         /// <summary>
@@ -47,21 +44,17 @@ namespace ConcDecoder
         /// <returns>Next task from the list to be executed. Null if there is no task.</returns>
         public override TaskDecryption GetNextTask()
         {
-            //todo: implement this method such that satisfies a thread safe shared buffer.
             TaskDecryption t = null;
             
-            //wSem.WaitOne();
             lock(wMutex) {
                 if (base.taskBuffer.Count > 0)
                 {
-                    
                     t = base.taskBuffer.Dequeue();
                     if (t.id < 0) {
                         base.taskBuffer.Enqueue(t);
                     }
                 }
             }
-            //pSem.Release();
 
             return t;
         }
@@ -71,8 +64,7 @@ namespace ConcDecoder
         /// </summary>
         public override void PrintBufferSize()
         {
-            //todo: implement this method such that satisfies a thread safe shared buffer.
-            Console.Write("Buffer#{0} ; ", this.taskBuffer.Count);
+            Console.Write("Buffer#{0} ; ", taskBuffer.Count);
         }
     }
 
@@ -93,8 +85,31 @@ namespace ConcDecoder
             Worker[] workers = new Worker[numOfWorkers];
             System.Collections.Generic.LinkedList<Thread> threads = new System.Collections.Generic.LinkedList<Thread>();
 
-            for (int i = 0; i < providers.Length; i++) {
-                providers[i] = new Provider(tasks, base.challenges);
+            if (numOfProviders > 1) {
+                string[][] dividedChal = new string[numOfProviders][];
+                double avgLen = (double)base.challenges.Length / numOfProviders;
+
+                double processedLen = 0.0;
+                int currentStart = 0;
+                int currentEnd = 0;
+                int partLen = 0;
+
+                for (int i = 0; i < numOfProviders; i++) {
+                    processedLen += avgLen;
+                    currentEnd = (int)Math.Round(processedLen);
+                    partLen = currentEnd - currentStart;
+                    dividedChal[i] = new string[partLen];
+                    
+                    Array.Copy(base.challenges, currentStart, dividedChal[i], 0, partLen);
+
+                    currentStart = currentEnd;
+                    providers[i] = new Provider(tasks, dividedChal[i]);
+                }
+            }
+            else {
+                for (int i = 0; i < providers.Length; i++) {
+                    providers[i] = new Provider(tasks, base.challenges);
+                }
             }
             for (int i = 0; i < workers.Length; i++) {
                 workers[i] = new Worker(tasks);
@@ -109,14 +124,12 @@ namespace ConcDecoder
 
             foreach(Thread t in threads) {
                 t.Start();
-                Thread.Sleep(50);
+                Thread.Sleep(5000);
             }
 
             foreach(Thread t in threads) {
                 t.Join();
             }
-
-            Console.WriteLine("thread test; everything is joined i hope");
 
             return tasks.GetLogs();
         }
