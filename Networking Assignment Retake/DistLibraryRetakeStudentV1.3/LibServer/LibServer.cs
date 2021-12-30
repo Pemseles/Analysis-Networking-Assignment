@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Text.Json;
 using System.Net;
 using System.Net.Sockets;
@@ -93,14 +94,28 @@ namespace LibServerSolution
             // Extra Note: If failed to connect to helper. Server should retry 3 times.
             // After the 3d attempt the server starts anyway and listen to incoming messages to clients
            
-            // try
-            // {
-                 
-            // }
-            // catch ()
-            // {
+            try
+            {
+                // init values
+                GetConfigurationValue();
+                Console.WriteLine("in createSocketAndConnectHelpers()");
 
-            // }
+                this.listeningPoint = new IPEndPoint(IPAddress.Parse(settings.ServerIPAddress), settings.ServerPortNumber);
+                this.serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+                //IPEndPoint bookHelperEndpoint = new IPEndPoint(IPAddress.Parse(settings.BookHelperIPAddress), settings.BookHelperPortNumber);
+                //this.bookHelperSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+                // connection w LibClient
+                this.serverSocket.Bind(this.listeningPoint);
+                this.serverSocket.Listen(settings.ServerListeningQueue);
+
+                // connection w LibBookHelper
+                //this.bookHelperSocket.Connect(bookHelperEndpoint);
+            }
+            catch (Exception e){
+                Console.WriteLine("error; createSocketAndConnectHelpers :< was: {0}", e.Message);
+            }
         }
 
         /// <summary>
@@ -113,12 +128,41 @@ namespace LibServerSolution
             createSocketAndConnectHelpers();
             //todo: To meet the assignment requirement, finish the implementation of this method.
 
-            // try
-            // {
-            // }
-            // catch (Exception e) {
+            try
+            {
+                // setup
+                Console.WriteLine("inside handleListening()");
+                byte[] buffer = new byte[1000];
+                string data = "";
+                Socket newServerSocket = this.serverSocket.Accept();
+                
+                // recieve Hello msg from LibClient
+                int recievedInt = newServerSocket.Receive(buffer);
+                data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
+                Message receivedMsg = JsonSerializer.Deserialize<Message>(data);
 
-            // }
+                Console.WriteLine("recieved Hello msg; type={0} content={1}", receivedMsg.Type, receivedMsg.Content);
+
+                // process Hello msg & send Welcome msg to LibClient
+                Message welcomeMsg = processMessage(receivedMsg);
+                byte[] welcomeMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(welcomeMsg));
+                newServerSocket.Send(welcomeMsgSend);
+
+                Console.WriteLine("Welcome msg sent :)");
+
+                // recieve BookInquiry msg from Libclient
+                recievedInt = newServerSocket.Receive(buffer);
+                data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
+                receivedMsg = JsonSerializer.Deserialize<Message>(data);
+
+                Console.WriteLine("recieved BookInquiry msg; type={0} content={1}", receivedMsg.Type, receivedMsg.Content);
+
+                // process BookInquiry msg & send BookInquiry msg to LibBookHelper
+
+            }
+            catch (Exception e) {
+                Console.WriteLine("error; handleListening ;> was: {0}", e.Message);
+            }
         }
 
         /// <summary>
@@ -130,6 +174,16 @@ namespace LibServerSolution
         {
             Message pmReply = new Message();
             //todo: To meet the assignment requirement, finish the implementation of this method.
+            try
+            {
+                if (message.Type == MessageType.Hello) {
+                    pmReply.Type = MessageType.Welcome;
+                    pmReply.Content = "This is a welcome message, Content is not important so don't look :(";
+                }
+            }
+            catch (Exception e) {
+                Console.WriteLine("error; processMessage >:( was: {0}", e.Message);
+            }
 
             return pmReply;
         }

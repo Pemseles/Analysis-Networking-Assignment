@@ -3,10 +3,13 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 // using LibData;
 using Microsoft.Extensions.Configuration;
+
+// made by: 1008331 - INF2E
 
 namespace LibClient
 {
@@ -97,7 +100,7 @@ namespace LibClient
         {
             GetConfigurationValue();
 
-            // this.delayTime = 100;
+            this.delayTime = 100;
             this.bookName = bookName;
             this.client_id = "Client " + id.ToString();
             this.result = new Output();
@@ -124,17 +127,22 @@ namespace LibClient
         /// </summary>
         protected override void createSocketAndConnect()
         {
-             //todo: To meet the assignment requirement, finish the implementation of this method.
-  
-            // try
-            // {
-              
-            // }
-            // catch ()
-            // {
-             
-            // }
+            //todo: To meet the assignment requirement, finish the implementation of this method.
+            try
+            {
+                // init of values
+                GetConfigurationValue();
+                Console.WriteLine("in createSocketAndConnect()");
+                this.serverEndPoint = new IPEndPoint(IPAddress.Parse(settings.ServerIPAddress), settings.ServerPortNumber);
+                this.clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
+                // connection w LibServer 
+                this.clientSocket.Connect(this.serverEndPoint);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("error occured; createSocketAndConnect :) was: {0}", e.Message);
+            }
         }
 
         /// <summary>
@@ -148,13 +156,39 @@ namespace LibClient
             createSocketAndConnect();
 
             //todo: To meet the assignment requirement, finish the implementation of this method.
-            // try
-            // {
-               
-               
-            // }
-            // catch () {  }
+            try
+            {
+                Console.WriteLine("inside HandleConnection");
+                byte[] buffer = new byte[1000];
+                string data = "";
 
+                // first handshake; sending Hello msg
+                Message helloMsg = new Message();
+                helloMsg.Type = MessageType.Hello;
+                helloMsg.Content = this.client_id;
+
+                byte[] helloMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(helloMsg));
+                this.clientSocket.Send(helloMsgSend);
+                
+                Console.WriteLine("Hello msg sent :)");
+
+                // recieve Welcome msg from LibServer
+                int recievedInt = this.clientSocket.Receive(buffer);
+                data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
+                Message recievedMsg = JsonSerializer.Deserialize<Message>(data);
+
+                Console.WriteLine("recieved Welcome msg; type={0} content={1}", recievedMsg.Type, recievedMsg.Content);
+
+                // process Welcome msg & send BookInquiry to LibServer
+                Message bookInqMsg = processMessage(recievedMsg);
+                byte[] bookInqMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(bookInqMsg));
+                this.clientSocket.Send(bookInqMsgSend);
+
+                Console.WriteLine("BookInq msg sent :))");
+            }
+            catch (Exception e) {
+                Console.WriteLine("error; handleConnectionAndMessagesToServer ;-; was: {0}", e.Message);
+            }
             return this.result;
         }
 
@@ -167,12 +201,16 @@ namespace LibClient
         {
             Message processedMsgResult = new Message();
             //todo: To meet the assignment requirement, finish the implementation of this method.
-            // try
-            // {
-               
-            // }
-            // catch () {  }
-
+            try
+            {
+                if (message.Type == MessageType.Welcome) {
+                    processedMsgResult.Type = MessageType.BookInquiry;
+                    processedMsgResult.Content = this.bookName;
+                }
+            }
+            catch (Exception e) {
+                Console.WriteLine("error; processMessage >:( was: {0}", e.Message);
+            }
             return processedMsgResult;
         }
     }

@@ -1,3 +1,18 @@
 
 *.DS_Store
 Networking Assignment Retake/.vscode/launch.json
+*.dll
+*.exe
+*.pdb
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibClient/bin/Debug/net5.0/LibClient.deps.json
+*.json
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibClient/obj/Debug/net5.0/.NETCoreApp,Version=v5.0.AssemblyAttributes.cs
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibClient/obj/Debug/net5.0/LibClient.AssemblyInfo.cs
+*.cache
+*.CopyComplete
+*.txt
+*.editorconfig
+*.props
+*.targets
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibServer/obj/Debug/net5.0/.NETCoreApp,Version=v5.0.AssemblyAttributes.cs
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibServer/obj/Debug/net5.0/LibServer.AssemblyInfo.cs
