@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Text.Json;
 using System.Net;
 using System.Net.Sockets;
@@ -86,14 +87,18 @@ namespace BookHelperSolution
         protected override void loadDataFromJson()
         {
             //todo: To meet the assignment requirement, implement this method 
-            // try
-            // {
+            try
+            {
+                // get path & read file -> into string
+                string booksDataFile = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"../../../") + "Books.json");
+                string fullBookDataJsonString = System.IO.File.ReadAllText(booksDataFile);
 
-            // }
-            // catch (Exception e)
-            // {
-
-            // }
+                // load string into BookData object
+                this.booksList = JsonSerializer.Deserialize<List<BookData>>(fullBookDataJsonString);
+            }
+            catch (Exception e){
+                Console.WriteLine("error; loadDataFromJson :)( was: {0}", e.Message);
+            }
         }
 
         /// <summary>
@@ -102,14 +107,22 @@ namespace BookHelperSolution
         protected override void createSocket()
         {
             //todo: To meet the assignment requirement, implement this method
-            // try
-            // {
+            try
+            {
+                // init values
+                GetConfigurationValue();
+                Console.WriteLine("in createSocket()");
 
-            // }
-            // catch (Exception e)
-            // {
+                this.listeningPoint = new IPEndPoint(IPAddress.Parse(settings.BookHelperIPAddress), settings.BookHelperPortNumber);
+                this.listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            // }
+                // connection w LibServer
+                this.listener.Bind(this.listeningPoint);
+                this.listener.Listen(settings.ServerListeningQueue);
+            }
+            catch (Exception e){
+                Console.WriteLine("error; createSocket :(] was: {0}", e.Message);
+            }
         }
 
         /// <summary>
@@ -134,6 +147,32 @@ namespace BookHelperSolution
         {
             createSocket();
             //todo: To meet the assignment requirement, finish the implementation of this method 
+
+            try 
+            {
+                // setup
+                Console.WriteLine("inside handleListening()");
+                byte[] buffer = new byte[1000];
+                string data = "";
+                Socket newHelperSocket = this.listener.Accept();
+
+                // recieve BookInquiry msg from LibServer
+                int recievedInt = newHelperSocket.Receive(buffer);
+                data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
+                Message recievedMsg = JsonSerializer.Deserialize<Message>(data);
+
+                Console.WriteLine("recieved BookInquiry msg; type={0} content={1}", recievedMsg.Type, recievedMsg.Content);
+
+                // process BookInquiry msg & send BookInquiryReply msg back to LibServer
+                Message inqReplyMsg = processMessage(recievedMsg);
+                byte[] inqReplyMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(inqReplyMsg));
+                newHelperSocket.Send(inqReplyMsgSend);
+
+                Console.WriteLine("BookInquiryReply msg sent :)");
+            }
+            catch(Exception e) {
+                Console.WriteLine("error; handleListening :] was: {0}", e.Message);
+            }
         }
 
         /// <summary>
@@ -145,14 +184,32 @@ namespace BookHelperSolution
         {
             Message reply = new Message();
             //todo: To meet the assignment requirement, finish the implementation of this method .
-            // try
-            // {
-
-            // }
-            // catch (Exception e)
-            // {
-
-            // }
+            try
+            {
+                if (message.Type == MessageType.BookInquiry) {
+                    loadDataFromJson();
+                    foreach (BookData book in this.booksList) {
+                        if (book.Title == message.Content) {
+                            // book was found; build BookInquiryReply msg
+                            reply.Type = MessageType.BookInquiryReply;
+                            reply.Content = JsonSerializer.Serialize(new BookData {
+                                Title = book.Title,
+                                Author = book.Author,
+                                Status = book.Status,
+                                BorrowedBy = book.BorrowedBy,
+                                ReturnDate = book.ReturnDate
+                            });
+                            return reply;
+                        }
+                    }
+                    // book was NOT found; build NotFound msg
+                    reply.Type = MessageType.NotFound;
+                    reply.Content = "Book wasn't found, so Content is not important stop looking immediately :(";
+                }
+            }
+            catch (Exception e) {
+                Console.WriteLine("error; processMessage :[] was: {0}", e.Message);
+            }
             return reply;
         }
     }

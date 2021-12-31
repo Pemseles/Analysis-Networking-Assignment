@@ -103,15 +103,36 @@ namespace LibServerSolution
                 this.listeningPoint = new IPEndPoint(IPAddress.Parse(settings.ServerIPAddress), settings.ServerPortNumber);
                 this.serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-                //IPEndPoint bookHelperEndpoint = new IPEndPoint(IPAddress.Parse(settings.BookHelperIPAddress), settings.BookHelperPortNumber);
-                //this.bookHelperSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                IPEndPoint bookHelperEndpoint = new IPEndPoint(IPAddress.Parse(settings.BookHelperIPAddress), settings.BookHelperPortNumber);
+                this.bookHelperSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
                 // connection w LibClient
                 this.serverSocket.Bind(this.listeningPoint);
                 this.serverSocket.Listen(settings.ServerListeningQueue);
 
                 // connection w LibBookHelper
-                //this.bookHelperSocket.Connect(bookHelperEndpoint);
+                try {
+                    this.bookHelperSocket.Connect(bookHelperEndpoint);
+                }
+                catch {
+                    try {
+                        Console.WriteLine("Connection with LibBookHelper unsuccessful, tries left: 2");
+                        Thread.Sleep(2000);
+                        this.bookHelperSocket.Connect(bookHelperEndpoint);
+                    }
+                    catch {
+                        try {
+                            Console.WriteLine("Connection with LibBookHelper unsuccessful, tries left: 1");
+                            Thread.Sleep(2000);
+                            this.bookHelperSocket.Connect(bookHelperEndpoint);
+                        }
+                        catch (Exception ee) {
+                            Console.WriteLine("Connection to LibBookHelper unsuccessful, reason={0}", ee.Message);
+                            Thread.Sleep(1000);
+                            Console.WriteLine("LibServer starting anyways");
+                        }
+                    }
+                }
             }
             catch (Exception e){
                 Console.WriteLine("error; createSocketAndConnectHelpers :< was: {0}", e.Message);
@@ -132,6 +153,7 @@ namespace LibServerSolution
             {
                 // setup
                 Console.WriteLine("inside handleListening()");
+                Console.WriteLine("LibBookHelper status={0}", this.bookHelperSocket.Connected);
                 byte[] buffer = new byte[1000];
                 string data = "";
                 Socket newServerSocket = this.serverSocket.Accept();
@@ -157,8 +179,37 @@ namespace LibServerSolution
 
                 Console.WriteLine("recieved BookInquiry msg; type={0} content={1}", receivedMsg.Type, receivedMsg.Content);
 
-                // process BookInquiry msg & send BookInquiry msg to LibBookHelper
+                // send BookInquiry msg to LibBookHelper; if not connected: sends error msg instead
+                if (this.bookHelperSocket.Connected == true) {
+                    byte[] bookInqMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(receivedMsg));
+                    this.bookHelperSocket.Send(bookInqMsgSend);
 
+                    Console.WriteLine("BookInquiry msg forwarded to LibBookHelper :)");
+
+                    // recieve BookInquiryReply msg from LibBookHelper
+                    recievedInt = this.bookHelperSocket.Receive(buffer);
+                    data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
+                    receivedMsg = JsonSerializer.Deserialize<Message>(data);
+
+                    Console.WriteLine("recieved BookInquiryReply msg; type={0} content={1}", receivedMsg.Type, receivedMsg.Content);
+
+                    // send BookInquiryReply msg to LibClient
+                    bookInqMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(receivedMsg));
+                    newServerSocket.Send(bookInqMsgSend);
+
+                    Console.WriteLine("BookInquiryReply msg forwarded to LibClient :)");
+                }
+    	        else {
+                    // makes & sends Error msg to libClient
+                    Console.WriteLine("not connected to LibBookHelper; send Error msg to LibClient instead");
+                    Message errorMsg = new Message();
+                    errorMsg.Type = MessageType.Error;
+                    errorMsg.Content = "not an error technically, just not connected to LibBookHelper so it can't get the requested book :(";
+                    byte[] errorMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(errorMsg));
+                    newServerSocket.Send(errorMsgSend);
+                    
+                    Console.WriteLine("Error msg sent to LibClient :)");
+                }
             }
             catch (Exception e) {
                 Console.WriteLine("error; handleListening ;> was: {0}", e.Message);

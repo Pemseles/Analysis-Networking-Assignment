@@ -16,3 +16,5 @@ Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibClient/obj/Debug/ne
 *.targets
 Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibServer/obj/Debug/net5.0/.NETCoreApp,Version=v5.0.AssemblyAttributes.cs
 Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibServer/obj/Debug/net5.0/LibServer.AssemblyInfo.cs
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibBookHelper/obj/Debug/net5.0/.NETCoreApp,Version=v5.0.AssemblyAttributes.cs
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibBookHelper/obj/Debug/net5.0/BookHelper.AssemblyInfo.cs

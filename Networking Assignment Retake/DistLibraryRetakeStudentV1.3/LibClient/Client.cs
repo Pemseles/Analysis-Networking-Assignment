@@ -185,6 +185,13 @@ namespace LibClient
                 this.clientSocket.Send(bookInqMsgSend);
 
                 Console.WriteLine("BookInq msg sent :))");
+
+                // recieve BookInquiryReply / NotFound msg from LibClient
+                recievedInt = this.clientSocket.Receive(buffer);
+                data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
+                recievedMsg = JsonSerializer.Deserialize<Message>(data);
+
+                Console.WriteLine("recieved BookInquiryReply msg; type={0} content={1}", recievedMsg.Type, recievedMsg.Content);
             }
             catch (Exception e) {
                 Console.WriteLine("error; handleConnectionAndMessagesToServer ;-; was: {0}", e.Message);
