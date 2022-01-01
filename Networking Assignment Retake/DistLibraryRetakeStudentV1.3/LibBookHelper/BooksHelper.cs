@@ -145,33 +145,44 @@ namespace BookHelperSolution
         /// </summary>
         public override void handelListening()
         {
-            createSocket();
             //todo: To meet the assignment requirement, finish the implementation of this method 
+            while (true) {
+                Socket newHelperSocket = null;
+                try 
+                {
+                    createSocket();
+                    // setup
+                    Console.WriteLine("inside handleListening()");
+                    byte[] buffer = new byte[1000];
+                    string data = "";
+                    newHelperSocket = this.listener.Accept();
 
-            try 
-            {
-                // setup
-                Console.WriteLine("inside handleListening()");
-                byte[] buffer = new byte[1000];
-                string data = "";
-                Socket newHelperSocket = this.listener.Accept();
+                    // recieve BookInquiry msg from LibServer
+                    int recievedInt = newHelperSocket.Receive(buffer);
+                    data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
+                    Message recievedMsg = JsonSerializer.Deserialize<Message>(data);
 
-                // recieve BookInquiry msg from LibServer
-                int recievedInt = newHelperSocket.Receive(buffer);
-                data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
-                Message recievedMsg = JsonSerializer.Deserialize<Message>(data);
+                    Console.WriteLine("recieved BookInquiry msg; type={0} content={1}", recievedMsg.Type, recievedMsg.Content);
 
-                Console.WriteLine("recieved BookInquiry msg; type={0} content={1}", recievedMsg.Type, recievedMsg.Content);
+                    // process BookInquiry msg & send BookInquiryReply msg back to LibServer
+                    Message inqReplyMsg = processMessage(recievedMsg);
+                    byte[] inqReplyMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(inqReplyMsg));
+                    newHelperSocket.Send(inqReplyMsgSend);
 
-                // process BookInquiry msg & send BookInquiryReply msg back to LibServer
-                Message inqReplyMsg = processMessage(recievedMsg);
-                byte[] inqReplyMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(inqReplyMsg));
-                newHelperSocket.Send(inqReplyMsgSend);
+                    Console.WriteLine("BookInquiryReply msg sent :)");
 
-                Console.WriteLine("BookInquiryReply msg sent :)");
-            }
-            catch(Exception e) {
-                Console.WriteLine("error; handleListening :] was: {0}", e.Message);
+                    // closing socket instance
+                    this.listener.Close();
+                    newHelperSocket.Close();
+                }
+                catch(Exception e) {
+                    Console.WriteLine("error; handleListening :] was: {0}", e.Message);
+
+                    // closing socket instance
+                    this.listener.Close();
+                    newHelperSocket.Close();
+                }
+                Thread.Sleep(1000);
             }
         }
 

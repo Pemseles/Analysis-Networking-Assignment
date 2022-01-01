@@ -76,7 +76,6 @@ namespace LibClient
         protected abstract void createSocketAndConnect();
         public abstract Output handleConntectionAndMessagesToServer();
         protected abstract Message processMessage(Message message);
-
     }
 
     class SequentialClient : AbsSequentialClient
@@ -186,15 +185,50 @@ namespace LibClient
 
                 Console.WriteLine("BookInq msg sent :))");
 
-                // recieve BookInquiryReply / NotFound msg from LibClient
+                // recieve BookInquiryReply / NotFound / Error msg from LibServer
                 recievedInt = this.clientSocket.Receive(buffer);
                 data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
                 recievedMsg = JsonSerializer.Deserialize<Message>(data);
+                BookData recievedBook = null;
+
+                // extracting msg content; necessary for getting BookData
+                if (recievedMsg.Type == MessageType.BookInquiryReply) {
+                    recievedBook = JsonSerializer.Deserialize<BookData>(recievedMsg.Content);
+                }
 
                 Console.WriteLine("recieved BookInquiryReply msg; type={0} content={1}", recievedMsg.Type, recievedMsg.Content);
+
+                // build output
+                this.result.BookName = this.bookName;
+                this.result.Error = recievedMsg.Type == MessageType.Error ? "True" : "False";
+                // try-catches in case book wasn't found; if it isn't found, msg content doesn't contain BookData
+                try {
+                    this.result.Status = recievedBook.Status;
+                }
+                catch {
+                    this.result.Status = "Not Found";
+                }
+                try {
+                    this.result.BorrowerName = recievedBook.BorrowedBy;
+                }
+                catch {
+                    this.result.BorrowerName = null;
+                }
+                try {
+                    this.result.ReturnDate = recievedBook.ReturnDate;
+                }
+                catch {
+                    this.result.ReturnDate = null;
+                }
+
+                // closing socket instance
+                this.clientSocket.Close();
             }
             catch (Exception e) {
                 Console.WriteLine("error; handleConnectionAndMessagesToServer ;-; was: {0}", e.Message);
+
+                // closing socket instance
+                this.clientSocket.Close();
             }
             return this.result;
         }
@@ -222,4 +256,3 @@ namespace LibClient
         }
     }
 }
-
