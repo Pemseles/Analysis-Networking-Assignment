@@ -147,11 +147,12 @@ namespace LibServerSolution
         public override void handelListening()
         {
             //todo: To meet the assignment requirement, finish the implementation of this method.
+
             while (true) {
                 Socket newServerSocket = null;
+                createSocketAndConnectHelpers();
                 try
                 {
-                    createSocketAndConnectHelpers();
                     // setup
                     Console.WriteLine("inside handleListening()");
                     Console.WriteLine("LibBookHelper status={0}", this.bookHelperSocket.Connected);
@@ -211,7 +212,6 @@ namespace LibServerSolution
                         
                         Console.WriteLine("Error msg sent to LibClient :)");
                     }
-                    // closing socket instance
                     this.serverSocket.Close();
                     newServerSocket.Close();
                     this.bookHelperSocket.Close();
@@ -224,7 +224,7 @@ namespace LibServerSolution
                     newServerSocket.Close();
                     this.bookHelperSocket.Close();
                 }
-                Thread.Sleep(2000);
+                Thread.Sleep(200);
             }
         }
 

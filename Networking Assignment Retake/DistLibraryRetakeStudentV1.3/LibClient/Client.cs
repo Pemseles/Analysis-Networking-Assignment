@@ -154,6 +154,13 @@ namespace LibClient
             this.report("starting:", this.client_id + " ; " + this.bookName);
             createSocketAndConnect();
 
+            // make sure socket is connected
+            if (this.clientSocket.Connected == false) { 
+                Console.WriteLine("Not connected to LibServer; ending operations");
+                this.clientSocket.Close();
+                return this.result;
+            }
+
             //todo: To meet the assignment requirement, finish the implementation of this method.
             try
             {
@@ -167,6 +174,9 @@ namespace LibClient
                 helloMsg.Content = this.client_id;
 
                 byte[] helloMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(helloMsg));
+
+                
+
                 this.clientSocket.Send(helloMsgSend);
                 
                 Console.WriteLine("Hello msg sent :)");

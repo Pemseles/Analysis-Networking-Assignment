@@ -182,7 +182,7 @@ namespace BookHelperSolution
                     this.listener.Close();
                     newHelperSocket.Close();
                 }
-                Thread.Sleep(1000);
+                Thread.Sleep(200);
             }
         }
 

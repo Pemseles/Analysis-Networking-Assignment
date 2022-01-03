@@ -18,3 +18,8 @@ Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibServer/obj/Debug/ne
 Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibServer/obj/Debug/net5.0/LibServer.AssemblyInfo.cs
 Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibBookHelper/obj/Debug/net5.0/.NETCoreApp,Version=v5.0.AssemblyAttributes.cs
 Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibBookHelper/obj/Debug/net5.0/BookHelper.AssemblyInfo.cs
+*.cache
+*.cache
+ConcurrentCSharp/ProducerConsumer/obj/Debug/netcoreapp3.1/ProducerConsumer.assets.cache
+ConcurrentCSharp/ProducerConsumer/obj/Debug/netcoreapp3.1/ProducerConsumer.assets.cache
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibClient/LibOutput.json
