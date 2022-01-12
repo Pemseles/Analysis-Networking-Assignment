@@ -12,15 +12,14 @@ namespace Decoder
         public const string studentNumberTwo = ""; // This must be filled. Keep it "" if you are working alone.
         public const string classNumber = "INF2E"; // This must be filled. INF2A is just an example.
 
-        public const int numOfWorkers = 6; // how many workers are needed to keep the max size of the shared buffer between 50 - 100?
-        public const int minSendIntervalTime = 40; // min sending interval time (in msec) by the provider
-        public const int maxSendIntervalTime = 400; // max sending interval time (in msec) by the provider
+        public const int numOfWorkers = 50; // how many workers are needed to keep the max size of the shared buffer between 50 - 100?
+        public const int minSendIntervalTime = 37; // min sending interval time (in msec) by the provider
+        public const int maxSendIntervalTime = 370; // max sending interval time (in msec) by the provider
     }
 
     // The values of FixedParams must not change in the final submission.
     class FixedParams
     {
-        // maxchallenges should be 500
         public const int maxNumOfChallenges = 500; // max number of challenges to be solved from the input file
         public const int minTaskExeTime = 1000;  // min execution time (in msec) for abstract tasks
         public const int maxTaskExeTime = 3000;  // max execution time (in msec) for abstract tasks
@@ -40,15 +39,13 @@ namespace Decoder
     {
         static void Main(string[] args)
         {
-            // uncomment before submitting
-
             string logFilePath = "", logFooter = "", logContent = "", logTiming = "" , logResult = "";
 
             Stopwatch seqSW = new Stopwatch();
             Stopwatch conSW = new Stopwatch();
 
             seqSW.Start();
-            //new Launch().SequentialTaskExecution();
+            new Launch().SequentialTaskExecution();
             seqSW.Stop();
 
             TimeSpan seqET = seqSW.Elapsed;

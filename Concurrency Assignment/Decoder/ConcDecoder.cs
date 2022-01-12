@@ -124,7 +124,6 @@ namespace ConcDecoder
 
             foreach(Thread t in threads) {
                 t.Start();
-                Thread.Sleep(5000);
             }
 
             foreach(Thread t in threads) {

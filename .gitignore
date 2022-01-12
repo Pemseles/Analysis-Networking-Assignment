@@ -16,8 +16,23 @@ Concurrency Assignment/Decoder/obj/Debug/net5.0/Decoder.GeneratedMSBuildEditorCo
 *.dll
 *.exe
 *.pdb
-*.txt
 *.json
 ConcurrentCSharp/Asynchronous/obj/Debug/netcoreapp3.1/Asynchronous.assets.cache
 Concurrency Assignment/Decoder/obj/Decoder.csproj.nuget.g.props
 Concurrency Assignment/Decoder/obj/Decoder.csproj.nuget.g.targets
+*.DS_Store
+*.props
+*.targets
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibBookHelper/obj/Debug/net5.0/.NETCoreApp,Version=v5.0.AssemblyAttributes.cs
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibBookHelper/obj/Debug/net5.0/BookHelper.AssemblyInfo.cs
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibBookHelper/obj/Debug/net5.0/BookHelper.csproj.CopyComplete
+*.editorconfig
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibClient/obj/Debug/net5.0/.NETCoreApp,Version=v5.0.AssemblyAttributes.cs
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibClient/obj/Debug/net5.0/LibClient.AssemblyInfo.cs
+*.CopyComplete
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibServer/obj/Debug/net5.0/.NETCoreApp,Version=v5.0.AssemblyAttributes.cs
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibServer/obj/Debug/net5.0/LibServer.AssemblyInfo.cs
+Concurrency Assignment/Decoder/obj/Debug/net5.0/Decoder.csproj.FileListAbsolute.txt
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibBookHelper/obj/Debug/net5.0/BookHelper.csproj.FileListAbsolute.txt
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibClient/obj/Debug/net5.0/LibClient.csproj.FileListAbsolute.txt
+Networking Assignment Retake/DistLibraryRetakeStudentV1.3/LibServer/obj/Debug/net5.0/LibServer.csproj.FileListAbsolute.txt
