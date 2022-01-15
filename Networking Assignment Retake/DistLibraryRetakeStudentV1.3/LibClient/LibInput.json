@@ -1,8 +1,5 @@
 ﻿[
   {
-    "BookName": "yr mom's book :))"
-  },
-  {
     "BookName": "War and Peace"
   },
   {
@@ -13,5 +10,11 @@
   },
   {
     "BookName": "An Unknown Book"
+  },
+  {
+    "BookName": "Hamlet, Prince of Denmark"
+  },
+  {
+    "BookName": "Bleak House"
   }
 ]

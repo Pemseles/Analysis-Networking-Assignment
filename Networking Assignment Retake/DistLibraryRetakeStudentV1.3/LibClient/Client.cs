@@ -131,7 +131,6 @@ namespace LibClient
             {
                 // init of values
                 GetConfigurationValue();
-                Console.WriteLine("in createSocketAndConnect()");
                 this.serverEndPoint = new IPEndPoint(IPAddress.Parse(settings.ServerIPAddress), settings.ServerPortNumber);
                 this.clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
@@ -140,7 +139,7 @@ namespace LibClient
             }
             catch (Exception e)
             {
-                Console.WriteLine("error occured; createSocketAndConnect :) was: {0}", e.Message);
+                Console.WriteLine("error inside createSocketAndConnect, probably because of something going wrong with connection to LibServer");
             }
         }
 
@@ -164,7 +163,6 @@ namespace LibClient
             //todo: To meet the assignment requirement, finish the implementation of this method.
             try
             {
-                Console.WriteLine("inside HandleConnection");
                 byte[] buffer = new byte[1000];
                 string data = "";
 
@@ -175,25 +173,23 @@ namespace LibClient
 
                 byte[] helloMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(helloMsg));
 
-                
-
                 this.clientSocket.Send(helloMsgSend);
                 
-                Console.WriteLine("Hello msg sent :)");
+                Console.WriteLine("Hello message sent to LibServer");
 
                 // recieve Welcome msg from LibServer
                 int recievedInt = this.clientSocket.Receive(buffer);
                 data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
                 Message recievedMsg = JsonSerializer.Deserialize<Message>(data);
 
-                Console.WriteLine("recieved Welcome msg; type={0} content={1}", recievedMsg.Type, recievedMsg.Content);
+                Console.WriteLine("recieved Welcome message from LibServer");
 
                 // process Welcome msg & send BookInquiry to LibServer
                 Message bookInqMsg = processMessage(recievedMsg);
                 byte[] bookInqMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(bookInqMsg));
                 this.clientSocket.Send(bookInqMsgSend);
 
-                Console.WriteLine("BookInq msg sent :))");
+                Console.WriteLine("BookInquiry message sent to LibServer");
 
                 // recieve BookInquiryReply / NotFound / Error msg from LibServer
                 recievedInt = this.clientSocket.Receive(buffer);
@@ -206,7 +202,7 @@ namespace LibClient
                     recievedBook = JsonSerializer.Deserialize<BookData>(recievedMsg.Content);
                 }
 
-                Console.WriteLine("recieved BookInquiryReply msg; type={0} content={1}", recievedMsg.Type, recievedMsg.Content);
+                Console.WriteLine("recieved {0} message from LibServer", recievedMsg.Type);
 
                 // build output
                 this.result.BookName = this.bookName;
@@ -235,7 +231,7 @@ namespace LibClient
                 this.clientSocket.Close();
             }
             catch (Exception e) {
-                Console.WriteLine("error; handleConnectionAndMessagesToServer ;-; was: {0}", e.Message);
+                Console.WriteLine("error inside handleConnectionAndMessagesToServer, most likely due to something going wrong mid-execution with LibServer connection");
 
                 // closing socket instance
                 this.clientSocket.Close();
@@ -260,7 +256,7 @@ namespace LibClient
                 }
             }
             catch (Exception e) {
-                Console.WriteLine("error; processMessage >:( was: {0}", e.Message);
+                Console.WriteLine("error inside processMessage, probably due to a type inconsistency");
             }
             return processedMsgResult;
         }

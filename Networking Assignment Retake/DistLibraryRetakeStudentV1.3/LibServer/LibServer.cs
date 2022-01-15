@@ -90,15 +90,10 @@ namespace LibServerSolution
         /// </summary>
         protected override void createSocketAndConnectHelpers()
         {
-            // todo: To meet the assignment requirement, finish the implementation of this method.
-            // Extra Note: If failed to connect to helper. Server should retry 3 times.
-            // After the 3d attempt the server starts anyway and listen to incoming messages to clients
-           
             try
             {
                 // init values
                 GetConfigurationValue();
-                Console.WriteLine("in createSocketAndConnectHelpers()");
 
                 this.listeningPoint = new IPEndPoint(IPAddress.Parse(settings.ServerIPAddress), settings.ServerPortNumber);
                 this.serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -127,15 +122,14 @@ namespace LibServerSolution
                             this.bookHelperSocket.Connect(bookHelperEndpoint);
                         }
                         catch (Exception ee) {
-                            Console.WriteLine("Connection to LibBookHelper unsuccessful, reason={0}", ee.Message);
+                            Console.WriteLine("Connection with LibBookHelper unsuccessful, tries left: 0, LibServer starting anyways");
                             Thread.Sleep(1000);
-                            Console.WriteLine("LibServer starting anyways");
                         }
                     }
                 }
             }
             catch (Exception e){
-                Console.WriteLine("error; createSocketAndConnectHelpers :< was: {0}", e.Message);
+                Console.WriteLine("error inside createSocketAndConnectHelpers, most likely due to file inconsistency or instance of LibClient/LibBookHelper not running");
             }
         }
 
@@ -146,16 +140,12 @@ namespace LibServerSolution
         /// </summary>
         public override void handelListening()
         {
-            //todo: To meet the assignment requirement, finish the implementation of this method.
-
             while (true) {
                 Socket newServerSocket = null;
                 createSocketAndConnectHelpers();
                 try
                 {
                     // setup
-                    Console.WriteLine("inside handleListening()");
-                    Console.WriteLine("LibBookHelper status={0}", this.bookHelperSocket.Connected);
                     byte[] buffer = new byte[1000];
                     string data = "";
                     newServerSocket = this.serverSocket.Accept();
@@ -165,65 +155,56 @@ namespace LibServerSolution
                     data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
                     Message receivedMsg = JsonSerializer.Deserialize<Message>(data);
 
-                    Console.WriteLine("recieved Hello msg; type={0} content={1}", receivedMsg.Type, receivedMsg.Content);
+                    Console.WriteLine("Current client: {0}", receivedMsg.Content);
+
+                    Console.WriteLine("recieved Hello message from LibClient");
 
                     // process Hello msg & send Welcome msg to LibClient
                     Message welcomeMsg = processMessage(receivedMsg);
                     byte[] welcomeMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(welcomeMsg));
                     newServerSocket.Send(welcomeMsgSend);
 
-                    Console.WriteLine("Welcome msg sent :)");
+                    Console.WriteLine("Welcome message sent to LibClient");
 
                     // recieve BookInquiry msg from Libclient
                     recievedInt = newServerSocket.Receive(buffer);
                     data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
                     receivedMsg = JsonSerializer.Deserialize<Message>(data);
 
-                    Console.WriteLine("recieved BookInquiry msg; type={0} content={1}", receivedMsg.Type, receivedMsg.Content);
+                    Console.WriteLine("recieved BookInquiry message from LibClient");
 
                     // send BookInquiry msg to LibBookHelper; if not connected: sends error msg instead
-                    if (this.bookHelperSocket.Connected == true) {
-                        byte[] bookInqMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(receivedMsg));
-                        this.bookHelperSocket.Send(bookInqMsgSend);
+                    Message inquiryReply = new Message();
 
-                        Console.WriteLine("BookInquiry msg forwarded to LibBookHelper :)");
-
-                        // recieve BookInquiryReply msg from LibBookHelper
-                        recievedInt = this.bookHelperSocket.Receive(buffer);
-                        data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
-                        receivedMsg = JsonSerializer.Deserialize<Message>(data);
-
-                        Console.WriteLine("recieved BookInquiryReply msg; type={0} content={1}", receivedMsg.Type, receivedMsg.Content);
-
-                        // send BookInquiryReply msg to LibClient
-                        bookInqMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(receivedMsg));
-                        newServerSocket.Send(bookInqMsgSend);
-
-                        Console.WriteLine("BookInquiryReply msg forwarded to LibClient :)");
+                    try {
+                        inquiryReply = requestDataFromHelpers(receivedMsg.Content);
                     }
-                    else {
-                        // makes & sends Error msg to libClient
-                        Console.WriteLine("not connected to LibBookHelper; send Error msg to LibClient instead");
-                        Message errorMsg = new Message();
-                        errorMsg.Type = MessageType.Error;
-                        errorMsg.Content = "not an error technically, just not connected to LibBookHelper so it can't get the requested book :(";
-                        byte[] errorMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(errorMsg));
-                        newServerSocket.Send(errorMsgSend);
-                        
-                        Console.WriteLine("Error msg sent to LibClient :)");
+                    catch (Exception e) {
+                        Console.WriteLine("error while communicating with LibBookHelper");
                     }
+
+                    // send BookInquiryReply msg to LibClient
+                    byte[] bookInqMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(inquiryReply));
+                    newServerSocket.Send(bookInqMsgSend);
+
+                    Console.WriteLine("{0} message forwarded to LibClient", inquiryReply.Type);
+
+                    // close sockets; end of operations    
                     this.serverSocket.Close();
                     newServerSocket.Close();
                     this.bookHelperSocket.Close();
+
+                    
                 }
                 catch (Exception e) {
-                    Console.WriteLine("error; handleListening ;> was: {0}", e.Message);
+                    Console.WriteLine("error inside handelListening, most likely due to LibClient/LibBookHelper suddenly ending during execution");
 
                     // closing socket instance
                     this.serverSocket.Close();
                     newServerSocket.Close();
                     this.bookHelperSocket.Close();
                 }
+                Console.WriteLine("----------------");
                 Thread.Sleep(200);
             }
         }
@@ -236,7 +217,7 @@ namespace LibServerSolution
         protected override Message processMessage(Message message)
         {
             Message pmReply = new Message();
-            //todo: To meet the assignment requirement, finish the implementation of this method.
+
             try
             {
                 if (message.Type == MessageType.Hello) {
@@ -245,7 +226,7 @@ namespace LibServerSolution
                 }
             }
             catch (Exception e) {
-                Console.WriteLine("error; processMessage >:( was: {0}", e.Message);
+                Console.WriteLine("error inside processMessage, probably because of type inconsistencies");
             }
 
             return pmReply;
@@ -259,14 +240,38 @@ namespace LibServerSolution
         protected override Message requestDataFromHelpers(string content)
         {
             Message HelperReply = new Message();
-            //todo: To meet the assignment requirement, finish the implementation of this method .
+            Message ToHelper = new Message();
+            byte[] buffer = new byte[1000];
 
-            // try
-            // {
+            try
+            {
+                ToHelper.Type = MessageType.BookInquiry;
+                ToHelper.Content = content;
 
-               
-            // }
-            // catch () { }
+                byte[] bookInqMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(ToHelper));
+                this.bookHelperSocket.Send(bookInqMsgSend);
+
+                Console.WriteLine("BookInquiry message forwarded to LibBookHelper");
+
+                // recieve BookInquiryReply msg from LibBookHelper
+                int recievedInt = this.bookHelperSocket.Receive(buffer);
+                string data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
+                HelperReply = JsonSerializer.Deserialize<Message>(data);
+
+                Console.WriteLine("recieved BookInquiryReply message from LibBookHelper");
+            }
+            catch (Exception e) {
+                try {
+                    // makes & sends Error msg to libClient
+                    Console.WriteLine("not connected to LibBookHelper, sending error message to LibClient");
+
+                    HelperReply.Type = MessageType.Error;
+                    HelperReply.Content = "not an error technically, just not connected to LibBookHelper so it can't get the requested book";
+                }
+                catch (Exception ee) { 
+                    Console.WriteLine("error inside requestDataFromHelpers, most likely due to connectivity issues or type inconsistencies");
+                }
+            }
             
             return HelperReply;
         }

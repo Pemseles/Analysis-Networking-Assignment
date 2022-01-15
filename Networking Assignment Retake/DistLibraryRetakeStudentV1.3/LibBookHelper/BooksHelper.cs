@@ -97,7 +97,7 @@ namespace BookHelperSolution
                 this.booksList = JsonSerializer.Deserialize<List<BookData>>(fullBookDataJsonString);
             }
             catch (Exception e){
-                Console.WriteLine("error; loadDataFromJson :)( was: {0}", e.Message);
+                Console.WriteLine("error inside loadDataFromJson, probably due to file inconsistencies");
             }
         }
 
@@ -111,7 +111,6 @@ namespace BookHelperSolution
             {
                 // init values
                 GetConfigurationValue();
-                Console.WriteLine("in createSocket()");
 
                 this.listeningPoint = new IPEndPoint(IPAddress.Parse(settings.BookHelperIPAddress), settings.BookHelperPortNumber);
                 this.listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -121,7 +120,7 @@ namespace BookHelperSolution
                 this.listener.Listen(settings.ServerListeningQueue);
             }
             catch (Exception e){
-                Console.WriteLine("error; createSocket :(] was: {0}", e.Message);
+                Console.WriteLine("error inside createSocket, probably something to do with initialisation of socket connection with LibServer");
             }
         }
 
@@ -152,7 +151,6 @@ namespace BookHelperSolution
                 {
                     createSocket();
                     // setup
-                    Console.WriteLine("inside handleListening()");
                     byte[] buffer = new byte[1000];
                     string data = "";
                     newHelperSocket = this.listener.Accept();
@@ -162,26 +160,29 @@ namespace BookHelperSolution
                     data = Encoding.ASCII.GetString(buffer, 0, recievedInt);
                     Message recievedMsg = JsonSerializer.Deserialize<Message>(data);
 
-                    Console.WriteLine("recieved BookInquiry msg; type={0} content={1}", recievedMsg.Type, recievedMsg.Content);
+                    Console.WriteLine("recieved BookInquiry message from LibServer");
 
                     // process BookInquiry msg & send BookInquiryReply msg back to LibServer
                     Message inqReplyMsg = processMessage(recievedMsg);
                     byte[] inqReplyMsgSend = Encoding.ASCII.GetBytes(JsonSerializer.Serialize(inqReplyMsg));
                     newHelperSocket.Send(inqReplyMsgSend);
 
-                    Console.WriteLine("BookInquiryReply msg sent :)");
+                    Console.WriteLine("BookInquiryReply message sent to LibServer");
 
                     // closing socket instance
                     this.listener.Close();
                     newHelperSocket.Close();
+
+                    
                 }
                 catch(Exception e) {
-                    Console.WriteLine("error; handleListening :] was: {0}", e.Message);
+                    Console.WriteLine("error inside handleListening, most likely because LibServer stopped running during execution");
 
                     // closing socket instance
                     this.listener.Close();
                     newHelperSocket.Close();
                 }
+                Console.WriteLine("----------------");
                 Thread.Sleep(200);
             }
         }
@@ -219,7 +220,7 @@ namespace BookHelperSolution
                 }
             }
             catch (Exception e) {
-                Console.WriteLine("error; processMessage :[] was: {0}", e.Message);
+                Console.WriteLine("error inside processMessage, most likely because of a type inconsistency");
             }
             return reply;
         }
