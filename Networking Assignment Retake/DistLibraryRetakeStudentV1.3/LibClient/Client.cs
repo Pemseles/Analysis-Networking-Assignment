@@ -206,13 +206,18 @@ namespace LibClient
 
                 // build output
                 this.result.BookName = this.bookName;
-                this.result.Error = recievedMsg.Type == MessageType.Error ? "True" : "False";
+                this.result.Error = recievedMsg.Type == MessageType.Error ? "True" : null;
                 // try-catches in case book wasn't found; if it isn't found, msg content doesn't contain BookData
                 try {
                     this.result.Status = recievedBook.Status;
                 }
                 catch {
-                    this.result.Status = "Not Found";
+                    if (recievedMsg.Type == MessageType.NotFound) {
+                        this.result.Status = "Not Found";
+                    }
+                    else {
+                        this.result.Status = null;
+                    }
                 }
                 try {
                     this.result.BorrowerName = recievedBook.BorrowedBy;
