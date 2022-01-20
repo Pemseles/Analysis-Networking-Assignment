@@ -28,13 +28,15 @@ namespace ConcDecoder
         public override void AddTask(TaskDecryption task)
         {
             lock(pMutex) {
-                base.taskBuffer.Enqueue(task);
+                lock (wMutex) {
+                    base.taskBuffer.Enqueue(task);
             
-                base.numOfTasks++;
-                base.maxBuffSize = base.taskBuffer.Count > base.maxBuffSize ? base.taskBuffer.Count  : base.maxBuffSize;
+                    base.numOfTasks++;
+                    base.maxBuffSize = base.taskBuffer.Count > base.maxBuffSize ? base.taskBuffer.Count  : base.maxBuffSize;
 
-                base.LogVisualisation();
-                this.PrintBufferSize();
+                    base.LogVisualisation();
+                    this.PrintBufferSize();
+                }
             }
         }
 
