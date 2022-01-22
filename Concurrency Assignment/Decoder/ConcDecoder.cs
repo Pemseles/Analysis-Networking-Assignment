@@ -11,9 +11,7 @@ namespace ConcDecoder
     public class ConcurrentTaskBuffer : TaskBuffer
     {
         // pSem = Provider Semaphore & wSem = Worker Semaphore
-        public Semaphore pSem, wSem;
-        private readonly Object pMutex;
-        private readonly Object wMutex;
+        private readonly Object pMutex, wMutex;
 
         public ConcurrentTaskBuffer() : base()
         {
