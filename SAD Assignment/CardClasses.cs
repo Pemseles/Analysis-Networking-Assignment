@@ -8,41 +8,40 @@ namespace SAD_Assignment
 
     public abstract class Card {
         public int PlayerId { get; set; }
+        public string CardName { get; set; }
+        public string CardDescription { get; set; }
         public int EnergyCost { get; set; }
         public Color Color { get; set; }
         public Type Type { get; set; }
+        // State: 0 = able to be played, 1 = not able to be played (for now)
+        public CardEffect Effect { get; set; }
         public int State { get; set; }
         public int TurnsActive { get; set; }
-        public abstract void Activate();
     }
     public class Land : Card {
-        public Land(int playerId, Color color) {
+        public Land(int playerId, string cardname, string carddescription, Color color) {
             this.EnergyCost = 0;
             this.PlayerId = playerId;
+            this.CardName = cardname;
+            this.CardDescription = carddescription;
             this.Color = color;
             this.Type = Type.Land;
-            this.State = "Available";
+            this.State = 0;
             this.TurnsActive = -1;
-        }
-        public override void Activate(CardEffect effect)
-        {
-            throw new NotImplementedException();
         }
     }
     public class PermaSpell : Card {
         public int HP { get; set; }
         public int Attack { get; set; }
-        public PermaSpell(int cost, int playerId, Color color, int turnsActive) {
+        public PermaSpell(int cost, int playerId, Color color, int turnsActive, int hp, int attack) {
             this.EnergyCost = cost;
             this.PlayerId = playerId;
             this.Color = color;
             this.Type = Type.PermanentSpell;
-            this.State = "Available";
+            this.State = 0;
             this.TurnsActive = turnsActive;
-        }
-        public override void Activate(CardEffect effect)
-        {
-            throw new NotImplementedException();
+            this.HP = hp;
+            this.Attack = attack;
         }
     }
     public class InstaSpell : Card {
@@ -51,12 +50,8 @@ namespace SAD_Assignment
             this.PlayerId = playerId;
             this.Color = color;
             this.Type = Type.InstantSpell;
-            this.State = "Available";
+            this.State = 0;
             this.TurnsActive = 1;
-        }
-        public override void Activate(CardEffect effect)
-        {
-            throw new NotImplementedException();
         }
     }
 }
