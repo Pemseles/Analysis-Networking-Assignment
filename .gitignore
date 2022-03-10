@@ -1,2 +1,10 @@
 *.editorconfig
 *.json
+*.dll
+*.exe
+*.pdb
+*.cache
+SAD Assignment/obj/Debug/net5.0/SAD Assignment.csproj.FileListAbsolute.txt
+*.cache
+SAD Assignment/obj/Debug/net5.0/SAD Assignment.assets.cache
+*.cache

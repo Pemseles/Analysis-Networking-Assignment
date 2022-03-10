@@ -5,20 +5,50 @@ namespace SAD_Assignment
 {
     class Program
     {
+        public static Random rnd = new Random();
         static void Main(string[] args)
         {
-            Stack<Card> deck1 = new Stack<Card>();
-            Stack<Card> deck2 = new Stack<Card>();
+            PlayerContainer players = new PlayerContainer(20);
 
-            Player p1 = new Player(1, 20, deck1);
-            Player p2 = new Player(2, 20, deck2);
+            Stack<Card> deck1 = GenerateDeck(PlayerContainer.Player1);
+            Stack<Card> deck2 = GenerateDeck(PlayerContainer.Player2);
 
-            Game newGame = new Game(p1, p2);
-            newGame.StartGame();
+            PlayerContainer.Player1.AddDeck(deck1);
+            PlayerContainer.Player2.AddDeck(deck2);
+
+            Game newGame = new Game(PlayerContainer.Player1, PlayerContainer.Player2);
+            //newGame.StartGame();
         }
-        public Stack<Card> GenerateDeck() {
+        public static Stack<Card> GenerateDeck(Player p) {
             // randomly choose a pool of cards (like 5 lands, 10 permanents & 15 instas)
-            return null;
+
+            Array colors = typeof(Color).GetEnumValues();
+            Stack<Card> newDeck = new Stack<Card>();
+
+            while (newDeck.Count < 5) {
+                // change how it makes lands, maybe make a sample of preset cards
+                Color randomColor = (Color)colors.GetValue(rnd.Next(colors.Length));
+                Land newLand = new Land(p.ID, "emptyName", "emptyDescription", randomColor, new GenerateEnergy());
+                newDeck.Push(newLand);
+            }
+            while (newDeck.Count < 15) {
+                // change how it makes permas, maybe make a sample of preset cards
+                Color randomColor = (Color)colors.GetValue(rnd.Next(colors.Length));
+                PermaSpell newPerma = new PermaSpell(rnd.Next(1, 4), p.ID, "emptyName", "emptyDescription", randomColor, rnd.Next(3, 16), null, rnd.Next(5, 16), rnd.Next(5, 16));
+                newDeck.Push(newPerma);
+            }
+            while (newDeck.Count < 30) {
+                // change how it makes instas, maybe make a sample of preset cards
+                Color randomColor = (Color)colors.GetValue(rnd.Next(colors.Length));
+                InstaSpell newInsta = new InstaSpell(rnd.Next(1, 4), p.ID, "emptyName", "emptyDescription", randomColor, null);
+                newDeck.Push(newInsta);
+            }
+
+            foreach(Card item in newDeck) {
+                Console.WriteLine(item.GetInfo());
+            }
+
+            return newDeck;
         }
     }
 }

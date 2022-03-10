@@ -3,16 +3,12 @@ using System.Collections.Generic;
 
 namespace SAD_Assignment
 {
-    public class EnergyContainer {
-        public int RedEnergy { get; set; }
-        public int BlueEnergy { get; set; }
-        public int YellowEnergy { get; set; }
-        public int GreenEnergy { get; set; }
-        public int BlackEnergy { get; set; }
-        public int ColorlessEnergy { get; set; }
-        public EnergyContainer() {
-            this.RedEnergy = this.BlueEnergy = this.YellowEnergy = 0;
-            this.GreenEnergy = this.BlackEnergy = this.ColorlessEnergy = 0;
+    public class PlayerContainer {
+        public static Player Player1 { get; set; }
+        public static Player Player2 { get; set; }
+        public PlayerContainer(int playerHP) {
+            Player1 = new Player(1, playerHP);
+            Player2 = new Player(2, playerHP);
         }
     }
     public class Player {
@@ -21,14 +17,24 @@ namespace SAD_Assignment
         public List<Card> Hand { get; set; }
         public Stack<Card> DiscardPile { get; set; }
         public int HP { get; set; }
-        public EnergyContainer EnergyReserve { get; set; }
-        public Player(int id, int hp, Stack<Card> deck) {
+        public Dictionary<string, int> EnergyReserve { get; set; }
+        public Player(int id, int hp) {
             this.ID = id;
-            this.EnergyReserve = new EnergyContainer();
+            this.EnergyReserve = new Dictionary<string, int>(){
+                {"Red", 0},
+                {"Blue", 0},
+                {"Yellow", 0},
+                {"Green", 0},
+                {"Black", 0},
+                {"Colorless", 0}
+            };
             this.HP = hp;
-            this.Deck = deck;
+            this.Deck = null;
             this.Hand = new List<Card>();
             this.DiscardPile = new Stack<Card>();
+        }
+        public void AddDeck(Stack<Card> deck) {
+            this.Deck = deck;
         }
         public void ShuffleDeck() {
             // randomises order of Cards in Deck
@@ -40,11 +46,12 @@ namespace SAD_Assignment
             // (amount > 0) = damage; (amount < 0) = healing
 
         }
+        public void ChangeEnergy(int amount, Color color) {
+            // adds {amount} energy of specified color to energy reserve (if < 0 it subtracts)
+            this.EnergyReserve[color.ToString()] = this.EnergyReserve[color.ToString()] + amount;
+        }
         public void DrawCards(int amount) {
             // take cards from Deck to Hand (equal to amount)
-        }
-        public void GenerateEnergy(int amount, Color color) {
-            // adds energy from lands to energyreserve's respective energy color
         }
         public void PlayCard(Card cardToPlay) {
             // activate effect of card (depending on effect, move to DiscardPile or keep in hand)
