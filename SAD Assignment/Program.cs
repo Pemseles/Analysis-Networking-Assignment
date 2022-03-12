@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SAD_Assignment
 {
@@ -18,37 +19,54 @@ namespace SAD_Assignment
 
             Game newGame = new Game(PlayerContainer.Player1, PlayerContainer.Player2);
             //newGame.StartGame();
+
+            PlayerContainer.Player1.ShuffleDeck();
         }
         public static Stack<Card> GenerateDeck(Player p) {
             // randomly choose a pool of cards (like 5 lands, 10 permanents & 15 instas)
 
-            Array colors = typeof(Color).GetEnumValues();
-            Stack<Card> newDeck = new Stack<Card>();
+            // generate presetCards & instantiate empty deck
+            PresetContainer presetCards = new PresetContainer(p);
+            List<Card> newDeck = new List<Card>();
 
+            // fill deck w 5 lands
             while (newDeck.Count < 5) {
-                // change how it makes lands, maybe make a sample of preset cards
-                Color randomColor = (Color)colors.GetValue(rnd.Next(colors.Length));
-                Land newLand = new Land(p.ID, "emptyName", "emptyDescription", randomColor, new GenerateEnergy());
-                newDeck.Push(newLand);
+                // generate the list of duplicates & pick a new card from list of presets
+                IEnumerable<Card> dupes = DuplicateCheck(newDeck);
+                Card newCard = PresetContainer.Lands.PresetLandsList[rnd.Next(PresetContainer.Lands.PresetLandsList.Count)];
+
+                // checks if there is already 3 of chosen card in deck
+                if (!dupes.Contains(newCard)) {
+                   newDeck.Add(newCard); 
+                }
             }
+            // fill deck w 10 creatures
             while (newDeck.Count < 15) {
-                // change how it makes permas, maybe make a sample of preset cards
-                Color randomColor = (Color)colors.GetValue(rnd.Next(colors.Length));
-                PermaSpell newPerma = new PermaSpell(rnd.Next(1, 4), p.ID, "emptyName", "emptyDescription", randomColor, rnd.Next(3, 16), null, rnd.Next(5, 16), rnd.Next(5, 16));
-                newDeck.Push(newPerma);
+                // generate the list of duplicates & pick a new card from list of presets
+                IEnumerable<Card> dupes = DuplicateCheck(newDeck);
+                Card newCard = PresetContainer.Permas.PresetPermasList[rnd.Next(PresetContainer.Permas.PresetPermasList.Count)];
+
+                // checks if there is already 3 of chosen card in deck
+                if (!dupes.Contains(newCard)) {
+                   newDeck.Add(newCard); 
+                }
             }
+            // fill deck w 15 instant spells
             while (newDeck.Count < 30) {
-                // change how it makes instas, maybe make a sample of preset cards
-                Color randomColor = (Color)colors.GetValue(rnd.Next(colors.Length));
-                InstaSpell newInsta = new InstaSpell(rnd.Next(1, 4), p.ID, "emptyName", "emptyDescription", randomColor, null);
-                newDeck.Push(newInsta);
-            }
+                // generate the list of duplicates & pick a new card from list of presets
+                IEnumerable<Card> dupes = DuplicateCheck(newDeck);
+                Card newCard = PresetContainer.Instas.PresetInstasList[rnd.Next(PresetContainer.Instas.PresetInstasList.Count)];
 
-            foreach(Card item in newDeck) {
-                Console.WriteLine(item.GetInfo());
+                // checks if there is already 3 of chosen card in deck
+                if (!dupes.Contains(newCard)) {
+                   newDeck.Add(newCard); 
+                }
             }
-
-            return newDeck;
+            
+            return new Stack<Card>(newDeck);
+        }
+        public static IEnumerable<Card> DuplicateCheck(List<Card> cardList) {
+            return cardList.GroupBy(x => x).Where(g => g.Count() > 3).Select(x => x.Key);
         }
     }
 }

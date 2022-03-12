@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SAD_Assignment
 {
@@ -12,6 +13,7 @@ namespace SAD_Assignment
         }
     }
     public class Player {
+        public static Random rnd = new Random();
         public int ID { get; }
         public Stack<Card> Deck { get; set; }
         public List<Card> Hand { get; set; }
@@ -38,9 +40,33 @@ namespace SAD_Assignment
         }
         public void ShuffleDeck() {
             // randomises order of Cards in Deck
+
+            // init of new shuffled Deck and a copy of current unshuffled deck
+            Stack<Card> shuffledDeck = new Stack<Card>();
+            List<Card> cardList = new List<Card>(this.Deck);
+
+            while (cardList.Count != 0) {
+                // generate random index; item at index in unshuffled deck is moved to new deck
+                int cardListIndex = rnd.Next(cardList.Count);
+
+                // guarantees at least 1 land in the first 7 cards (is for when filling the player's hand, they can actually do something with their hand)
+                if (shuffledDeck.Count == 6 && !shuffledDeck.Any(c => c.Type == Type.Land) && cardList[cardListIndex].Type != Type.Land) {
+                    for (int i = 0; i < cardList.Count; i++) {
+                        if (cardList[i].Type == Type.Land) {
+                            cardListIndex = i;
+                        }
+                    }
+                }
+                shuffledDeck.Push(cardList[cardListIndex]);
+                cardList.RemoveAt(cardListIndex);
+            }
+            // deck is inverted; otherwise the 'at least 1 land' condition won't work 
+            // (elements are added on top and taken from the top; would mean the 'guaranteed land' gets buried if not inverted)
+            shuffledDeck = new Stack<Card>(shuffledDeck);
+            this.Deck = shuffledDeck;
         }
         public void DiscardHand(int amount) {
-            // take cards from Deck to DiscardPile (equal to amount)
+            // take cards from Hand to DiscardPile (equal to amount)
         }
         public void ChangeHP(int amount) {
             // (amount > 0) = damage; (amount < 0) = healing

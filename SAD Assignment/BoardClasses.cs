@@ -38,7 +38,7 @@ namespace SAD_Assignment
         public void StartGame() {
             // main method
 
-            // player priority is decided at the start of the game (stays this way for entire duration of the game)
+            // Pre-game prep (PlayerPriority is determined, Decks are shuffled & hands are filled)
             this.PlayerPriority = this.rnd.Next(2);
             
             // while-loop that keeps game going until winner is decided
