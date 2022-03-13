@@ -34,7 +34,7 @@ namespace SAD_Assignment
                 // creature spells 
                 new PermaSpell(2, p.ID, "Flamebringer", "A simple, fiery creature with lots of attack, but lacking in defenses. Does not have a special ability.", Color.Red, 3, null, 2, 6), 
                 new PermaSpell(1, p.ID, "Slime", "A lackluster but cheap creature, capable of doing light damage but can't take hits very well. Can buff the defense of your creatures by 1.", Color.Blue, 4, new StatAugmentPerma(0, 1, Target.Yours), 2, 2), 
-                new PermaSpell(3, p.ID, "Bouldersmasher", "A defensive but offensively weak creature, capable of taking many hits. Can debuff opposing creatures' attack by 2.", Color.Yellow, 6, new StatAugmentPerma(-2, 0, Target.Opponents), 10, 1), 
+                new PermaSpell(3, p.ID, "Bouldersmasher", "A defensive but offensively weak creature, capable of taking many hits. Can debuff opposing creatures' attack by 2.", Color.Yellow, 6, new StatAugmentPerma(0, -2, Target.Opponents), 10, 1), 
                 new PermaSpell(3, p.ID, "Vegemonster", "A balanced creature, capable being both decent offensively and defensively. Does not have a special ability.", Color.Green, 4, null, 5, 5), 
                 new PermaSpell(2, p.ID, "Shady Shroom", "A malicious creature with low-ish stats. Can debuff opposing creatures' attack and defense by 1.", Color.Black, 5, new StatAugmentPerma(-1, -1, Target.Opponents), 4, 3), 
                 new PermaSpell(4, p.ID, "Chemburner", "A strange and unstable creature with decent stats. Can buff your creatures' attack by 2.", Color.Colorless, 3, new StatAugmentPerma(0, 2, Target.Yours), 5, 4) 

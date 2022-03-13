@@ -54,9 +54,11 @@ namespace SAD_Assignment
         }
         public void AddLands(Land landToAdd) {
             // add lands to LandsOnBoard
+            this.LandsOnBoard.Add(landToAdd);
         }
         public void AddToCardQueue(Card cardToAdd) {
             // add card to CardQueue
+            this.CardQueue.Enqueue(cardToAdd);
         }
         public void HandleCardQueue() {
             // handles card effects in CardQueue when they need to activate

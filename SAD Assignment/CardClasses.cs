@@ -37,9 +37,9 @@ namespace SAD_Assignment
         }
     }
     public class PermaSpell : Card {
-        public CardEffect<PermaSpell> Effect { get; set; }
         public int HP { get; set; }
         public int Attack { get; set; }
+        public CardEffect<PermaSpell> Effect { get; set; }
         public PermaSpell(int cost, int playerId, string cardName, string cardDescription, Color color, int turnsActive, CardEffect<PermaSpell> effect, int hp, int attack) {
             this.EnergyCost = cost;
             this.PlayerId = playerId;
@@ -56,6 +56,14 @@ namespace SAD_Assignment
         public override string GetInfo()
         {
             return $"[Perma Info:] PlayerId={this.PlayerId}, CardName={this.CardName}, CardDescription={this.CardDescription}, EnergyCost={this.EnergyCost}, HP={this.HP}, Attack={this.Attack} Color={this.Color}, Type={this.Type}, Effect={this.Effect}, State={this.State}, TurnsActive={this.TurnsActive}";
+        }
+        public void DoAttack(PermaSpell targetCreature) {
+            // attack the given Creature; uses this.attack to reduce it's hp
+            targetCreature.HP = targetCreature.HP - this.Attack;
+        }
+        public void DoAttack(Player targetPlayer) {
+            // overload for when there is no creature to attack, attacks player instead
+            targetPlayer.HP = targetPlayer.HP - this.Attack;
         }
     }
     public class InstaSpell : Card {

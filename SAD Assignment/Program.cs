@@ -19,8 +19,7 @@ namespace SAD_Assignment
 
             Game newGame = new Game(PlayerContainer.Player1, PlayerContainer.Player2);
             //newGame.StartGame();
-
-            PlayerContainer.Player1.ShuffleDeck();
+            
         }
         public static Stack<Card> GenerateDeck(Player p) {
             // randomly choose a pool of cards (like 5 lands, 10 permanents & 15 instas)
@@ -66,6 +65,8 @@ namespace SAD_Assignment
             return new Stack<Card>(newDeck);
         }
         public static IEnumerable<Card> DuplicateCheck(List<Card> cardList) {
+            // returns an IEnumerable with items in it that are > 3x in the param list
+            // used to check if too many of a specific card are in a player's deck
             return cardList.GroupBy(x => x).Where(g => g.Count() > 3).Select(x => x.Key);
         }
     }

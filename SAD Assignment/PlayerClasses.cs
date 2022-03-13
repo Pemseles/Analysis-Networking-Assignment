@@ -61,26 +61,59 @@ namespace SAD_Assignment
                 cardList.RemoveAt(cardListIndex);
             }
             // deck is inverted; otherwise the 'at least 1 land' condition won't work 
-            // (elements are added on top and taken from the top; would mean the 'guaranteed land' gets buried if not inverted)
+            // (elements are added on top and taken from the top of shuffledDeck; would mean the 'guaranteed land' gets buried if not inverted)
             shuffledDeck = new Stack<Card>(shuffledDeck);
             this.Deck = shuffledDeck;
         }
+        // overloads; no params is used to generate initial hand; int param is used in other specific situations
+        public void FillHand() {
+            // fills this.hand until there's 7 cards; moves cards from deck to hand
+            while (this.Hand.Count < 7) {
+                this.Hand.Add(this.Deck.Pop());
+            }
+        }
+        public void FillHand(int amount) {
+            // fills this.hand with specified amount of cards; moves cards from deck to hand
+            while (amount > 0) {
+                this.Hand.Add(this.Deck.Pop());
+                amount--;
+            }
+        }
         public void DiscardHand(int amount) {
             // take cards from Hand to DiscardPile (equal to amount)
+            // selects random cards to move from hand to discard pile;
+            while (amount > 0) {
+                int handIndex = rnd.Next(this.Hand.Count);
+                this.DiscardPile.Push(this.Hand[handIndex]);
+                this.Hand.RemoveAt(handIndex);
+                amount--;
+            }
         }
         public void ChangeHP(int amount) {
             // (amount > 0) = damage; (amount < 0) = healing
-
+            this.HP = this.HP - amount;
         }
         public void ChangeEnergy(int amount, Color color) {
             // adds {amount} energy of specified color to energy reserve (if < 0 it subtracts)
             this.EnergyReserve[color.ToString()] = this.EnergyReserve[color.ToString()] + amount;
         }
-        public void DrawCards(int amount) {
-            // take cards from Deck to Hand (equal to amount)
-        }
-        public void PlayCard(Card cardToPlay) {
+        public void PlayCard<T>(T card, T targetCard) {
             // activate effect of card (depending on effect, move to DiscardPile or keep in hand)
+            if (typeof(T) == typeof(Land)) {
+                Land cardToPlay = card as Land;
+                Land targetCardToPlay = card as Land;
+                cardToPlay.Effect.ActivateEffect(targetCardToPlay);
+            }
+            else if (typeof(T) == typeof(PermaSpell)) {
+                PermaSpell cardToPlay = card as PermaSpell;
+                PermaSpell targetCardToPlay = card as PermaSpell;
+                cardToPlay.Effect.ActivateEffect(targetCardToPlay);
+            }
+            else {
+                InstaSpell cardToPlay = card as InstaSpell;
+                InstaSpell targetCardToPlay = card as InstaSpell;
+                cardToPlay.Effect.ActivateEffect(targetCardToPlay);
+            }
         }
     }
 }
