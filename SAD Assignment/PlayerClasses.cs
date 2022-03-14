@@ -89,6 +89,16 @@ namespace SAD_Assignment
                 amount--;
             }
         }
+        public void DiscardHand(Card specificCard) {
+            // discards specific card from hand
+            for (int i = 0; i < this.Hand.Count; i++) {
+                if (specificCard.CardName == this.Hand[i].CardName && specificCard.State == this.Hand[i].State) {
+                    this.DiscardPile.Push(this.Hand[i]);
+                    this.Hand.RemoveAt(i);
+                    return;
+                }
+            }
+        }
         public void ChangeHP(int amount) {
             // (amount > 0) = damage; (amount < 0) = healing
             this.HP = this.HP - amount;
@@ -97,21 +107,21 @@ namespace SAD_Assignment
             // adds {amount} energy of specified color to energy reserve (if < 0 it subtracts)
             this.EnergyReserve[color.ToString()] = this.EnergyReserve[color.ToString()] + amount;
         }
-        public void PlayCard<T>(T card, T targetCard) {
+        public void PlayCard<T1>(T1 card, T1 targetCard) {
             // activate effect of card (depending on effect, move to DiscardPile or keep in hand)
-            if (typeof(T) == typeof(Land)) {
+            if (typeof(T1) == typeof(Land)) {
                 Land cardToPlay = card as Land;
                 Land targetCardToPlay = card as Land;
                 cardToPlay.Effect.ActivateEffect(targetCardToPlay);
             }
-            else if (typeof(T) == typeof(PermaSpell)) {
+            else if (typeof(T1) == typeof(PermaSpell)) {
                 PermaSpell cardToPlay = card as PermaSpell;
-                PermaSpell targetCardToPlay = card as PermaSpell;
+                PermaSpell targetCardToPlay = targetCard as PermaSpell;
                 cardToPlay.Effect.ActivateEffect(targetCardToPlay);
             }
             else {
                 InstaSpell cardToPlay = card as InstaSpell;
-                InstaSpell targetCardToPlay = card as InstaSpell;
+                InstaSpell targetCardToPlay = targetCard as InstaSpell;
                 cardToPlay.Effect.ActivateEffect(targetCardToPlay);
             }
         }

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 namespace SAD_Assignment
 {
     public abstract class CardEffect<T> where T : Card {
-        // Target: 0 = Your side of the field, 1 = Opponent's side of the field
-        public int Target { get; set; }
+        public Target Target { get; set; }
         public abstract void ActivateEffect(T param);
+        public abstract void RevertEffect(T param);
     }
     public class StatAugmentPerma : CardEffect<PermaSpell> {
         public int HPAugment { get; set; }
@@ -14,13 +14,19 @@ namespace SAD_Assignment
         public StatAugmentPerma(int hpAugment, int attackAugment, Target target) {
             this.HPAugment = hpAugment;
             this.AttackAugment = attackAugment;
-            this.Target = (int)target;
+            this.Target = target;
         }
         public override void ActivateEffect(PermaSpell param)
         {
             // buff target's stats with fields of class
             param.Attack = param.Attack + this.AttackAugment;
             param.HP = param.HP + this.HPAugment;
+        }
+        public override void RevertEffect(PermaSpell param)
+        {
+            // revert stat changes
+            param.Attack = param.Attack - this.AttackAugment;
+            param.HP = param.HP - this.HPAugment;
         }
     }
     public class StatAugmentInsta : CardEffect<InstaSpell> {
@@ -30,7 +36,7 @@ namespace SAD_Assignment
         public StatAugmentInsta(int hpAugment, int attackAugment, Target target) {
             this.HPAugment = hpAugment;
             this.AttackAugment = attackAugment;
-            this.Target = (int)target;
+            this.Target = target;
         }
         public override void ActivateEffect(InstaSpell param)
         {
@@ -38,6 +44,14 @@ namespace SAD_Assignment
             foreach (PermaSpell perma in PermaTargets) {
                 perma.Attack = perma.Attack - this.AttackAugment;
                 perma.HP = perma.HP - this.HPAugment;
+            }
+        }
+        public override void RevertEffect(InstaSpell param)
+        {
+            // revert stat changes
+            foreach (PermaSpell perma in PermaTargets) {
+                perma.Attack = perma.Attack + this.AttackAugment;
+                perma.HP = perma.HP + this.HPAugment;
             }
         }
         public void SetTargets(int targetId, List<PermaSpell> activePermas) {
@@ -59,12 +73,26 @@ namespace SAD_Assignment
                 PlayerContainer.Player2.ChangeEnergy(1, param.Color);
             }
         }
+        public override void RevertEffect(Land param)
+        {
+            // same as activateEffect but takes energy away instead
+            if (param.State != 1 && param.PlayerId == 1) {
+                PlayerContainer.Player1.ChangeEnergy(-1, param.Color);
+            }
+            else if (param.State != 1 && param.PlayerId == 2) {
+                PlayerContainer.Player2.ChangeEnergy(-1, param.Color);
+            }
+        }
     }
     public class CounterSpell : CardEffect<InstaSpell> {
         public InstaSpell targetSpell { get; set; }
         public override void ActivateEffect(InstaSpell param)
         {
             // make targetSpell inactive; possible cascading effect when cancelling a cancelling spell
+        }
+        public override void RevertEffect(InstaSpell param)
+        {
+            throw new NotImplementedException();
         }
     }
 }
