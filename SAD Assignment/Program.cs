@@ -18,7 +18,7 @@ namespace SAD_Assignment
             PlayerContainer.Player2.AddDeck(deck2);
 
             Game newGame = new Game(PlayerContainer.Player1, PlayerContainer.Player2);
-            //newGame.StartGame();
+            newGame.StartGame();
             
         }
         public static Stack<Card> GenerateDeck(Player p) {
