@@ -94,10 +94,10 @@ namespace SAD_Assignment
                 Console.WriteLine("starting turnphase 3");
                 this.TurnPhase = 3;
 
-                // check priority; this player moves first
+                // check priority; player 1 moves first
     	        if (this.PlayerPriority == 0) {
                     // player 1 goes first
-                    this.PlayerTurn(this.Player1);
+                    this.PlayerTurn(this.Player1, this.Player2);
 
                     // check for winCondition (player might have KOd their opponent)
                     winner = this.WinConditionCheck(this.Player1, this.Player2);
@@ -110,7 +110,7 @@ namespace SAD_Assignment
                     Console.WriteLine("winner is undecided");
 
                     // then player 2 gets to play
-                    this.PlayerTurn(this.Player2);
+                    this.PlayerTurn(this.Player2, this.Player1);
 
                     // check for winCondition (player might have KOd their opponent)
                     winner = this.WinConditionCheck(this.Player1, this.Player2);
@@ -122,9 +122,10 @@ namespace SAD_Assignment
                     }
                     Console.WriteLine("winner is undecided");
                 }
+                // check priority; player 2 moves first
                 else {
                     // player 2 goes first
-                    this.PlayerTurn(this.Player2);
+                    this.PlayerTurn(this.Player2, this.Player1);
 
                     // check for winCondition (player might have KOd their opponent)
                     winner = this.WinConditionCheck(this.Player1, this.Player2);
@@ -137,7 +138,7 @@ namespace SAD_Assignment
                     Console.WriteLine("winner is undecided");
 
                     // then player 1 gets to play
-                    this.PlayerTurn(this.Player1);
+                    this.PlayerTurn(this.Player1, this.Player2);
 
                     // check for winCondition (player might have KOd their opponent)
                     winner = this.WinConditionCheck(this.Player1, this.Player2);
@@ -163,16 +164,101 @@ namespace SAD_Assignment
             }
             Console.WriteLine($"game has ended with {this.Winner} as endresult");
         }
-        public void LogActivities(int turnNumber, int turnPhase, string happening) {
-            // write what happens in CardGame() to log.txt
+        public void LogActivities(string stringToLog) {
+            // write what happens in CardGame() to log.txt (gets called in PrintToConsole())
         }
-        public void PrintToConsole(int turnNumber, int turnPhase, string happening) {
-            // print what happens in CardGame() to console
-        }
-        public void PlayerTurn(Player p) {
-            // lets the specified player play their cards until they decide to cancel their turn
-            Console.WriteLine($"PlayerTurn not implemented yet (it's player {p.ID}'s turn btw)");
+        public void PrintToConsole(string happening, Player p, string chosenAction) {
+            // print what happens in PlayerTurn() to console
 
+            // prints every card in player's hand
+            if (happening == "cardsInHand") {
+                Console.WriteLine($"\n Cards in Player {p.ID}'s hand (amount = {p.Hand.Count}):");
+                int cardNumTracker = 1;
+                foreach (Card card in p.Hand) {
+                    Console.WriteLine($"[{cardNumTracker}] {card.Type} : {card.CardName} ({card.CardDescription}) | Costs {card.EnergyCost} {card.Color} energy");
+                    cardNumTracker++;
+                }
+            }
+            // prints the player's active lands and creatures
+            if (happening == "activeLandsAndCreatures") {
+                // prints every land on board owned by player
+                List<Land> landsOwnedByPlayer = new List<Land>();
+                foreach (Land land in this.LandsOnBoard) {
+                    if (land.PlayerId == p.ID) {
+                        landsOwnedByPlayer.Add(land);
+                    }
+                }
+                Console.WriteLine($"\n Lands on the board owned by Player {p.ID} (amount = {landsOwnedByPlayer.Count}):");
+                int cardNumTracker = p.Hand.Count;
+                foreach (Land land in landsOwnedByPlayer) {
+                    Console.WriteLine($"[{cardNumTracker}] {land.CardName} ({land.CardDescription}) | Color = {land.Color}");
+                    cardNumTracker++;
+                }
+
+                // prints every active creature owned by player
+                List<PermaSpell> creaturesOwnedByPlayer = new List<PermaSpell>();
+                foreach (PermaSpell creature in this.ActiveCreatures) {
+                    if (creature.PlayerId == p.ID) {
+                        creaturesOwnedByPlayer.Add(creature);
+                    }
+                }
+                Console.WriteLine($"\n Active creatures on the board owned by Player {p.ID} (amount = {creaturesOwnedByPlayer.Count})");
+                foreach (PermaSpell creature in creaturesOwnedByPlayer) {
+                    Console.WriteLine($"[{cardNumTracker}] {creature.CardName} ({creature.CardDescription}) | Attack = {creature.Attack} & Defense = {creature.HP} | Costs {creature.EnergyCost} {creature.Color} energy");
+                }
+            }
+        }
+        public void PlayerTurn(Player p, Player otherP) {
+            // lets the specified player play their cards until they decide to cancel their turn
+            
+            // player turn will last until they cancel their turn
+            bool playerTurnOngoing = true;
+            while (playerTurnOngoing) {
+                // print hand (move to PrintToConsole method later)
+                PrintToConsole("cardsInHand", p, null);
+                PrintToConsole("activeLandsAndCreatures", p, null);
+
+                // present options for player (after moving printing to method, fix hand and activecreatures being conditional & add lands)
+                Console.WriteLine($"\n Possible actions: 1-{p.Hand.Count}) Play a card in your hand, {p.Hand.Count + 1}-{(p.Hand.Count) + this.ActiveCreatures.Count}) Play one of your Creatures on the board, 0) End your turn");
+                Console.Write("Please select an action: ");
+
+                // reads input & checks if it is able to become an int
+                int chosenAction = 0;
+                bool choiceIsInt = int.TryParse(Console.ReadLine(), out chosenAction);
+                
+                // end player's turn if they chose to or if their hand is empty
+                if (choiceIsInt == true && (chosenAction == 0 || p.Hand.Count <= 0)) {
+                    // ends the player's turn
+                    playerTurnOngoing = false;
+                    continue;
+                }
+                // play the player's chosen card
+                else if (choiceIsInt == true && (chosenAction >= 1 && chosenAction <= p.Hand.Count)) {
+                    // plays the chosen card
+                    Console.WriteLine($"play card number {chosenAction - 1} here :) (would be {p.Hand[chosenAction - 1].CardName})");
+                    Card chosenCard = p.Hand[chosenAction - 1];
+
+                    // check if chosen card is a land; add to this.LandsOnBoard
+                    if (chosenCard.Type == Type.Land) {
+                        this.AddLands(chosenCard as Land);
+                        p.DiscardHand(chosenCard);
+                    }
+                    // check if chosen card is instant spell
+                    else if (chosenCard.Type == Type.InstantSpell) {
+                        Console.WriteLine("make instantspells work here :)");
+                    }
+                    // check if chosen card is permanent spell; add to this.ActiveCreatures
+                    else if (chosenCard.Type == Type.PermanentSpell) {
+                        this.AddPermas(chosenCard as PermaSpell);
+                        p.DiscardHand(chosenCard);
+                    }
+                }
+                // play one of the player's active creatures
+                else if (this.ActiveCreatures.Count > 0 && choiceIsInt == true && (chosenAction > p.Hand.Count && chosenAction <= (p.Hand.Count + 1) + this.ActiveCreatures.Count)) {
+                    Console.WriteLine($"play an active creature here :) (creature chosen was {this.ActiveCreatures[chosenAction - 1 - p.Hand.Count].CardName})");
+                }
+            }
+            Console.WriteLine($"Player {p.ID}'s turn has ended");
         }
         public string WinConditionCheck(Player p1, Player p2) {
             // checks the win conditions at various points during a turn
@@ -274,8 +360,10 @@ namespace SAD_Assignment
         }
         public void HandleCardQueue() {
             // handles card effects in CardQueue when they need to activate
-            for (int i = 0; i < this.CardQueue.Count; i++) {
+            if (this.CardQueue.Count > 0) {
+                for (int i = 0; i < this.CardQueue.Count; i++) {
 
+                }
             }
         }
     }

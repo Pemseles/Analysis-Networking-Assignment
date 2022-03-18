@@ -5,6 +5,7 @@ namespace SAD_Assignment
 {
     public enum Color { Red, Blue, Yellow, Green, Black, Colorless }
     public enum Type { Land, PermanentSpell, InstantSpell }
+    public enum EffectType { None, GenerateEnergy, StatAugment, Counter, Buff, Debuff }
 
     public abstract class Card {
         public int PlayerId { get; set; }
@@ -13,6 +14,7 @@ namespace SAD_Assignment
         public int EnergyCost { get; set; }
         public Color Color { get; set; }
         public Type Type { get; set; }
+        public EffectType EffectType { get; set; }
 
         // State: 0 = Card is any; has not been played this turn, can be activated (initial state)
         //        1 = Card is Perma; has not been played this turn (did not attack but effect was activated; gets reset to 0 at beginning of turn)
@@ -27,7 +29,7 @@ namespace SAD_Assignment
     }
     public class Land : Card {
         public CardEffect<Land> Effect { get; set; }
-        public Land(int playerId, string cardName, string cardDescription, Color color, CardEffect<Land> effect) {
+        public Land(int playerId, string cardName, string cardDescription, Color color, CardEffect<Land> effect, EffectType effectType) {
             this.EnergyCost = 0;
             this.PlayerId = playerId;
             this.CardName = cardName;
@@ -37,6 +39,7 @@ namespace SAD_Assignment
             this.State = 0;
             this.TurnsLeft = -1;
             this.Effect = effect;
+            this.EffectType = effectType;
         }
         public override string GetInfo()
         {
@@ -63,7 +66,7 @@ namespace SAD_Assignment
         public int HP { get; set; }
         public int Attack { get; set; }
         public CardEffect<PermaSpell> Effect { get; set; }
-        public PermaSpell(int cost, int playerId, string cardName, string cardDescription, Color color, int turnsActive, CardEffect<PermaSpell> effect, int hp, int attack) {
+        public PermaSpell(int cost, int playerId, string cardName, string cardDescription, Color color, int turnsActive, CardEffect<PermaSpell> effect, EffectType effectType, int hp, int attack) {
             this.EnergyCost = cost;
             this.PlayerId = playerId;
             this.CardName = cardName;
@@ -73,6 +76,7 @@ namespace SAD_Assignment
             this.State = 0;
             this.TurnsLeft = turnsActive;
             this.Effect = effect;
+            this.EffectType = effectType;
             this.HP = hp;
             this.Attack = attack;
         }
@@ -114,13 +118,14 @@ namespace SAD_Assignment
     }
     public class InstaSpell : Card {
         public CardEffect<InstaSpell> Effect { get; set; }
-        public InstaSpell(int cost, int playerId, string cardName, string cardDescription, Color color, CardEffect<InstaSpell> effect) {
+        public InstaSpell(int cost, int playerId, string cardName, string cardDescription, Color color, CardEffect<InstaSpell> effect, EffectType effectType) {
             this.EnergyCost = cost;
             this.PlayerId = playerId;
             this.CardName = cardName;
             this.CardDescription = cardDescription;
             this.Color = color;
             this.Effect = effect;
+            this.EffectType = effectType;
             this.Type = Type.InstantSpell;
             this.State = 0;
             this.TurnsLeft = 1;
