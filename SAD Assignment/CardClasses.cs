@@ -7,6 +7,9 @@ namespace SAD_Assignment
     public enum Type { Land, PermanentSpell, InstantSpell }
     public enum EffectType { None, GenerateEnergy, StatAugment, Counter, Buff, Debuff }
 
+    /// <summary>
+    /// Class <c>Card</c> defines a card
+    /// </summary>
     public abstract class Card {
         public int PlayerId { get; set; }
         public string CardName { get; set; }
@@ -24,9 +27,14 @@ namespace SAD_Assignment
         //        5 = Card is Insta; has been used this turn; (because of it's TurnsLeft always being 1 the card is discarded at end of turn anyway)
         public int State { get; set; }
         public int TurnsLeft { get; set; }
-        public abstract string GetInfo();
+        /// <summary>
+        /// Method <c>RevertEffects</c> reverts effects of specified card
+        /// </summary>
         public abstract void RevertEffects(Card givenCard);
     }
+    /// <summary>
+    /// Class <c>Land</c> defines a land card
+    /// </summary>
     public class Land : Card {
         public CardEffect<Land> Effect { get; set; }
         public Land(int playerId, string cardName, string cardDescription, Color color, CardEffect<Land> effect, EffectType effectType) {
@@ -41,16 +49,21 @@ namespace SAD_Assignment
             this.Effect = effect;
             this.EffectType = effectType;
         }
-        public override string GetInfo()
-        {
-            return $"[Land Info:] PlayerId={this.PlayerId}, CardName={this.CardName}, CardDescription={this.CardDescription}, EnergyCost={this.EnergyCost}, Color={this.Color}, Type={this.Type}, Effect={this.Effect}, State={this.State}, TurnsActive={this.TurnsLeft}";
-        }
+        /// <summary>
+        /// Method <c>ActivateEffect</c> activates effect of specified land
+        /// </summary>
         public void ActivateEffect(Land landParam) {
             if (this.State == 0) {
                 this.Effect.ActivateEffect(landParam);
                 this.State = 4;
             }
+            else {
+                Game.PrintToConsole("alreadyUsedLand");
+            }
         }
+        /// <summary>
+        /// Method <c>ResetLand</c> resets land back to active state so it can be used again
+        /// </summary>
         public void ResetLand() {
             this.State = 0;
         }
@@ -62,6 +75,9 @@ namespace SAD_Assignment
             }
         }
     }
+    /// <summary>
+    /// Class <c>Land</c> defines a creature card
+    /// </summary>
     public class PermaSpell : Card {
         public int HP { get; set; }
         public int Attack { get; set; }
@@ -80,10 +96,9 @@ namespace SAD_Assignment
             this.HP = hp;
             this.Attack = attack;
         }
-        public override string GetInfo()
-        {
-            return $"[Perma Info:] PlayerId={this.PlayerId}, CardName={this.CardName}, CardDescription={this.CardDescription}, EnergyCost={this.EnergyCost}, HP={this.HP}, Attack={this.Attack} Color={this.Color}, Type={this.Type}, Effect={this.Effect}, State={this.State}, TurnsActive={this.TurnsLeft}";
-        }
+        /// <summary>
+        /// Method <c>DoAttack</c> attacks specified target creature
+        /// </summary>
         public void DoAttack(PermaSpell targetCreature) {
             // attack the given Creature; uses this.attack to reduce it's hp
             if (this.State < 2) {
@@ -91,18 +106,27 @@ namespace SAD_Assignment
                 this.State = 2;
             }
         }
+        /// <summary>
+        /// Method <c>DoAttack</c> attacks specified target player
+        /// </summary>
         public void DoAttack(Player targetPlayer) {
             // overload for when there is no creature to attack, attacks player instead
             if (this.State < 2) {
                 targetPlayer.HP = targetPlayer.HP - this.Attack;
             }
         }
+        /// <summary>
+        /// Method <c>DoDefend</c> sets creature to defending state
+        /// </summary>
         public void DoDefend() {
             // creature is defending; any attack from opponent this turn is redirected at it
             if (this.State < 2) {
                 this.State = 3;
             }
         }
+        /// <summary>
+        /// Method <c>DecrementTurns</c> decreases turnsleft by 1
+        /// </summary>
         public void DecrementTurns() {
             if (this.TurnsLeft > 0) {
                 this.TurnsLeft--;
@@ -116,6 +140,9 @@ namespace SAD_Assignment
             }
         }
     }
+    /// <summary>
+    /// Class <c>Land</c> defines an instant spell card
+    /// </summary>
     public class InstaSpell : Card {
         public CardEffect<InstaSpell> Effect { get; set; }
         public InstaSpell(int cost, int playerId, string cardName, string cardDescription, Color color, CardEffect<InstaSpell> effect, EffectType effectType) {
@@ -129,10 +156,6 @@ namespace SAD_Assignment
             this.Type = Type.InstantSpell;
             this.State = 0;
             this.TurnsLeft = 1;
-        }
-        public override string GetInfo()
-        {
-            return $"[Insta Info:] PlayerId={this.PlayerId}, CardName={this.CardName}, CardDescription={this.CardDescription}, EnergyCost={this.EnergyCost}, Color={this.Color}, Type={this.Type}, Effect={this.Effect}, State={this.State}, TurnsActive={this.TurnsLeft}";
         }
         public override void RevertEffects(Card givenCard)
         {

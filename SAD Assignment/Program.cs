@@ -21,6 +21,9 @@ namespace SAD_Assignment
             newGame.StartGame();
             
         }
+        /// <summary>
+        /// Method <c>GenerateDeck</c> generates a deck for specified player
+        /// </summary>
         public static Stack<Card> GenerateDeck(Player p) {
             // randomly choose a pool of cards (like 5 lands, 10 permanents & 15 instas)
 
@@ -64,6 +67,9 @@ namespace SAD_Assignment
             
             return new Stack<Card>(newDeck);
         }
+        /// <summary>
+        /// Method <c>DuplicateCheck</c> returns a list of 4-times duplicate items or more in specified list
+        /// </summary>
         public static IEnumerable<Card> DuplicateCheck(List<Card> cardList) {
             // returns an IEnumerable with items in it that are > 3x in the param list
             // used to check if too many of a specific card are in a player's deck

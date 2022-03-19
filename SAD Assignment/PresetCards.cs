@@ -4,6 +4,9 @@ using System.Collections.Generic;
 namespace SAD_Assignment
 {
     public enum Target { Yours, Opponents }
+    /// <summary>
+    /// Class <c>PresetContainer</c> contains all pre-made cards
+    /// </summary>
     public class PresetContainer {
         public static PresetLands Lands { get; set; }
         public static PresetPermas Permas { get; set; }
@@ -14,19 +17,25 @@ namespace SAD_Assignment
             Instas = new PresetInstas(p);
         }
     }
+    /// <summary>
+    /// Class <c>PresetLands</c> contains and makes all pre-made lands
+    /// </summary>
     public class PresetLands {
         public List<Land> PresetLandsList { get; set; }
         public PresetLands(Player p) {
             PresetLandsList = new List<Land>() { 
-                new Land(p.ID, "Ancient Volcano", "A red-hot environment which can generate red energy for you.", Color.Red, new GenerateEnergy(), EffectType.GenerateEnergy), 
-                new Land(p.ID, "Deep Ocean", "An underwater environment which can generate blue energy for you.", Color.Blue , new GenerateEnergy(), EffectType.GenerateEnergy), 
-                new Land(p.ID, "Sunset Highlands", "A mountainous environment which can generate yellow energy for you.", Color.Yellow , new GenerateEnergy(), EffectType.GenerateEnergy), 
-                new Land(p.ID, "Lush Jungle", "A tropical rainforest environment which can generate green energy for you.", Color.Green , new GenerateEnergy(), EffectType.GenerateEnergy), 
-                new Land(p.ID, "Dark City", "A shady megalopolis environment which can generate black energy for you.", Color.Black , new GenerateEnergy(), EffectType.GenerateEnergy), 
-                new Land(p.ID, "Genetic Lab", "A bland laboratory environment which can generate colorless energy for you.", Color.Colorless , new GenerateEnergy(), EffectType.GenerateEnergy) 
+                new Land(p.ID, "Ancient Volcano", "A red-hot environment which can generate energy for you.", Color.Red, new GenerateEnergy(), EffectType.GenerateEnergy), 
+                new Land(p.ID, "Deep Ocean", "An underwater environment which can generate energy for you.", Color.Blue , new GenerateEnergy(), EffectType.GenerateEnergy), 
+                new Land(p.ID, "Sunset Highlands", "A mountainous environment which can generate energy for you.", Color.Yellow , new GenerateEnergy(), EffectType.GenerateEnergy), 
+                new Land(p.ID, "Lush Jungle", "A tropical rainforest environment which can generate energy for you.", Color.Green , new GenerateEnergy(), EffectType.GenerateEnergy), 
+                new Land(p.ID, "Dark City", "A shady megalopolis environment which can generate energy for you.", Color.Black , new GenerateEnergy(), EffectType.GenerateEnergy), 
+                new Land(p.ID, "Genetic Lab", "A bland laboratory environment which can generate energy for you.", Color.Colorless , new GenerateEnergy(), EffectType.GenerateEnergy) 
             };
         }
     }
+    /// <summary>
+    /// Class <c>PresetPermas</c> contains and makes all pre-made creatures
+    /// </summary>
     public class PresetPermas {
         public List<PermaSpell> PresetPermasList { get; set; }
         public PresetPermas(Player p) {
@@ -41,6 +50,9 @@ namespace SAD_Assignment
             };
         }
     }
+    /// <summary>
+    /// Class <c>PresetInstas</c> defines and makes all pre-made instant spells
+    /// </summary>
     public class PresetInstas {
         public List<InstaSpell> PresetInstasList { get; set; }
         public PresetInstas(Player p) {
