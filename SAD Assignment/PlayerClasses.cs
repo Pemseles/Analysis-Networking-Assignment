@@ -144,6 +144,7 @@ namespace SAD_Assignment
         /// </summary>
         public void PlayCard<T1>(T1 card, T1 targetCard) {
             // activate effect of card (depending on effect, move to DiscardPile or keep in hand)
+            // not done or tested yet
             if (typeof(T1) == typeof(Land)) {
                 Land cardToPlay = card as Land;
                 Land targetCardToPlay = card as Land;

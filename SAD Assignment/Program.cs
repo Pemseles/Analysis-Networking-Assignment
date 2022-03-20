@@ -9,14 +9,20 @@ namespace SAD_Assignment
         public static Random rnd = new Random();
         static void Main(string[] args)
         {
+            // create log.txt or empties it if it was already there
+            Game.EmptyLogFile();
+
+            // initialises players & decks
             PlayerContainer players = new PlayerContainer(20);
 
             Stack<Card> deck1 = GenerateDeck(PlayerContainer.Player1);
             Stack<Card> deck2 = GenerateDeck(PlayerContainer.Player2);
 
+            // add generated decks to players (necessary because cards need a playerId; means players have to be made first)
             PlayerContainer.Player1.AddDeck(deck1);
             PlayerContainer.Player2.AddDeck(deck2);
 
+            // starts game
             Game newGame = new Game(PlayerContainer.Player1, PlayerContainer.Player2);
             newGame.StartGame();
             
