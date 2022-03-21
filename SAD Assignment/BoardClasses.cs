@@ -18,10 +18,8 @@ namespace SAD_Assignment
         public int TurnPhase { get; set; }
         // PlayerPriority decides who goes first during each turn (decided randomly at the start of the game)
         public int PlayerPriority { get; set; }
-        // CardQueue contains all cards to be played (stored here to be activated after eachother in order later on)
-        public Queue<Card> CardQueue { get; set; }
-        // InstaCardChain holds all insta's that players are countering eachother with, to then be activated FIFO-style
-        public Stack<InstaSpell> InstaCardChain { get; set; }
+        // CardActivationStack contains all cards to be played (stored here to be activated after eachother in order later on)
+        public Stack<Card> CardActivationStack { get; set; }
         // LandsOnBoard holds all lands currently in play
         public List<Land> LandsOnBoard { get; set; }
         // ActiveSpells holds all permanent spells or 'creatures' in play
@@ -32,8 +30,7 @@ namespace SAD_Assignment
         public string Winner { get; set; }
         public Game(Player p1, Player p2) {
             this.TurnNum = 1;
-            this.CardQueue = new Queue<Card>();
-            this.InstaCardChain = new Stack<InstaSpell>();
+            this.CardActivationStack = new Stack<Card>();
             this.LandsOnBoard = new List<Land>();
             this.ActiveCreatures = new List<PermaSpell>();
             this.Player1 = p1;
@@ -211,6 +208,7 @@ namespace SAD_Assignment
                 if (this.ActiveCreatures.Count > 0) {
                     foreach (PermaSpell creature in this.ActiveCreatures) {
                         LogActivities($"[Owner = Player {creature.PlayerId}] : {creature.CardName} has {creature.Attack} Attack, {creature.HP} HP & has {creature.TurnsLeft} turns left");
+                        creature.DecrementTurns();
                     }
                 }
 
@@ -231,18 +229,9 @@ namespace SAD_Assignment
             }
         }
         /// <summary>
-        /// Method <c>PrintToConsole</c> prints to console based on specified string
-        /// </summary>
-        public static void PrintToConsole(string happening) {
-            // prints msg that land has already been used
-            if (happening == "alreadyUsedLand") {
-                LogActivities("Chosen land has already been used this turn.");
-            }
-        }
-        /// <summary>
         /// Method <c>PrintToConsole</c> prints to console based on given parameters
         /// </summary>
-        public static void PrintToConsole(string happening, Player p, List<Land> lands, List<PermaSpell> creatures, string chosenAction) {
+        public static void PrintToConsole(string happening, Player p, List<Land> lands = null, List<PermaSpell> creatures = null, List<InstaSpell> counters = null, string chosenAction = null) {
             // print what happens in PlayerTurn() to console
 
             // prints every card in player's hand
@@ -255,7 +244,7 @@ namespace SAD_Assignment
                 }
             }
             // prints the player's active lands and creatures
-            if (happening == "activeLandsAndCreatures") {
+            else if (happening == "activeLandsAndCreatures") {
                 // prints every land on board owned by player
                 Console.WriteLine($"\nLands on the board owned by Player {p.ID} (amount = {lands.Count}):");
                 int cardNumTracker = p.Hand.Count + 1;
@@ -276,12 +265,12 @@ namespace SAD_Assignment
                         // creature is going to be defending
                         creatureAction = "Defend";
                     }
-                    Console.WriteLine($"[{cardNumTracker}] {creature.CardName} ({creature.CardDescription}) | Attack = {creature.Attack}, Defense = {creature.HP} | Is going to {creatureAction}");
+                    Console.WriteLine($"[{cardNumTracker}] {creature.CardName} ({creature.CardDescription}) | Attack = {creature.Attack}, Defense = {creature.HP}, Turns left = {creature.TurnsLeft} | Is going to {creatureAction}");
                     cardNumTracker++;
                 }
             }
-            // prints the options presented to the player
-            if (happening == "presentOptions") {
+            // prints the base options presented to the player
+            else if (happening == "presentOptions") {
                 Console.WriteLine("\n[0] End your turn");
                 Console.WriteLine("[-1] Forfeit the game\n");
 
@@ -312,7 +301,44 @@ namespace SAD_Assignment
                 }
                 actionsStr = actionsStr + "0) End turn, -1) Forfeit game.";
                 Console.WriteLine($"Available energy: {p.Energy}");
-                Console.WriteLine($"{actionsStr}\n");
+                Console.WriteLine($"{actionsStr}");
+                Console.Write("Please choose the number associated with desired action: ");
+            }
+            else if (happening == "playCreature") {
+                Console.WriteLine("\n[1] Attack with chosen creature");
+                Console.WriteLine("[2] Do nothing");
+                Console.Write("Please choose the number associated with desired action: ");
+            }
+            else if (happening == "defendCreature") {
+                Console.WriteLine($"\nIt's Player {p.ID}'s turn to decide if they wish to defend the incoming attack!");
+                int cardNumTracker = 1;
+                foreach (PermaSpell creature in creatures) {
+                    if (creature.State < 2) {
+                        Console.WriteLine($"[{cardNumTracker}] {creature.CardName} ({creature.CardDescription}) | Attack = {creature.Attack}, Defense = {creature.HP}, Turns left = {creature.TurnsLeft}");
+                        cardNumTracker++;
+                    }
+                }
+                Console.WriteLine("[0] Do nothing");
+                Console.Write("Please choose the number associated with desired action: ");
+            }
+            // prints counter options for player
+            else if (happening == "counterOptions") {
+                Console.WriteLine($"It's Player {p.ID}'s turn to counter their opponent's incoming move!");
+                Console.WriteLine($"\nLands on the board owned by Player {p.ID} (amount = {lands.Count}):");
+                int cardNumTracker = 1;
+                foreach (Land land in lands) {
+                    Console.WriteLine($"[{cardNumTracker}] {land.CardName} ({land.CardDescription}) | Color = {land.Color}");
+                    cardNumTracker++;
+                }
+                Console.WriteLine($"\nCounter spells in Player {p.ID}'s hand (amount = {p.Hand.Count}):");
+                foreach (Card card in p.Hand) {
+                    if (card.EffectType == EffectType.Counter) {
+                        Console.WriteLine($"[{cardNumTracker}] {card.Type} : {card.CardName} ({card.CardDescription}) | Costs {card.EnergyCost} energy");
+                        cardNumTracker++;    
+                    }
+                }
+                Console.WriteLine("\n[0] Do nothing");
+                Console.WriteLine($"\nAvailable energy: {p.Energy}");
                 Console.Write("Please choose the number associated with desired action: ");
             }
         }
@@ -320,19 +346,21 @@ namespace SAD_Assignment
         /// Method <c>PlayerTurn</c> lets specified player play their cards until they end their turn
         /// </summary>
         public void PlayerTurn(Player p, Player otherP) {
-            
             // player turn will last until they cancel their turn
             bool playerTurnOngoing = true;
             bool playerForfeited = false;
+
             while (playerTurnOngoing) {
                 // establish list of lands & creatures owned by current player
                 List<Land> ownedLands = this.GetPlayerLands(p);
+                List<Land> opponentLands = this.GetPlayerLands(otherP);
                 List<PermaSpell> ownedCreatures = this.GetPlayerCreatures(p);
+                List<PermaSpell> opponentCreatures = this.GetPlayerCreatures(otherP);
 
                 // print relevant information (cards in hand, lands/creatures on board and possible actions)
-                PrintToConsole("cardsInHand", p, ownedLands, ownedCreatures, null);
-                PrintToConsole("activeLandsAndCreatures", p, ownedLands, ownedCreatures, null);
-                PrintToConsole("presentOptions", p, ownedLands, ownedCreatures, null);
+                PrintToConsole("cardsInHand", p, ownedLands, ownedCreatures);
+                PrintToConsole("activeLandsAndCreatures", p, ownedLands, ownedCreatures);
+                PrintToConsole("presentOptions", p, ownedLands, ownedCreatures);
 
                 LogActivities($"Player {p.ID} is choosing an action.");
                 // reads input & checks if it is able to become an int
@@ -354,7 +382,7 @@ namespace SAD_Assignment
                     this.Winner = $"Player {p.ID} forfeit";
                     continue;
                 }
-                // play the player's chosen card
+                // play the player's chosen card from their hand
                 else if (choiceIsInt && (chosenAction >= 1 && chosenAction <= p.Hand.Count)) {
                     // get card from hand
                     Card chosenCard = p.Hand[chosenAction - 1];
@@ -368,19 +396,38 @@ namespace SAD_Assignment
                     // check if chosen card is instant spell
                     else if (chosenCard.Type == Type.InstantSpell) {
                         LogActivities($"Player {p.ID} has chosen to play an instant spell card.");
-                        // make instantspells work here :)
+                        if (p.Energy >= chosenCard.EnergyCost) {
+                            // player is able to play card; play card
+                            this.AddToCardStack(chosenCard);
+                            p.DiscardHand(chosenCard);
+                            p.ChangeEnergy(chosenCard.EnergyCost * -1);
+
+                            // let other player interject with their counterspells
+                            this.InterruptPlayerTurn(otherP, p, "counterSpell");
+                            // wait for teacher to confirm if turn ends or not here.
+                        }
+                        else {
+                            // player is unable to play card
+                            LogActivities($"Player {p.ID} cannot play their card; insufficient energy.");
+                            Console.WriteLine("Unable to play chosen card; insufficient energy");
+                        }
                     }
                     // check if chosen card is permanent spell; add to this.ActiveCreatures if player has enough energy
                     else if (chosenCard.Type == Type.PermanentSpell) {
                         LogActivities($"Player {p.ID} has chosen to play a creature card.");
                         if (p.Energy >= chosenCard.EnergyCost) {
                             // player is able to play card; play card
+
+                            // check if creature has discard card effect; activate effect
+                            if (chosenCard.EffectType == EffectType.ForceDiscardCard) {
+                                otherP.DiscardHand(1);
+                            }
                             this.AddPermas(chosenCard as PermaSpell, p);
                             p.DiscardHand(chosenCard);
                         }
                         else {
                             // player is unable to play card
-                            LogActivities($"Player {p.ID}'s chosen card is too expensive for them to play.");
+                            LogActivities($"Player {p.ID} cannot play their card; insufficient energy.");
                             Console.WriteLine("Unable to play chosen card; insufficient energy");
                         }
                     }
@@ -388,21 +435,171 @@ namespace SAD_Assignment
                 // play one of the player's lands on the board
                 else if (choiceIsInt && (chosenAction > p.Hand.Count && chosenAction <= p.Hand.Count + ownedLands.Count)) {
                     LogActivities($"Player {p.ID} has chosen to use one of their active lands to generate an energy point.");
+                    Console.WriteLine($"Player chose to harvest land; Estimated index = {chosenAction - p.Hand.Count - 1}");
                     Land chosenLand = ownedLands[chosenAction - p.Hand.Count - 1];
                     chosenLand.ActivateEffect(chosenLand);
                 }
                 // play one of the player's active creatures on the board
-                else if (choiceIsInt && (chosenAction > p.Hand.Count + 1 + ownedLands.Count && chosenAction < p.Hand.Count + 1 + ownedLands.Count + ownedCreatures.Count)) {
+                else if (choiceIsInt && (chosenAction > p.Hand.Count + ownedLands.Count && chosenAction <= p.Hand.Count + ownedLands.Count + ownedCreatures.Count)) {
                     LogActivities($"Player {p.ID} has chosen to play one of their active creatures; is deciding whether to attack, defend or cancel.");
                     // make user decide between attacking & defending here 
+                    // adds play to the card queue
+                    PrintToConsole("playCreature", p, ownedLands, ownedCreatures);
+                    PermaSpell chosenCreature = ownedCreatures[chosenAction - p.Hand.Count - 1 - ownedLands.Count];
+                    chosenAction = 0;
+                    choiceIsInt = int.TryParse(Console.ReadLine(), out chosenAction);
+                    bool canPerformAction = true;
+                    Console.WriteLine($"player chose to play creature; estimated index = {chosenAction - p.Hand.Count - 1 - ownedLands.Count}");
+
+                    // check if one of the player's own creatures is already doing something
+                    if (choiceIsInt && chosenAction != 2) {
+                        foreach (PermaSpell creature in ownedCreatures) {
+                            if (creature.State == 2 || creature.State == 3) {
+                                canPerformAction = false;
+                            }
+                        }
+                    }
+                    if (canPerformAction && chosenAction == 1) {
+                        // apply attacking to creature & add it to cardstack
+                        LogActivities($"Player {p.ID} has chosen to attack with their {chosenCreature.CardName}.");
+                        chosenCreature.State = 2;
+                        this.AddToCardStack(chosenCreature);
+
+                        // let other player interject by choosing to defend with one of their own creatures (if they have one on the board)
+                        if (opponentCreatures.Count > 0) {
+                            this.InterruptPlayerTurn(otherP, p, "opponentAttacks", chosenCreature);
+                        }
+                        else {
+                            LogActivities("Opponent is unable to defend against the incoming attack.");
+                        }
+                    }
                 }
                 Thread.Sleep(700);
             }
             Console.WriteLine($"Player {p.ID}'s turn has ended");
             if (playerForfeited) {
-                Console.WriteLine($"Player {p.ID} decided to forfeit, the winner is {otherP.ID}");
+                Console.WriteLine($"Player {p.ID} decided to forfeit, the winner is Player {otherP.ID}");
             }
+        }
+        /// <summary>
+        /// Method <c>InterruptPlayerTurn</c> lets specified player interrupt the specified other player's turn and play their own cards
+        /// </summary>
+        public void InterruptPlayerTurn(Player p, Player otherP, string happening, PermaSpell attackingCreature = null) {
+            if (happening == "opponentAttacks") {
+                // player turn will last until they cancel their turn
+                bool playerTurnOngoing = true;
+                List<PermaSpell> ownedCreatures = new List<PermaSpell>();
+                if (this.ActiveCreatures.Count > 0) {
+                    foreach (PermaSpell creature in this.ActiveCreatures) {
+                        if (creature.PlayerId == p.ID && creature.State < 2) {
+                            ownedCreatures.Add(creature);
+                        }
+                        else if (creature.PlayerId == p.ID && creature.State == 3) {
+                            playerTurnOngoing = false;
+                        }
+                    }
+                }
+                if (!playerTurnOngoing) {
+                    LogActivities($"Player {p.ID} is already defending with one of their creatures this turn.");
+                }
 
+                // interrupt by giving player option to defend against incoming attack
+                while (playerTurnOngoing) {
+                    // print options to console
+                    PrintToConsole("defendCreature", p, null, ownedCreatures);
+
+                    LogActivities($"Player {p.ID} is choosing their defense.");
+                    // reads input & checks if it is able to become an int
+                    int chosenAction = 0;
+                    bool choiceIsInt = int.TryParse(Console.ReadLine(), out chosenAction);
+
+                    if (choiceIsInt && chosenAction == 0) {
+                        // player did nothing
+                        LogActivities($"Player {p.ID} has decided to not defend.");
+                        playerTurnOngoing = false;
+                        continue;
+                    }
+                    else if (choiceIsInt && (chosenAction > 0 && chosenAction <= ownedCreatures.Count)) {
+                        // player is defending w their creature
+                        LogActivities($"Player {p.ID} has decided to defend with one of their creatures.");
+                        PermaSpell chosenCreature = ownedCreatures[chosenAction];
+                        chosenCreature.DoDefend();
+                        attackingCreature.TargetCreature = chosenCreature;
+
+                        // end turn
+                        playerTurnOngoing = false;
+                        continue;
+                    }
+                }
+            }
+            else if (happening == "counterSpell") {
+                // player turn will last until they select a valid action
+                bool playerTurnOngoing = true;
+
+                // get list of only player's counter spells
+                List<InstaSpell> ownedCounters = new List<InstaSpell>();
+                if (p.Hand.Count > 0) {
+                    foreach (Card card in p.Hand) {
+                        if (card.EffectType == EffectType.Counter) {
+                            ownedCounters.Add(card as InstaSpell);
+                        }
+                    }
+                }
+                // get list of owned lands
+                List<Land> ownedLands = this.GetPlayerLands(p);
+
+                // interrupt by giving player option to counter spell that was last added to CardStack
+                while (playerTurnOngoing) {
+                    // print counter options to console
+                    PrintToConsole("counterOptions", p, ownedLands, null, ownedCounters);
+
+                    LogActivities($"Player {p.ID} is choosing a counter action.");
+                    // reads input & checks if it is able to become an int
+                    int chosenAction = 0;
+                    bool choiceIsInt = int.TryParse(Console.ReadLine(), out chosenAction);
+
+                    if (choiceIsInt && chosenAction == 0) {
+                        // player did nothing
+                        LogActivities($"Player {p.ID} has decided to not perform a counter action.");
+                        playerTurnOngoing = false;
+                        continue;
+                    }
+                    else if (ownedLands.Count > 0 && choiceIsInt && (chosenAction > 0 && chosenAction <= ownedLands.Count)) {
+                        // player decided to get energy from land
+                        LogActivities($"Player {p.ID} has chosen to use one of their active lands to generate an energy point.");
+                        Console.WriteLine($"Player chose to harvest land; Estimated index = {chosenAction - 1}");
+                        Land chosenLand = ownedLands[chosenAction - 1];
+                        chosenLand.ActivateEffect(chosenLand);
+                    }
+                    else if (ownedCounters.Count > 0 && choiceIsInt && (chosenAction > ownedLands.Count && chosenAction <= ownedCounters.Count + ownedLands.Count)) {
+                        // player chose to use a counter spell
+                        LogActivities($"Player {p.ID} has chosen to use one of their counter spells.");
+                        Console.WriteLine($"Counterspell estimated index = {chosenAction - ownedLands.Count - 1}");
+                        InstaSpell chosenCounter = ownedCounters[chosenAction - ownedLands.Count - 1];
+
+                        // check energy
+                        if (p.Energy >= chosenCounter.EnergyCost) {
+                            // player is able to play card; play card
+                            this.AddToCardStack(chosenCounter);
+                            p.DiscardHand(chosenCounter);
+                            p.ChangeEnergy(chosenCounter.EnergyCost * -1);
+
+                            // let other player cancel the counter
+                            this.InterruptPlayerTurn(otherP, p, "counterSpell");
+
+                            // end interrupt turn
+                            LogActivities($"Player {p.ID}'s interruption of Player {otherP.ID}'s turn is over; returning to Player {otherP.ID}'s turn.");
+                            playerTurnOngoing = false;
+                            continue;
+                        }
+                        else {
+                            // player is unable to play card
+                            LogActivities($"Player {p.ID} cannot play their card; insufficient energy.");
+                            Console.WriteLine("Unable to play chosen card; insufficient energy");
+                        }
+                    }
+                }
+            }
         }
         /// <summary>
         /// Method <c>WinConditionCheck</c> checks if a win condition has been satisfied
@@ -451,17 +648,18 @@ namespace SAD_Assignment
         /// Method <c>AddPermas</c> adds specified PermaSpell (creature) to list of active creatures
         /// </summary>
         public void AddPermas(PermaSpell creatureToAdd, Player p) {
-            // add creature to ActiveSpells
+            // add creature to ActiveSpells & subtract energy from player
             LogActivities("A creature has been played and added to the list of active creatures.");
             this.ActiveCreatures.Add(creatureToAdd);
-            p.ChangeEnergy(creatureToAdd.EnergyCost);
+            p.ChangeEnergy(creatureToAdd.EnergyCost * -1);
         }
         /// <summary>
-        /// Method <c>AddToCardQueue</c> adds specified card to queue of cards to be activated
+        /// Method <c>AddToCardStack</c> adds specified card to stack of cards to be activated
         /// </summary>
-        public void AddToCardQueue(Card cardToAdd) {
-            // add card to CardQueue
-            this.CardQueue.Enqueue(cardToAdd);
+        public void AddToCardStack(Card cardToAdd) {
+            // add card to CardStack
+            LogActivities($"A {cardToAdd.CardName} has been added to the card stack.");
+            this.CardActivationStack.Push(cardToAdd);
         }
         /// <summary>
         /// Method <c>GetPlayerLands</c> gives list of active lands owned by specified player
@@ -499,22 +697,27 @@ namespace SAD_Assignment
         public void RevertPermaEffects() {
             for (int i = 0; i < this.ActiveCreatures.Count; i++) {
                 // reverts effects if they were activated during last turn
+                this.ActiveCreatures[i].State = 0;
                 if (this.ActiveCreatures[i].Effect != null) {
                     foreach (PermaSpell perma in this.ActiveCreatures) {
                         if ((this.ActiveCreatures[i].PlayerId == Player1.ID && this.ActiveCreatures[i].Effect.Target == Target.Yours) && perma.PlayerId == Player1.ID) {
                             // reverts self-buffing effects for player 1's creatures
+                            Console.WriteLine($"removing {this.ActiveCreatures[i].PlayerId}'s {this.ActiveCreatures[i].CardName} effect on {perma.PlayerId}'s {perma.CardName}");
                             this.ActiveCreatures[i].RevertEffects(perma);
                         }
                         else if ((this.ActiveCreatures[i].PlayerId == Player2.ID && this.ActiveCreatures[i].Effect.Target == Target.Yours) && perma.PlayerId == Player2.ID) {
                             // reverts self-buffing effects for player 2's creatures
+                            Console.WriteLine($"removing {this.ActiveCreatures[i].PlayerId}'s {this.ActiveCreatures[i].CardName} effect on {perma.PlayerId}'s {perma.CardName}");
                             this.ActiveCreatures[i].RevertEffects(perma);
                         }
                         else if ((this.ActiveCreatures[i].PlayerId == Player1.ID && this.ActiveCreatures[i].Effect.Target == Target.Opponents) && perma.PlayerId == Player2.ID) {
                             // reverts debuffing effect caused by player 1 on player 2's creatures
+                            Console.WriteLine($"removing {this.ActiveCreatures[i].PlayerId}'s {this.ActiveCreatures[i].CardName} effect on {perma.PlayerId}'s {perma.CardName}");
                             this.ActiveCreatures[i].RevertEffects(perma);
                         }
                         else if ((this.ActiveCreatures[i].PlayerId == Player2.ID && this.ActiveCreatures[i].Effect.Target == Target.Opponents) && perma.PlayerId == Player1.ID) {
                             // reverts debuffing effect caused by player 2 on player 1's creatures
+                            Console.WriteLine($"removing {this.ActiveCreatures[i].PlayerId}'s {this.ActiveCreatures[i].CardName} effect on {perma.PlayerId}'s {perma.CardName}");
                             this.ActiveCreatures[i].RevertEffects(perma);
                         }
                     }
@@ -523,12 +726,12 @@ namespace SAD_Assignment
                 // checks if the card has any turns left; if not, it gets removed from play
                 if (this.ActiveCreatures[i].TurnsLeft == 0 && this.ActiveCreatures[i].PlayerId == 1) {
                     // removes card from play; it's turns are over so it gets discarded
-                    this.Player1.DiscardHand(this.ActiveCreatures[i]);
+                    Console.WriteLine("Creature has ran out of active turns; is getting discarded");
                     this.ActiveCreatures.RemoveAt(i);
                 }
                 else if (this.ActiveCreatures[i].TurnsLeft == 0 && this.ActiveCreatures[i].PlayerId == 2) {
                     // removes card from play; it's turns are over so it gets discarded
-                    this.Player2.DiscardHand(this.ActiveCreatures[i]);
+                    Console.WriteLine("Creature has ran out of active turns; is getting discarded");
                     this.ActiveCreatures.RemoveAt(i);
                 }
             }
@@ -543,18 +746,22 @@ namespace SAD_Assignment
                     foreach (PermaSpell perma in this.ActiveCreatures) {
                         if ((this.ActiveCreatures[i].PlayerId == Player1.ID && this.ActiveCreatures[i].Effect.Target == Target.Yours) && perma.PlayerId == Player1.ID) {
                             // reverts self-buffing effects for player 1's creatures
+                            Console.WriteLine($"re-adding {this.ActiveCreatures[i].PlayerId}'s {this.ActiveCreatures[i].CardName} effect on {perma.PlayerId}'s {perma.CardName}");
                             this.ActiveCreatures[i].Effect.ActivateEffect(perma);
                         }
                         else if ((this.ActiveCreatures[i].PlayerId == Player2.ID && this.ActiveCreatures[i].Effect.Target == Target.Yours) && perma.PlayerId == Player2.ID) {
                             // reverts self-buffing effects for player 2's creatures
+                            Console.WriteLine($"re-adding {this.ActiveCreatures[i].PlayerId}'s {this.ActiveCreatures[i].CardName} effect on {perma.PlayerId}'s {perma.CardName}");
                             this.ActiveCreatures[i].Effect.ActivateEffect(perma);
                         }
                         else if ((this.ActiveCreatures[i].PlayerId == Player1.ID && this.ActiveCreatures[i].Effect.Target == Target.Opponents) && perma.PlayerId == Player2.ID) {
                             // reverts debuffing effect caused by player 1 on player 2's creatures
+                            Console.WriteLine($"re-adding {this.ActiveCreatures[i].PlayerId}'s {this.ActiveCreatures[i].CardName} effect on {perma.PlayerId}'s {perma.CardName}");
                             this.ActiveCreatures[i].Effect.ActivateEffect(perma);
                         }
                         else if ((this.ActiveCreatures[i].PlayerId == Player2.ID && this.ActiveCreatures[i].Effect.Target == Target.Opponents) && perma.PlayerId == Player1.ID) {
                             // reverts debuffing effect caused by player 2 on player 1's creatures
+                            Console.WriteLine($"re-adding {this.ActiveCreatures[i].PlayerId}'s {this.ActiveCreatures[i].CardName} effect on {perma.PlayerId}'s {perma.CardName}");
                             this.ActiveCreatures[i].Effect.ActivateEffect(perma);
                         }
                     }
@@ -566,8 +773,9 @@ namespace SAD_Assignment
         /// </summary>
         public void HandleCardQueue() {
             // handles card effects in CardQueue when they need to activate
-            if (this.CardQueue.Count > 0) {
-                for (int i = 0; i < this.CardQueue.Count; i++) {
+            // if card is a counter; removes next item in stack
+            if (this.CardActivationStack.Count > 0) {
+                for (int i = 0; i < this.CardActivationStack.Count; i++) {
 
                 }
             }

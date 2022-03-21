@@ -123,24 +123,4 @@ namespace SAD_Assignment
             }
         }
     }
-    /// <summary>
-    /// Class <c>CounterSpell</c> defines a counter effect used by an instant spell
-    /// </summary>
-    public class CounterSpell : CardEffect<InstaSpell> {
-        public InstaSpell targetSpell { get; set; }
-        /// <summary>
-        /// Method <c>ActivateEffect</c> does nothing yet :(
-        /// </summary>
-        public override void ActivateEffect(InstaSpell param)
-        {
-            // make targetSpell inactive; possible cascading effect when cancelling a cancelling spell
-        }
-        /// <summary>
-        /// Method <c>RevertEffect</c> does nothing yet D;
-        /// </summary>
-        public override void RevertEffect(InstaSpell param)
-        {
-            throw new NotImplementedException();
-        }
-    }
 }

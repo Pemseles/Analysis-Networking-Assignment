@@ -139,27 +139,5 @@ namespace SAD_Assignment
             // adds {amount} energy of specified color to energy reserve (if < 0 it subtracts)
             this.Energy = this.Energy + amount;
         }
-        /// <summary>
-        /// Method <c>PlayCard</c> activates the effect of specified card at specified target card
-        /// </summary>
-        public void PlayCard<T1>(T1 card, T1 targetCard) {
-            // activate effect of card (depending on effect, move to DiscardPile or keep in hand)
-            // not done or tested yet
-            if (typeof(T1) == typeof(Land)) {
-                Land cardToPlay = card as Land;
-                Land targetCardToPlay = card as Land;
-                cardToPlay.Effect.ActivateEffect(targetCardToPlay);
-            }
-            else if (typeof(T1) == typeof(PermaSpell)) {
-                PermaSpell cardToPlay = card as PermaSpell;
-                PermaSpell targetCardToPlay = targetCard as PermaSpell;
-                cardToPlay.Effect.ActivateEffect(targetCardToPlay);
-            }
-            else {
-                InstaSpell cardToPlay = card as InstaSpell;
-                InstaSpell targetCardToPlay = targetCard as InstaSpell;
-                cardToPlay.Effect.ActivateEffect(targetCardToPlay);
-            }
-        }
     }
 }

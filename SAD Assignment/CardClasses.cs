@@ -5,7 +5,7 @@ namespace SAD_Assignment
 {
     public enum Color { Red, Blue, Yellow, Green, Black, Colorless }
     public enum Type { Land, PermanentSpell, InstantSpell }
-    public enum EffectType { None, GenerateEnergy, StatAugment, Counter, Buff, Debuff }
+    public enum EffectType { None, GenerateEnergy, StatAugment, Counter, Buff, Debuff, ForceDiscardCard }
 
     /// <summary>
     /// Class <c>Card</c> defines a card
@@ -58,7 +58,8 @@ namespace SAD_Assignment
                 this.State = 4;
             }
             else {
-                Game.PrintToConsole("alreadyUsedLand");
+                Console.WriteLine("Chosen land was already used this turn");
+                Game.LogActivities("Land chosen by player was already used this turn; did not generate any energy.");
             }
         }
         /// <summary>
@@ -81,6 +82,7 @@ namespace SAD_Assignment
     public class PermaSpell : Card {
         public int HP { get; set; }
         public int Attack { get; set; }
+        public PermaSpell TargetCreature { get; set; }
         public CardEffect<PermaSpell> Effect { get; set; }
         public PermaSpell(int cost, int playerId, string cardName, string cardDescription, Color color, int turnsActive, CardEffect<PermaSpell> effect, EffectType effectType, int hp, int attack) {
             this.EnergyCost = cost;
@@ -95,25 +97,16 @@ namespace SAD_Assignment
             this.EffectType = effectType;
             this.HP = hp;
             this.Attack = attack;
+            this.TargetCreature = null;
         }
         /// <summary>
-        /// Method <c>DoAttack</c> attacks specified target creature
+        /// Method <c>DoAttack</c> attacks using creature; if no creature is defending, it attacks opposing player
         /// </summary>
-        public void DoAttack(PermaSpell targetCreature) {
+        public void DoAttack() {
             // attack the given Creature; uses this.attack to reduce it's hp
-            if (this.State < 2) {
-                targetCreature.HP = targetCreature.HP - this.Attack;
-                this.State = 2;
-            }
-        }
-        /// <summary>
-        /// Method <c>DoAttack</c> attacks specified target player
-        /// </summary>
-        public void DoAttack(Player targetPlayer) {
-            // overload for when there is no creature to attack, attacks player instead
-            if (this.State < 2) {
-                targetPlayer.HP = targetPlayer.HP - this.Attack;
-            }
+            
+            // check targetting; will attack player if target field is null
+
         }
         /// <summary>
         /// Method <c>DoDefend</c> sets creature to defending state

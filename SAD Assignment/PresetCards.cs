@@ -42,9 +42,9 @@ namespace SAD_Assignment
             PresetPermasList = new List<PermaSpell>() {
                 // creature spells 
                 new PermaSpell(2, p.ID, "Flamebringer", "A simple, fiery creature with lots of attack, but lacking in defenses. Does not have a special ability.", Color.Red, 3, null, EffectType.None, 2, 6), 
-                new PermaSpell(1, p.ID, "Slime", "A lackluster but cheap creature, capable of doing light damage but can't take hits very well. Can buff the defense of your creatures by 1.", Color.Blue, 4, new StatAugmentPerma(0, 1, Target.Yours), EffectType.StatAugment, 2, 2), 
+                new PermaSpell(1, p.ID, "Slime", "A lackluster but cheap creature, capable of doing light damage but can't take hits very well. Forces opponent to discard 1 card from their hand.", Color.Blue, 4, null, EffectType.ForceDiscardCard, 2, 2), 
                 new PermaSpell(3, p.ID, "Bouldersmasher", "A defensive but offensively weak creature, capable of taking many hits. Can debuff opposing creatures' attack by 2.", Color.Yellow, 6, new StatAugmentPerma(0, -2, Target.Opponents), EffectType.StatAugment, 10, 1), 
-                new PermaSpell(3, p.ID, "Vegemonster", "A balanced creature, capable being both decent offensively and defensively. Does not have a special ability.", Color.Green, 4, null, EffectType.None, 5, 5), 
+                new PermaSpell(3, p.ID, "Vegemonster", "A balanced creature, being decent both offensively and defensively. Does not have a special ability.", Color.Green, 4, null, EffectType.None, 5, 5), 
                 new PermaSpell(2, p.ID, "Shady Shroom", "A malicious creature with low-ish stats. Can debuff opposing creatures' attack and defense by 1.", Color.Black, 5, new StatAugmentPerma(-1, -1, Target.Opponents), EffectType.StatAugment, 4, 3), 
                 new PermaSpell(4, p.ID, "Chemburner", "A strange and unstable creature with decent stats. Can buff your creatures' attack by 2.", Color.Colorless, 3, new StatAugmentPerma(0, 2, Target.Yours), EffectType.StatAugment, 5, 4) 
             };
@@ -58,12 +58,12 @@ namespace SAD_Assignment
         public PresetInstas(Player p) {
             PresetInstasList = new List<InstaSpell>() { 
                 // counter spells; 1 of every color
-                new InstaSpell(1, p.ID, "Red Counter", "A red instant spell that can counter the most recently used card by the opponent.", Color.Red, new CounterSpell(), EffectType.Counter), 
-                new InstaSpell(1, p.ID, "Blue Counter", "A blue instant spell that can counter the most recently used card by the opponent.", Color.Blue, new CounterSpell(), EffectType.Counter), 
-                new InstaSpell(1, p.ID, "Yellow Counter", "A yellow instant spell that can counter the most recently used card by the opponent.", Color.Yellow, new CounterSpell(), EffectType.Counter), 
-                new InstaSpell(1, p.ID, "Green Counter", "A green instant spell that can counter the most recently used card by the opponent.", Color.Green, new CounterSpell(), EffectType.Counter), 
-                new InstaSpell(1, p.ID, "Black Counter", "A black instant spell that can counter the most recently used card by the opponent.", Color.Black, new CounterSpell(), EffectType.Counter), 
-                new InstaSpell(1, p.ID, "Colorless Counter", "A colorless instant spell that can counter the most recently used card by the opponent.", Color.Colorless, new CounterSpell(), EffectType.Counter), 
+                new InstaSpell(1, p.ID, "Red Counter", "A red instant spell that can counter the most recently used card by the opponent.", Color.Red, null, EffectType.Counter), 
+                new InstaSpell(1, p.ID, "Blue Counter", "A blue instant spell that can counter the most recently used card by the opponent.", Color.Blue, null, EffectType.Counter), 
+                new InstaSpell(1, p.ID, "Yellow Counter", "A yellow instant spell that can counter the most recently used card by the opponent.", Color.Yellow, null, EffectType.Counter), 
+                new InstaSpell(1, p.ID, "Green Counter", "A green instant spell that can counter the most recently used card by the opponent.", Color.Green, null, EffectType.Counter), 
+                new InstaSpell(1, p.ID, "Black Counter", "A black instant spell that can counter the most recently used card by the opponent.", Color.Black, null, EffectType.Counter), 
+                new InstaSpell(1, p.ID, "Colorless Counter", "A colorless instant spell that can counter the most recently used card by the opponent.", Color.Colorless, null, EffectType.Counter), 
                 
                 // self-buff spells; 1 of every color
                 new InstaSpell(2, p.ID, "Red Buff", "A red instant spell that buffs all your creatures' attack by 1.", Color.Red, new StatAugmentInsta(0, 1, Target.Yours), EffectType.Buff), 
