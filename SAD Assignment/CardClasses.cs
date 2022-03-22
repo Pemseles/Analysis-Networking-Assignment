@@ -4,8 +4,9 @@ using System.Collections.Generic;
 namespace SAD_Assignment
 {
     public enum Color { Red, Blue, Yellow, Green, Black, Colorless }
-    public enum Type { Land, PermanentSpell, InstantSpell }
+    public enum Type { Land, PermanentSpell, InstantSpell, Irrelevant } // Irrelevant type is for deliverable purposes only
     public enum EffectType { None, GenerateEnergy, StatAugment, Counter, Buff, Debuff, ForceDiscardCard }
+    public enum Target { Yours, Opponents }
 
     /// <summary>
     /// Class <c>Card</c> defines a card
@@ -116,6 +117,10 @@ namespace SAD_Assignment
             if (this.State < 2) {
                 this.State = 3;
             }
+        }
+        public void RecieveStatAugment(int hpAmount, int attackAmount) {
+            this.HP = this.HP + hpAmount;
+            this.Attack = this.Attack + attackAmount;
         }
         /// <summary>
         /// Method <c>DecrementTurns</c> decreases turnsleft by 1

@@ -21,7 +21,7 @@ namespace SAD_Assignment
     public class Player {
         public static Random rnd = new Random();
         public int ID { get; }
-        public Stack<Card> Deck { get; set; }
+        public List<Card> Deck { get; set; }
         public List<Card> Hand { get; set; }
         public Stack<Card> DiscardPile { get; set; }
         public int HP { get; set; }
@@ -37,7 +37,7 @@ namespace SAD_Assignment
         /// <summary>
         /// Method <c>AddDeck</c> adds a deck to the player class
         /// </summary>
-        public void AddDeck(Stack<Card> deck) {
+        public void AddDeck(List<Card> deck) {
             this.Deck = deck;
         }
         /// <summary>
@@ -48,7 +48,7 @@ namespace SAD_Assignment
             if (this.Deck.Count < 1) {
                 return;
             }
-            Stack<Card> shuffledDeck = new Stack<Card>();
+            List<Card> shuffledDeck = new List<Card>();
             List<Card> cardList = new List<Card>(this.Deck);
 
             while (cardList.Count != 0) {
@@ -63,21 +63,31 @@ namespace SAD_Assignment
                         }
                     }
                 }
-                shuffledDeck.Push(cardList[cardListIndex]);
+                shuffledDeck.Add(cardList[cardListIndex]);
                 cardList.RemoveAt(cardListIndex);
             }
             // deck is inverted; otherwise the 'at least 1 land' condition won't work 
             // (elements are added on top and taken from the top of shuffledDeck; would mean the 'guaranteed land' gets buried if not inverted)
-            shuffledDeck = new Stack<Card>(shuffledDeck);
+            shuffledDeck = new List<Card>(shuffledDeck);
             this.Deck = shuffledDeck;
         }
         /// <summary>
         /// Method <c>FillHand</c> fills player's hand untill it contains 7 cards
         /// </summary>
         public void FillHand() {
+            // will take any non-Irrelevant cards and put them in hand
+            for (int i = 0; i < this.Deck.Count; i++) {
+                if (this.Deck[i].Type != Type.Irrelevant) {
+                    Card addCard = this.Deck[i];
+                    this.Deck.RemoveAt(i);
+                    this.Hand.Add(addCard);
+                }
+            }
             // fills this.hand until there's 7 cards; moves cards from deck to hand
             while (this.Hand.Count < 7 && this.Deck.Count > 0) {
-                this.Hand.Add(this.Deck.Pop());
+                Card addCard = this.Deck.First();
+                this.Deck.RemoveAt(0);
+                this.Hand.Add(addCard);
             }
         }
         /// <summary>
@@ -86,7 +96,9 @@ namespace SAD_Assignment
         public void FillHand(int amount) {
             // fills this.hand with specified amount of cards; moves cards from deck to hand
             while (amount > 0 && this.Deck.Count > 0) {
-                this.Hand.Add(this.Deck.Pop());
+                Card addCard = this.Deck.First();
+                this.Deck.RemoveAt(0);
+                this.Hand.Add(addCard);
                 amount--;
             }
         }

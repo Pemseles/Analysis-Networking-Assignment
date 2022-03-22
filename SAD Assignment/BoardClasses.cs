@@ -2,6 +2,10 @@ using System;
 using System.Threading;
 using System.Collections.Generic;
 
+/*
+Thijmen Bouwsema 1008331
+*/
+
 namespace SAD_Assignment
 {
     /// <summary>
@@ -642,6 +646,7 @@ namespace SAD_Assignment
         public void AddLands(Land landToAdd) {
             // add lands to LandsOnBoard
             LogActivities("A land has been played and added to the list of active lands.");
+            landToAdd.State = 4;
             this.LandsOnBoard.Add(landToAdd);
         }
         /// <summary>
@@ -686,11 +691,184 @@ namespace SAD_Assignment
             return returnList;
         }
         /// <summary>
-        /// Method <c>SetUpTurn2Scenaio</c> sets the game's values to the required turn 2
+        /// Method <c>StaticTurns</c> will play out the required turns with no player interactivity (thanks assignment description for being as awful as always.)
         /// </summary>
-        public void SetUpTurn2Scenario() {
+        public void StaticTurns() {
+            int previewTurns = 0;
 
+            // start of game-simulation
+            LogActivities("Starting game...\n");
+            // Pre-game prep (Decks are shuffled & hands are filled)
+            this.TurnPhase = 0;
+            this.Player1.FillHand();
+            LogActivities($"Player 1 deck has been shuffled & hand has been filled with 7 cards.");
+            this.Player2.FillHand();
+            LogActivities($"Player 2 deck has been shuffled & hand has been filled with 7 cards.\n");
+
+            while (previewTurns < 3) {
+                LogActivities($"-------------------\nStarting Turn {previewTurns + 1}.\n-------------------\n");
+
+                // phase 1: revert temporary effects (not possible in deliverable example; not implemented)
+                LogActivities("Starting TurnPhase 1.\n");
+                this.TurnPhase = 1;
+                LogActivities("No creature effects to revert and re-activate (not relevant in deliverable's case.)");
+
+                // phase 2: both players draw cards until they have 7; if their deck is empty they lose (no one loses in deliverable example; not implemented)
+                LogActivities("\nStarting TurnPhase 2.\n");
+                this.TurnPhase = 2;
+
+                LogActivities("Adding 1 card to each player's hand.");
+                this.Player1.FillHand(1);
+                this.Player2.FillHand(1);
+
+                // phase 3: players play their cards until they end their turn (priority decided earlier applies here; they get to go first)
+                LogActivities("\nStarting Turnphase 3.");
+                this.TurnPhase = 3;
+
+                if (previewTurns == 0) {
+                    // player turn 1 happens
+
+                    // Player 1 goes first
+                    LogActivities("\nStarting Player 1's turn...");
+                    SimulatedPlayerTurn(this.Player1, this.Player2, previewTurns);
+
+                    // then Player 2 goes
+                    LogActivities("\nStarting Player 2's turn...");
+                    SimulatedPlayerTurn(this.Player2, this.Player1, previewTurns);
+                }
+                else if (previewTurns == 1) {
+                    // player turn 2 happens
+
+                    // Player 1 goes first
+                    LogActivities("\nStarting Player 1's turn...");
+                    SimulatedPlayerTurn(this.Player1, this.Player2, previewTurns);
+
+                    // then Player 2 goes
+                    LogActivities("\nStarting Player 2's turn...");
+                    SimulatedPlayerTurn(this.Player2, this.Player1, previewTurns);
+                }
+                else {
+                    // player turn 3 happens
+
+                    // Player 1 goes first
+                    LogActivities("\nStarting Player 1's turn...");
+                    SimulatedPlayerTurn(this.Player1, this.Player2, previewTurns);
+
+                    // then Player 2 goes
+                    LogActivities("\nStarting Player 2's turn...");
+                    SimulatedPlayerTurn(this.Player2, this.Player1, previewTurns);
+                }
+
+                // mark the end of the turn by incrementing this.TurnNum
+                LogActivities($"\nEnd of turn {this.TurnNum}.");
+
+                // log end-of-turn standings to file
+                LogActivities($"Turn {this.TurnNum} standings:\n");
+
+                LogActivities($"Player 1: Amount in hand = {this.Player1.Hand.Count}, Deck size = {this.Player1.Deck.Count}, Amount of energy = {this.Player1.Energy}, Amount of HP = {this.Player1.HP}");
+                LogActivities($"Player 2: Amount in hand = {this.Player2.Hand.Count}, Deck size = {this.Player2.Deck.Count}, Amount of energy = {this.Player2.Energy}, Amount of HP = {this.Player2.HP}");
+
+                LogActivities($"\nAmount of lands on board = {this.LandsOnBoard.Count}");
+                if (this.LandsOnBoard.Count > 0) {
+                    foreach (Land land in this.LandsOnBoard) {
+                        LogActivities($"[Owner = Player {land.PlayerId}]");
+                    }
+                }
+
+                LogActivities($"\nAmount of creatures on board = {this.ActiveCreatures.Count}");
+                if (this.ActiveCreatures.Count > 0) {
+                    foreach (PermaSpell creature in this.ActiveCreatures) {
+                        LogActivities($"[Owner = Player {creature.PlayerId}] : {creature.CardName} has {creature.Attack} Attack, {creature.HP} HP & has {creature.TurnsLeft} turns left");
+                        creature.DecrementTurns();
+                    }
+                }
+                previewTurns++;
+            }
         }
+        /// <summary>
+        /// Method <c>SimulatedPlayerTurn</c> simulates a player playing a turn (not interactive since the assignment description apparantly says so)
+        /// </summary>
+        public void SimulatedPlayerTurn(Player p, Player otherP, int currentTurn) {
+            if (currentTurn == 0) {
+                // turn 1 happenings
+                foreach (Card card in p.Hand) {
+                    Console.WriteLine($"[Owner = player {p.ID}] type = {card.Type}, name = {card.CardName}");
+                }
+                if (p.ID == 1) {
+                    // player 1 plays 2 lands & nothing else
+                    LogActivities($"Player {p.ID} has chosen to play a land card.");
+                    this.AddLands(p.Hand[0] as Land);
+                    p.DiscardHand(p.Hand[0]);
+
+                    LogActivities($"Player {p.ID} has chosen to play a land card.");
+                    this.AddLands(p.Hand[0] as Land);
+                    p.DiscardHand(p.Hand[0]);
+
+                    Console.WriteLine($"Player {p.ID}'s turn has ended.");
+                }
+                else {
+                    // player 2 plays 1 land & nothing else
+                    LogActivities($"Player {p.ID} has chosen to play a land card.");
+                    this.AddLands(p.Hand[0] as Land);
+                    p.DiscardHand(p.Hand[0]);
+
+                    Console.WriteLine($"Player {p.ID}'s turn has ended.");
+                }
+            }
+            else if (currentTurn == 1) {
+                // turn 2 happenings
+                foreach (Card card in p.Hand) {
+                    Console.WriteLine($"[Owner = player {p.ID}] type = {card.Type}, name = {card.CardName}");
+                }
+                if (p.ID == 1) {
+                    // player 1 plays 1 land, harvests 2 lands, casts the blue creature (which removes 1 card from opponent's hand)
+
+                    // play 1 land
+                    LogActivities($"Player {p.ID} has chosen to play a land card.");
+                    this.AddLands(p.Hand[1] as Land);
+                    p.DiscardHand(p.Hand[1]);
+
+                    // harvest energy from 2 lands
+                    LogActivities($"Player {p.ID} has chosen to use one of their active lands to generate an energy point.");
+                    Land land = this.LandsOnBoard[0];
+                    land.ActivateEffect(land);
+
+                    LogActivities($"Player {p.ID} has chosen to use one of their active lands to generate an energy point.");
+                    land = this.LandsOnBoard[1];
+                    land.ActivateEffect(land);
+                    
+                    // cast blue creature (and discard 1 opponent card)
+                    LogActivities($"Player {p.ID} has chosen to play a creature card.");
+                    PermaSpell creature = p.Hand[1] as PermaSpell;
+                    // check if creature has discard card effect; activate effect
+                    if (creature.EffectType == EffectType.ForceDiscardCard) {
+                        otherP.DiscardHand(1);
+                    }
+                    this.AddPermas(creature as PermaSpell, p);
+                    p.DiscardHand(p.Hand[1]);
+
+                    Console.WriteLine($"Player {p.ID}'s turn has ended, but they did not perform any actions.");
+                }
+                else {
+                    // player 2 does nothing :)
+                    Console.WriteLine($"Player {p.ID}'s turn has ended, but they did not perform any actions.");
+                }
+            }
+            else {
+                // turn 3 happenings
+                foreach (Card card in p.Hand) {
+                    Console.WriteLine($"[Owner = player {p.ID}] type = {card.Type}, name = {card.CardName}");
+                }
+            }
+            // reset lands at the end of the turn
+            if (this.LandsOnBoard.Count > 0) {
+                for (int i = 0; i < this.LandsOnBoard.Count; i++) {
+                    // resets all lands on board so they can be used during later phases
+                    this.LandsOnBoard[i].ResetLand();
+                }
+            }
+        }
+
         /// <summary>
         /// Method <c>RevertPermaEffects</c> reverts effects of active creatures and removes expired cards from board
         /// </summary>
