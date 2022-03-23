@@ -7,113 +7,111 @@ Player 2 deck has been shuffled & hand has been filled with 7 cards.
 Starting Turn 1.
 -------------------
 
-Starting TurnPhase 1.
-
-No creature effects to revert and re-activate (not relevant in deliverable's case.)
-
-Starting TurnPhase 2.
-
-Adding 1 card to each player's hand.
-
-Starting Turnphase 3.
-
 Starting Player 1's turn...
+
+Adding 1 card Player 1's hand.
 Player 1 has chosen to play a land card.
 A land has been played and added to the list of active lands.
 Player 1 has chosen to play a land card.
 A land has been played and added to the list of active lands.
-Resetting lands so they can be used again.
+Player 1's turn has ended.
 
 Starting Player 2's turn...
+
+Adding 1 card Player 2's hand.
 Player 2 has chosen to play a land card.
 A land has been played and added to the list of active lands.
-Resetting lands so they can be used again.
+Player 2's turn has ended.
 
 End of turn 1.
 Turn 1 standings:
 
-Player 1: Amount in hand = 6, Deck size = 22, Amount of energy = 0, Amount of HP = 10
-Player 2: Amount in hand = 7, Deck size = 22, Amount of energy = 0, Amount of HP = 10
+Player 1: Amount in hand = 6, Deck size = 22, Amount of energy = 0 & Amount of HP = 10.
+Player 2: Amount in hand = 7, Deck size = 22, Amount of energy = 0 & Amount of HP = 10.
 
-Amount of lands on board = 3
+Amount of lands on board = 3:
 [Owner = Player 1]
 [Owner = Player 1]
 [Owner = Player 2]
 
-Amount of creatures on board = 0
+Amount of creatures on board = 0:
 -------------------
 Starting Turn 2.
 -------------------
 
-Starting TurnPhase 1.
-
-No creature effects to revert and re-activate (not relevant in deliverable's case.)
-Resetting lands so they can be used again.
-
-Starting TurnPhase 2.
-
-Adding 1 card to each player's hand.
-
-Starting Turnphase 3.
-
 Starting Player 1's turn...
+
+Adding 1 card Player 1's hand.
 Player 1 has chosen to play a land card.
 A land has been played and added to the list of active lands.
 Player 1 has chosen to use one of their active lands to generate an energy point.
 Player 1 has chosen to use one of their active lands to generate an energy point.
 Player 1 has chosen to play a creature card.
+Player 1's creature has forced Player 2 to discard 1 random card from their hand.
 A creature has been played and added to the list of active creatures.
-Resetting lands so they can be used again.
+Player 1's turn has ended.
 
 Starting Player 2's turn...
-Resetting lands so they can be used again.
 
-End of turn 1.
-Turn 1 standings:
+Adding 1 card Player 2's hand.
+Player 2's turn has ended, but they did not perform any actions.
 
-Player 1: Amount in hand = 5, Deck size = 21, Amount of energy = 0, Amount of HP = 10
-Player 2: Amount in hand = 7, Deck size = 21, Amount of energy = 0, Amount of HP = 10
+End of turn 2.
+Turn 2 standings:
 
-Amount of lands on board = 4
+Player 1: Amount in hand = 5, Deck size = 21, Amount of energy = 0 & Amount of HP = 10.
+Player 2: Amount in hand = 7, Deck size = 21, Amount of energy = 0 & Amount of HP = 10.
+
+Amount of lands on board = 4:
 [Owner = Player 1]
 [Owner = Player 1]
 [Owner = Player 2]
 [Owner = Player 1]
 
-Amount of creatures on board = 1
-[Owner = Player 1] : Unnamed blue creature has 2 Attack, 2 HP & has 5 turns left
+Amount of creatures on board = 1:
+[Owner = Player 1] : Unnamed blue creature has 2 Attack & 2 HP.
 -------------------
 Starting Turn 3.
 -------------------
 
-Starting TurnPhase 1.
-
-No creature effects to revert and re-activate (not relevant in deliverable's case.)
-Resetting lands so they can be used again.
-
-Starting TurnPhase 2.
-
-Adding 1 card to each player's hand.
-
-Starting Turnphase 3.
-
 Starting Player 1's turn...
-Resetting lands so they can be used again.
 
-Starting Player 2's turn...
-Resetting lands so they can be used again.
+Adding 1 card Player 1's hand.
+Player 1 has chosen to use one of their active lands to generate an energy point.
+Player 1 has chosen to use one of their active lands to generate an energy point.
+Player 1 has chosen to use one of their active lands to generate an energy point.
+A Unnamed blue creature has been added to the card stack.
+A Green buff has been added to the card stack.
 
-End of turn 1.
-Turn 1 standings:
+Player 2 has decided to interject!
+Player 2 has chosen to use one of their active lands to generate an energy point.
+Player 2 has chosen to use one of their counter spells.
+A Red Counter has been added to the card stack.
 
-Player 1: Amount in hand = 6, Deck size = 20, Amount of energy = 0, Amount of HP = 10
-Player 2: Amount in hand = 8, Deck size = 20, Amount of energy = 0, Amount of HP = 10
+Player 1 has decided to interject!
+Player 1 has chosen to use one of their active lands to generate an energy point.
+Player 1 has chosen to use one of their active lands to generate an energy point.
+Player 1 has chosen to use one of their counter spells.
+A Blue Counter has been added to the card stack.
+Player 1's turn has ended.
 
-Amount of lands on board = 4
+Activating the card stack.
+Player 1's Blue Counter has been activated; removed Red Counter from card stack.
+Player 1's Green buff has been activated; buffing Unnamed blue creature by +3/+3
+Player 1's Unnamed blue creature is going to attack it's opponent (Creature has 5 Attack & 5 HP).
+Player 1's Unnamed blue creature has attacked Player 2: HP was reduced from 10 to 5
+
+End of turn 3.
+Turn 3 standings:
+
+Player 1: Amount in hand = 4, Deck size = 20, Amount of energy = 5 & Amount of HP = 10.
+Player 2: Amount in hand = 6, Deck size = 21, Amount of energy = 1 & Amount of HP = 5.
+
+Amount of lands on board = 4:
 [Owner = Player 1]
 [Owner = Player 1]
 [Owner = Player 2]
 [Owner = Player 1]
 
-Amount of creatures on board = 1
-[Owner = Player 1] : Unnamed blue creature has 2 Attack, 2 HP & has 4 turns left
+Amount of creatures on board = 1:
+[Owner = Player 1] : Unnamed blue creature has 5 Attack & 5 HP.

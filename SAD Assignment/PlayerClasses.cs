@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+/*
+Thijmen Bouwsema 1008331
+*/
+
 namespace SAD_Assignment
 {
     /// <summary>
@@ -39,37 +43,6 @@ namespace SAD_Assignment
         /// </summary>
         public void AddDeck(List<Card> deck) {
             this.Deck = deck;
-        }
-        /// <summary>
-        /// Method <c>ShuffleDeck</c> randomises the order of player's deck
-        /// </summary>
-        public void ShuffleDeck() {
-            // init of new shuffled Deck and a copy of current unshuffled deck
-            if (this.Deck.Count < 1) {
-                return;
-            }
-            List<Card> shuffledDeck = new List<Card>();
-            List<Card> cardList = new List<Card>(this.Deck);
-
-            while (cardList.Count != 0) {
-                // generate random index; item at index in unshuffled deck is moved to new deck
-                int cardListIndex = rnd.Next(cardList.Count);
-
-                // guarantees at least 1 land in the first 7 cards (is for when filling the player's hand, they can actually do something with their hand)
-                if (shuffledDeck.Count == 6 && !shuffledDeck.Any(c => c.Type == Type.Land) && cardList[cardListIndex].Type != Type.Land) {
-                    for (int i = 0; i < cardList.Count; i++) {
-                        if (cardList[i].Type == Type.Land) {
-                            cardListIndex = i;
-                        }
-                    }
-                }
-                shuffledDeck.Add(cardList[cardListIndex]);
-                cardList.RemoveAt(cardListIndex);
-            }
-            // deck is inverted; otherwise the 'at least 1 land' condition won't work 
-            // (elements are added on top and taken from the top of shuffledDeck; would mean the 'guaranteed land' gets buried if not inverted)
-            shuffledDeck = new List<Card>(shuffledDeck);
-            this.Deck = shuffledDeck;
         }
         /// <summary>
         /// Method <c>FillHand</c> fills player's hand untill it contains 7 cards
@@ -150,6 +123,15 @@ namespace SAD_Assignment
         public void ChangeEnergy(int amount) {
             // adds {amount} energy of specified color to energy reserve (if < 0 it subtracts)
             this.Energy = this.Energy + amount;
+        }
+
+        // 1 unused method
+
+        /// <summary>
+        /// Method <c>ShuffleDeck</c> randomises the order of player's deck
+        /// </summary>
+        public void ShuffleDeck() {
+            // not implemented; deliverable case does not require it's implementation (decks have specific cards; shuffling would randomise their order in the deck)
         }
     }
 }
