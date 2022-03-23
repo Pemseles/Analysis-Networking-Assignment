@@ -15,17 +15,17 @@ namespace SAD_Assignment
             // create log.txt or empties it if it was already there
             Game.EmptyLogFile();
 
-            // initialises players & decks
-            PlayerContainer players = new PlayerContainer(10);
-            List<Card> deck1 = GenerateDeck(PlayerContainer.Player1);
-            List<Card> deck2 = GenerateDeck(PlayerContainer.Player2);
+            // initialises playerContainer singleton & decks
+            PlayerContainer players = PlayerContainer.GetInstance(10);
+            List<Card> deck1 = GenerateDeck(players.Player1);
+            List<Card> deck2 = GenerateDeck(players.Player2);
 
             // add generated decks to players (necessary because cards need a playerId; means players have to be made first)
-            PlayerContainer.Player1.AddDeck(deck1);
-            PlayerContainer.Player2.AddDeck(deck2);
+            players.Player1.AddDeck(deck1);
+            players.Player2.AddDeck(deck2);
 
             // starts game
-            Game newGame = new Game(PlayerContainer.Player1, PlayerContainer.Player2);
+            Game newGame = Game.GetInstance(players.Player1, players.Player2);
             newGame.PlayGame();
         }
         /// <summary>

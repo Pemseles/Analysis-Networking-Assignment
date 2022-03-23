@@ -9,15 +9,22 @@ Thijmen Bouwsema 1008331
 namespace SAD_Assignment
 {
     /// <summary>
-    /// Class <c>PlayerContainer</c> contains 2 static player classes for easy access
+    /// Class <c>PlayerContainer</c> contains 2 player classes in singleton format
     /// </summary>
-    public class PlayerContainer {
-        public static Player Player1 { get; set; }
-        public static Player Player2 { get; set; }
-        public PlayerContainer(int playerHP) {
-            Player1 = new Player(1, playerHP);
-            Player2 = new Player(2, playerHP);
+    public sealed class PlayerContainer {
+        private static PlayerContainer _instance = null;
+        public static PlayerContainer GetInstance(int playerHp = 0) {
+            if (_instance == null) {
+                _instance = new PlayerContainer(playerHp);
+            }
+            return _instance;
         }
+        private PlayerContainer(int playerHp) {
+            this.Player1 = new Player(1, playerHp);
+            this.Player2 = new Player(2, playerHp);
+        }
+        public Player Player1 { get; set; }
+        public Player Player2 { get; set; }
     }
     /// <summary>
     /// Class <c>Player</c> defines a player of the game

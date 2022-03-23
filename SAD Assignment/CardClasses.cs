@@ -53,14 +53,15 @@ namespace SAD_Assignment
         /// Method <c>GenerateEnergy</c> generates 1 energy point for owner player
         /// </summary>
         public void GenerateEnergy() {
+            PlayerContainer players = PlayerContainer.GetInstance();
             if (this.State == CardState.Inactive && this.PlayerId == 1) {
                 // generate energy if owner is player 1
-                PlayerContainer.Player1.ChangeEnergy(1);
+                players.Player1.ChangeEnergy(1);
                 this.State = CardState.AlreadyUsed;
             }
             else if (this.State == CardState.Inactive && this.PlayerId == 2) {
                 // generate energy if owner is player 2
-                PlayerContainer.Player2.ChangeEnergy(1);
+                players.Player2.ChangeEnergy(1);
                 this.State = CardState.AlreadyUsed;
             }
             else {
@@ -98,6 +99,7 @@ namespace SAD_Assignment
         /// </summary>
         public void DoAttack() {
             // attack the given Creature; uses this.attack to reduce it's hp
+            PlayerContainer players = PlayerContainer.GetInstance();
             
             // update & check targetting; will attack player if target field is null
             this.UpdateTarget();
@@ -111,13 +113,13 @@ namespace SAD_Assignment
                 // attack other player
                 if (this.PlayerId == 1) {
                     // attack player 2
-                    Game.LogActivities($"Player {this.PlayerId}'s {this.CardName} has attacked Player 2: HP was reduced from {PlayerContainer.Player2.HP} to {PlayerContainer.Player2.HP - this.Attack}");
-                    PlayerContainer.Player2.ChangeHP(this.Attack);
+                    Game.LogActivities($"Player {this.PlayerId}'s {this.CardName} has attacked Player 2: HP was reduced from {players.Player2.HP} to {players.Player2.HP - this.Attack}");
+                    players.Player2.ChangeHP(this.Attack);
                 }
                 else {
                     // attack player 1
-                    Game.LogActivities($"Player {this.PlayerId}'s {this.CardName} has attacked Player 1: HP was reduced from {PlayerContainer.Player1.HP} to {PlayerContainer.Player1.HP - this.Attack}");
-                    PlayerContainer.Player1.ChangeHP(this.Attack);
+                    Game.LogActivities($"Player {this.PlayerId}'s {this.CardName} has attacked Player 1: HP was reduced from {players.Player1.HP} to {players.Player1.HP - this.Attack}");
+                    players.Player1.ChangeHP(this.Attack);
                 }
             }
         }

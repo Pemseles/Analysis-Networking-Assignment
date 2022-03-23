@@ -8,9 +8,28 @@ Thijmen Bouwsema 1008331
 namespace SAD_Assignment
 {
     /// <summary>
-    /// Class <c>Game</c> defines the game to be played by 2 players
+    /// Class <c>Game</c> defines the game to be played by 2 players w singleton pattern
     /// </summary>
-    public class Game {
+    public sealed class Game {
+        // singleton portion
+        private static Game _instance = null;
+        public static Game GetInstance(Player p1, Player p2) {
+            if (_instance == null) {
+                _instance = new Game(p1, p2);
+            }
+            return _instance;
+        }
+        private Game(Player p1, Player p2) {
+            this.TurnNum = 1;
+            this.CardActivationStack = new Stack<Card>();
+            this.LandsOnBoard = new List<Land>();
+            this.ActiveCreatures = new List<PermaSpell>();
+            this.Player1 = p1;
+            this.Player2 = p2;
+            this.PlayerPriority = -1;
+            this.Winner = "Undecided";
+        }
+
         // rnd would be used to determine who goes first; not used since the case requires a static turn priority as Player 1 has to always move first
         public Random rnd = new Random();
         // TurnNum = actual turn number; increments when new turn begins
@@ -32,16 +51,7 @@ namespace SAD_Assignment
         public Player Player2 { get; set; }
         // Winner: is "Undecided" while playing, otherwise will say "Player 1", "Player 2" or "Tie" depending on who wins (not used since in case no one is able to win or lose)
         public string Winner { get; set; }
-        public Game(Player p1, Player p2) {
-            this.TurnNum = 1;
-            this.CardActivationStack = new Stack<Card>();
-            this.LandsOnBoard = new List<Land>();
-            this.ActiveCreatures = new List<PermaSpell>();
-            this.Player1 = p1;
-            this.Player2 = p2;
-            this.PlayerPriority = -1;
-            this.Winner = "Undecided";
-        }
+        
         /// <summary>
         /// Method <c>PlayGame</c> will play out the required turns with no player interactivity (has rigid order of instructions to match assignment case)
         /// </summary>
@@ -125,6 +135,7 @@ namespace SAD_Assignment
                 }
                 this.TurnNum++;
             }
+            Console.WriteLine("Sample game finished; find results in log.txt");
         }
         /// <summary>
         /// Method <c>SimulatedPlayerTurn</c> simulates a player playing a turn (not interactive since the assignment description apparantly says so)
@@ -287,7 +298,7 @@ namespace SAD_Assignment
             if (this.CardActivationStack.Count > 0) {
                 LogActivities($"\nActivating the card stack.");
             }
-            
+
             while (this.CardActivationStack.Count > 0) {
                 Card stackCard = this.CardActivationStack.Pop();
 
