@@ -32,7 +32,7 @@ namespace SAD_Assignment
     public class Player {
         public static Random rnd = new Random();
         public int ID { get; }
-        public List<Card> Deck { get; set; }
+        public CardComposite Deck { get; set; }
         public List<Card> Hand { get; set; }
         public Stack<Card> DiscardPile { get; set; }
         public int HP { get; set; }
@@ -48,7 +48,7 @@ namespace SAD_Assignment
         /// <summary>
         /// Method <c>AddDeck</c> adds a deck to the player class
         /// </summary>
-        public void AddDeck(List<Card> deck) {
+        public void AddDeck(CardComposite deck) {
             this.Deck = deck;
         }
         /// <summary>
@@ -56,18 +56,22 @@ namespace SAD_Assignment
         /// </summary>
         public void FillHand() {
             // will take any non-Irrelevant cards and put them in hand
-            for (int i = 0; i < this.Deck.Count; i++) {
-                if (this.Deck[i].Type != Type.Irrelevant) {
-                    Card addCard = this.Deck[i];
-                    this.Deck.RemoveAt(i);
-                    this.Hand.Add(addCard);
+            foreach (CardComposite composite in this.Deck.children) {
+                if (composite.Name != "Empty") {
+                    for (int i = 0; i < composite.children.Count;) {
+                        Card addCard = composite.children[i];
+                        composite.children.RemoveAt(i);
+                        this.Hand.Add(addCard);
+                    }
                 }
-            }
-            // fills this.hand until there's 7 cards; moves cards from deck to hand
-            while (this.Hand.Count < 7 && this.Deck.Count > 0) {
-                Card addCard = this.Deck.First();
-                this.Deck.RemoveAt(0);
-                this.Hand.Add(addCard);
+                else {
+                    // fills this.hand until there's 7 cards; moves cards from deck to hand
+                    while (this.Hand.Count < 7 && this.Deck.Count() > 0) {
+                        Card addCard = composite.children.First();
+                        composite.children.RemoveAt(0);
+                        this.Hand.Add(addCard);
+                    }
+                }
             }
         }
         /// <summary>
@@ -75,11 +79,13 @@ namespace SAD_Assignment
         /// </summary>
         public void FillHand(int amount) {
             // fills this.hand with specified amount of cards; moves cards from deck to hand
-            while (amount > 0 && this.Deck.Count > 0) {
-                Card addCard = this.Deck.First();
-                this.Deck.RemoveAt(0);
-                this.Hand.Add(addCard);
-                amount--;
+            foreach (CardComposite composite in this.Deck.children) {
+                while (amount > 0 && composite.children.Count > 0) {
+                    Card addCard = composite.children.First();
+                    composite.children.RemoveAt(0);
+                    this.Hand.Add(addCard);
+                    amount--;
+                }
             }
         }
         /// <summary>

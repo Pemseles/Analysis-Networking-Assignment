@@ -86,7 +86,7 @@ A Green buff has been added to the card stack.
 Player 2 has decided to interject!
 Player 2 has chosen to use one of their active lands to generate an energy point.
 Player 2 has chosen to use one of their counter spells.
-A  has been added to the card stack.
+A Red Counter has been added to the card stack.
 
 Player 1 has decided to interject!
 Player 1 has chosen to use one of their active lands to generate an energy point.
@@ -96,7 +96,7 @@ A Blue Counter has been added to the card stack.
 Player 1's turn has ended.
 
 Activating the card stack.
-Player 1's Blue Counter has been activated; removed  from card stack.
+Player 1's Blue Counter has been activated; removed Red Counter from card stack.
 Player 1's Green buff has been activated; buffing Unnamed blue creature by +3/+3
 Player 1's Unnamed blue creature is going to attack it's opponent (Creature has 5 Attack & 5 HP).
 Player 1's Unnamed blue creature has attacked Player 2: HP was reduced from 10 to 5

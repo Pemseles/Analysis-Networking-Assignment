@@ -116,8 +116,8 @@ namespace SAD_Assignment
                 // log end-of-turn standings to file
                 LogActivities($"Turn {this.TurnNum} standings:\n");
 
-                LogActivities($"Player 1: Amount in hand = {this.Player1.Hand.Count}, Deck size = {this.Player1.Deck.Count}, Amount of energy = {this.Player1.Energy} & Amount of HP = {this.Player1.HP}.");
-                LogActivities($"Player 2: Amount in hand = {this.Player2.Hand.Count}, Deck size = {this.Player2.Deck.Count}, Amount of energy = {this.Player2.Energy} & Amount of HP = {this.Player2.HP}.");
+                LogActivities($"Player 1: Amount in hand = {this.Player1.Hand.Count}, Deck size = {this.Player1.Deck.Count()}, Amount of energy = {this.Player1.Energy} & Amount of HP = {this.Player1.HP}.");
+                LogActivities($"Player 2: Amount in hand = {this.Player2.Hand.Count}, Deck size = {this.Player2.Deck.Count()}, Amount of energy = {this.Player2.Energy} & Amount of HP = {this.Player2.HP}.");
 
                 LogActivities($"\nAmount of lands on board = {this.LandsOnBoard.Count}:");
                 if (this.LandsOnBoard.Count > 0) {
@@ -179,8 +179,8 @@ namespace SAD_Assignment
 
                     // play 1 land
                     LogActivities($"Player {p.ID} has chosen to play a land card.");
-                    this.AddLands(p.Hand[1] as Land);
-                    p.DiscardHand(p.Hand[1]);
+                    this.AddLands(p.Hand[0] as Land);
+                    p.DiscardHand(p.Hand[0]);
 
                     // harvest energy from 2 lands
                     LogActivities($"Player {p.ID} has chosen to use one of their active lands to generate an energy point.");
@@ -191,14 +191,14 @@ namespace SAD_Assignment
                     
                     // cast blue creature (and discard 1 opponent card)
                     LogActivities($"Player {p.ID} has chosen to play a creature card.");
-                    PermaSpell creature = p.Hand[1] as PermaSpell;
+                    PermaSpell creature = p.Hand[0] as PermaSpell;
                     // check if creature has discard card effect; activate effect
                     if (creature.EffectType == EffectType.ForceDiscardCard) {
                         LogActivities($"Player {p.ID}'s creature has forced Player {otherP.ID} to discard 1 random card from their hand.");
                         otherP.DiscardHand(1);
                     }
                     this.AddPermas(creature as PermaSpell, p);
-                    p.DiscardHand(p.Hand[1]);
+                    p.DiscardHand(p.Hand[0]);
 
                     LogActivities($"Player {p.ID}'s turn has ended.");
                 }
