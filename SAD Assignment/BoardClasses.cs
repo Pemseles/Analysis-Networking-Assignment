@@ -197,7 +197,7 @@ namespace SAD_Assignment
                         LogActivities($"Player {p.ID}'s creature has forced Player {otherP.ID} to discard 1 random card from their hand.");
                         otherP.DiscardHand(1);
                     }
-                    this.AddPermas(creature as PermaSpell, p);
+                    this.AddPermas(creature, p);
                     p.DiscardHand(p.Hand[0]);
 
                     LogActivities($"Player {p.ID}'s turn has ended.");

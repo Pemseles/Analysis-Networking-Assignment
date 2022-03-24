@@ -87,8 +87,6 @@ namespace SAD_Assignment
                 emptyCardsCount--;
             }
             staticDeck.Add(emptyCards);
-            //staticDeck.PrintAll();
-            Console.WriteLine($"deck size for Player {p.ID}: {staticDeck.Count()}");
             return staticDeck;
         }
     }
