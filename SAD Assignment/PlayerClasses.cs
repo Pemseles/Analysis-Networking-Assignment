@@ -30,11 +30,10 @@ namespace SAD_Assignment
     /// Class <c>Player</c> defines a player of the game
     /// </summary>
     public class Player {
-        public static Random rnd = new Random();
         public int ID { get; }
         public CardComposite Deck { get; set; }
         public List<Card> Hand { get; set; }
-        public Stack<Card> DiscardPile { get; set; }
+        private Stack<Card> DiscardPile { get; set; }
         public int HP { get; set; }
         public int Energy { get; set; }
         public Player(int id, int hp) {
@@ -56,19 +55,19 @@ namespace SAD_Assignment
         /// </summary>
         public void FillHand() {
             // will take any non-Irrelevant cards and put them in hand
-            foreach (CardComposite composite in this.Deck.children) {
+            foreach (CardComposite composite in this.Deck.Children) {
                 if (composite.Name != "Empty") {
-                    for (int i = 0; i < composite.children.Count;) {
-                        Card addCard = composite.children[i];
-                        composite.children.RemoveAt(i);
+                    for (int i = 0; i < composite.Children.Count;) {
+                        Card addCard = composite.Children[i];
+                        composite.Children.RemoveAt(i);
                         this.Hand.Add(addCard);
                     }
                 }
                 else {
                     // fills this.hand until there's 7 cards; moves cards from deck to hand
                     while (this.Hand.Count < 7 && this.Deck.Count() > 0) {
-                        Card addCard = composite.children.First();
-                        composite.children.RemoveAt(0);
+                        Card addCard = composite.Children.First();
+                        composite.Children.RemoveAt(0);
                         this.Hand.Add(addCard);
                     }
                 }
@@ -79,10 +78,10 @@ namespace SAD_Assignment
         /// </summary>
         public void FillHand(int amount) {
             // fills this.hand with specified amount of cards; moves cards from deck to hand
-            foreach (CardComposite composite in this.Deck.children) {
-                while (amount > 0 && composite.children.Count > 0) {
-                    Card addCard = composite.children.First();
-                    composite.children.RemoveAt(0);
+            foreach (CardComposite composite in this.Deck.Children) {
+                while (amount > 0 && composite.Children.Count > 0) {
+                    Card addCard = composite.Children.First();
+                    composite.Children.RemoveAt(0);
                     this.Hand.Add(addCard);
                     amount--;
                 }
@@ -94,6 +93,7 @@ namespace SAD_Assignment
         public void DiscardHand(int amount) {
             // take cards from Hand to DiscardPile (equal to amount)
             // selects random cards to move from hand to discard pile;
+            Random rnd = new Random();
             while (amount > 0 && this.Hand.Count > 0) {
                 int handIndex = rnd.Next(this.Hand.Count);
                 this.DiscardPile.Push(this.Hand[handIndex]);

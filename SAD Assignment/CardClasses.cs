@@ -8,8 +8,8 @@ Thijmen Bouwsema 1008331
 namespace SAD_Assignment
 {
     public enum Color { Red, Blue, Yellow, Green, Black, Colorless } // not every color is required for deliverable's case
-    public enum Type { Land, PermanentSpell, InstantSpell, Irrelevant } // Irrelevant type is for deliverable purposes only
-    public enum EffectType { None, GenerateEnergy, StatAugment, Counter, Buff, Debuff, ForceDiscardCard }
+    public enum CardType { Land, Creature, InstantSpell, Irrelevant } // Irrelevant type is for deliverable purposes only
+    public enum EffectType { None, GenerateEnergy, StatAugment, Counter, Buff, Debuff, ForceDiscard }
     public enum CardState { Inactive, AlreadyUsed, Attacking, Defending }
     /// <summary>
     /// Class <c>Card</c> defines a card
@@ -20,7 +20,7 @@ namespace SAD_Assignment
         public string CardDescription { get; set; }
         public int EnergyCost { get; set; }
         public Color Color { get; set; }
-        public Type Type { get; set; }
+        public CardType CardType { get; set; }
         public EffectType EffectType { get; set; }
         public CardState State { get; set; }
         /// <summary>
@@ -41,16 +41,16 @@ namespace SAD_Assignment
     /// </summary>
     public interface IUpdateRecipients {  }
     /// <summary>
-    /// Class <c>Land</c> defines a land card
+    /// Class <c>Creature</c> defines a land card
     /// </summary>
-    public class Land : Card {
-        public Land(int playerId, string cardName, string cardDescription, Color color) {
+    public class Creature : Card {
+        public Creature(int playerId, string cardName, string cardDescription, Color color) {
             this.EnergyCost = 0;
             this.PlayerId = playerId;
             this.CardName = cardName;
             this.CardDescription = cardDescription;
             this.Color = color;
-            this.Type = Type.Land;
+            this.CardType = CardType.Land;
             this.State = CardState.Inactive;
             this.EffectType = EffectType.GenerateEnergy;
         }
@@ -111,7 +111,7 @@ namespace SAD_Assignment
             this.CardName = cardName;
             this.CardDescription = cardDescription;
             this.Color = color;
-            this.Type = Type.PermanentSpell;
+            this.CardType = CardType.Creature;
             this.State = CardState.Inactive;
             this.TurnsLeft = turnsActive;
             this.EffectType = effectType;
@@ -240,7 +240,7 @@ namespace SAD_Assignment
             this.CardDescription = cardDescription;
             this.Color = color;
             this.EffectType = effectType;
-            this.Type = Type.InstantSpell;
+            this.CardType = CardType.InstantSpell;
             this.State = CardState.Inactive;
             this.HPAugment = hpAugment;
             this.AttackAugment = attackAugment;
@@ -289,27 +289,27 @@ namespace SAD_Assignment
     /// </summary>
     public class CardComposite : CardComponent {
         public override void RevertEffects() { /* not implemented; deliverable case does not require it's implementation (case doesn't have an instance of reverting effects) */ }
-        public List<Card> children = new List<Card>();
+        public List<Card> Children = new List<Card>();
         // constructor
         public CardComposite(string name) : base(name) {}
         public override void Add(Card card) {
             // adds a new branch (like land- or creature-branch)
-            children.Add(card);
+            Children.Add(card);
         }
         public override void Remove(Card card) {
             // removes branch
-            children.Remove(card);
+            Children.Remove(card);
         }
-        public override int Count(int returnMe = 0) {
-            foreach (Card composite in children) {
-                returnMe = composite.Count(returnMe);
+        public override int Count(int currentAmount = 0) {
+            foreach (Card composite in Children) {
+                currentAmount = composite.Count(currentAmount);
             }
-            return returnMe;
+            return currentAmount;
         }
         public override void PrintAll() {
             Console.WriteLine($"Composite name = {this.Name}");
 
-            foreach (Card composite in this.children) {
+            foreach (Card composite in this.Children) {
                 composite.PrintAll();
             }
         }
@@ -328,10 +328,10 @@ namespace SAD_Assignment
             Console.WriteLine("cannot remove from leaf.");
         }
         public override void PrintAll() {
-            StoredCard.PrintAll();
+            this.StoredCard.PrintAll();
         }
-        public override int Count(int returnMe) {
-            return StoredCard.Count(returnMe);
+        public override int Count(int currentAmount) {
+            return this.StoredCard.Count(currentAmount);
         }
     }
 
@@ -350,7 +350,7 @@ namespace SAD_Assignment
     class LandCreator : CardCreator {
         public override Card CreateCard(int playerId, string cardName, string cardDescription, Color color, int cost = 0, EffectType effectType = EffectType.None, int hp = 0, int attack = 0, int turnsActive = 0)
         {
-            return new Land(playerId, cardName, cardDescription, color);
+            return new Creature(playerId, cardName, cardDescription, color);
         }
     }
     /// <summary>

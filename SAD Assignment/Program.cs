@@ -9,7 +9,6 @@ namespace SAD_Assignment
 {
     class Program
     {
-        public static Random rnd = new Random();
         static void Main(string[] args)
         {
             // create log.txt or empties it if it was already there
@@ -50,7 +49,7 @@ namespace SAD_Assignment
 
                 // get the 1 blue creature
                 CardComposite creatures = new CardComposite("Creatures");
-                creatures.Add(cardCreators[1].CreateCard(p.ID, "Unnamed blue creature", "Is able to remove 1 random card from opponent's hand.", Color.Blue, 2, EffectType.ForceDiscardCard, 2, 2, 2));
+                creatures.Add(cardCreators[1].CreateCard(p.ID, "Unnamed blue creature", "Is able to remove 1 random card from opponent's hand.", Color.Blue, 2, EffectType.ForceDiscard, 2, 2, 2));
                 staticDeck.Add(creatures);
 
                 // get the green +3/+3 buff & blue counter
@@ -82,7 +81,7 @@ namespace SAD_Assignment
             CardComposite emptyCards = new CardComposite("Empty");
             while (emptyCardsCount > 0) {
                 InstaSpell emptyCard = new InstaSpell(10000, p.ID, "", "", Color.Colorless, EffectType.None);
-                emptyCard.Type = Type.Irrelevant;
+                emptyCard.CardType = CardType.Irrelevant;
                 emptyCards.Add(emptyCard);
                 emptyCardsCount--;
             }
