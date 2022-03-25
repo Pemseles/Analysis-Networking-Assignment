@@ -8,3 +8,8 @@ SAD Assignment/obj/Debug/net5.0/SAD Assignment.csproj.FileListAbsolute.txt
 *.cache
 SAD Assignment/obj/Debug/net5.0/SAD Assignment.assets.cache
 *.cache
+*.json
+SAD Assignment/log.txt
+SAD Assignment/log.txt
+*.cache
+*.json
