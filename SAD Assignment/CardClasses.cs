@@ -41,18 +41,18 @@ namespace SAD_Assignment
     /// </summary>
     public interface IUpdateRecipients {  }
     /// <summary>
-    /// Class <c>Creature</c> defines a land card
+    /// Class <c>Land</c> defines a land card
     /// </summary>
-    public class Creature : Card {
-        public Creature(int playerId, string cardName, string cardDescription, Color color) {
-            this.EnergyCost = 0;
-            this.PlayerId = playerId;
-            this.CardName = cardName;
-            this.CardDescription = cardDescription;
-            this.Color = color;
-            this.CardType = CardType.Land;
-            this.State = CardState.Inactive;
-            this.EffectType = EffectType.GenerateEnergy;
+    public class Land : Card {
+        public Land(int playerId, string cardName, string cardDescription, Color color) {
+            base.EnergyCost = 0;
+            base.PlayerId = playerId;
+            base.CardName = cardName;
+            base.CardDescription = cardDescription;
+            base.Color = color;
+            base.CardType = CardType.Land;
+            base.State = CardState.Inactive;
+            base.EffectType = EffectType.GenerateEnergy;
         }
         /// <summary>
         /// Method <c>ResetLand</c> resets land back to active state so it can be used again
@@ -90,22 +90,22 @@ namespace SAD_Assignment
     /// <summary>
     /// Class <c>PermaSpell</c> defines a creature card
     /// </summary>
-    public class PermaSpell : Card, IUpdateRecipients {
-        private int hp;
+    public class Creature : Card, IUpdateRecipients {
+        private int _hp;
         public int HP { 
-            get { return hp; }
+            get { return _hp; }
             set {
-                if (hp != value) {
-                    hp = value;
-                    this.Notify(this.hp, this.State);
+                if (_hp != value) {
+                    _hp = value;
+                    this.Notify(this._hp, this.State);
                 }
             }
         }
         public int Attack { get; set; }
-        public PermaSpell TargetCreature { get; set; }
+        public Creature TargetCreature { get; set; }
         public List<IUpdateRecipients> ObjectsToUpdate = new List<IUpdateRecipients>();
         public int TurnsLeft { get; set; }
-        public PermaSpell(int cost, int playerId, string cardName, string cardDescription, Color color, int turnsActive, EffectType effectType, int hp, int attack) {
+        public Creature(int cost, int playerId, string cardName, string cardDescription, Color color, int turnsActive, EffectType effectType, int hp, int attack) {
             this.EnergyCost = cost;
             this.PlayerId = playerId;
             this.CardName = cardName;
@@ -150,7 +150,7 @@ namespace SAD_Assignment
         /// <summary>
         /// Method <c>SetTarget</c> sets target to specified creature
         /// </summary>
-        public void SetTarget(PermaSpell creature) {
+        public void SetTarget(Creature creature) {
             if (creature.HP > 0) {
                 this.TargetCreature = creature;
             }
@@ -162,7 +162,7 @@ namespace SAD_Assignment
             // creature is defending; any attack from opponent this turn is redirected at it
             if (this.State == CardState.Inactive) {
                 this.State = CardState.Defending;
-                this.Notify(this.hp, this.State);
+                this.Notify(this._hp, this.State);
             }
         }
         /// <summary>
@@ -172,7 +172,7 @@ namespace SAD_Assignment
             if (this.TurnsLeft > 0) {
                 this.TurnsLeft--;
                 if (this.TurnsLeft == 0) {
-                    this.Notify(this.hp, this.State);
+                    this.Notify(this._hp, this.State);
                 }
             }
         }
@@ -189,8 +189,8 @@ namespace SAD_Assignment
         public void Notify(int hp, CardState state) {
             if (this.ObjectsToUpdate.Count > 0) {
                 foreach (var element in this.ObjectsToUpdate) {
-                    if (element is PermaSpell) {
-                        PermaSpell creature = (PermaSpell)element;
+                    if (element is Creature) {
+                        Creature creature = (Creature)element;
                         creature.Update(hp, state, element);
                     }
                     else if (element is InstaSpell) {
@@ -208,8 +208,8 @@ namespace SAD_Assignment
             if (state != CardState.Defending || hp <= 0) {
                 this.TargetCreature = null;
             }
-            if (elementToRemove is PermaSpell) {
-                PermaSpell removeMe = (PermaSpell)elementToRemove;
+            if (elementToRemove is Creature) {
+                Creature removeMe = (Creature)elementToRemove;
                 if (removeMe.TurnsLeft <= 0) {
                     this.ObjectsToUpdate.Remove(elementToRemove);
                 }
@@ -232,7 +232,7 @@ namespace SAD_Assignment
     public class InstaSpell : Card, IUpdateRecipients {
         public int HPAugment { get; set; }
         public int AttackAugment { get; set; }
-        public PermaSpell TargetCreature { get; set; }
+        public Creature TargetCreature { get; set; }
         public InstaSpell(int cost, int playerId, string cardName, string cardDescription, Color color, EffectType effectType, int hpAugment = 0, int attackAugment = 0) {
             this.EnergyCost = cost;
             this.PlayerId = playerId;
@@ -259,7 +259,7 @@ namespace SAD_Assignment
             }
             this.Update(this.TargetCreature.HP, this.State);
         }
-        public void SetTarget(PermaSpell target) {
+        public void SetTarget(Creature target) {
             if (this.EffectType == EffectType.Buff && target.PlayerId == this.PlayerId) {
                 this.TargetCreature = target;
                 this.TargetCreature.ObjectsToUpdate.Add(this);
@@ -350,7 +350,7 @@ namespace SAD_Assignment
     class LandCreator : CardCreator {
         public override Card CreateCard(int playerId, string cardName, string cardDescription, Color color, int cost = 0, EffectType effectType = EffectType.None, int hp = 0, int attack = 0, int turnsActive = 0)
         {
-            return new Creature(playerId, cardName, cardDescription, color);
+            return new Land(playerId, cardName, cardDescription, color);
         }
     }
     /// <summary>
@@ -359,7 +359,7 @@ namespace SAD_Assignment
     class CreatureCreator : CardCreator {
         public override Card CreateCard(int playerId, string cardName, string cardDescription, Color color, int cost, EffectType effectType, int hp, int attack, int turnsActive)
         {
-            return new PermaSpell(cost, playerId, cardName, cardDescription, color, turnsActive, effectType, hp, attack);
+            return new Creature(cost, playerId, cardName, cardDescription, color, turnsActive, effectType, hp, attack);
         }
     }
     /// <summary>

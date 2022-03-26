@@ -22,30 +22,30 @@ namespace SAD_Assignment
         private Game(Player p1, Player p2) {
             this.TurnNum = 1;
             this.CardActivationStack = new Stack<Card>();
-            this.LandsOnBoard = new List<Creature>();
-            this.ActiveCreatures = new List<PermaSpell>();
+            this.LandsOnBoard = new List<Land>();
+            this.ActiveCreatures = new List<Creature>();
             this.Player1 = p1;
             this.Player2 = p2;
             this.PlayerPriority = -1;
             this.Winner = "Undecided";
         }
         // TurnNum = actual turn number; increments when new turn begins
-        public int TurnNum { get; set; }
+        private int TurnNum { get; set; }
         // TurnPhase: 0 = Pre-game (shuffle decks), 1 = reset temp effects, 2 = both players draw 1 card (if possible), 
         //            3 = prioritised player plays their cards, 4 = other player plays their cards, 
         //            5 = both players discard cards until they have 7 each (if possible)
         // after this, TurnPhase is reset to 0 when TurnNum is incremented
-        public int TurnPhase { get; set; }
+        private int TurnPhase { get; set; }
         // PlayerPriority decides who goes first during each turn (decided randomly at the start of the game)
-        public int PlayerPriority { get; set; }
+        private int PlayerPriority { get; set; }
         // CardActivationStack contains all cards to be played (stored here to be activated after eachother in order later on)
-        public Stack<Card> CardActivationStack { get; set; }
+        private Stack<Card> CardActivationStack { get; set; }
         // LandsOnBoard holds all lands currently in play
-        public List<Creature> LandsOnBoard { get; set; }
+        private List<Land> LandsOnBoard { get; set; }
         // ActiveSpells holds all permanent spells or 'creatures' in play
-        public List<PermaSpell> ActiveCreatures { get; set; }
-        public Player Player1 { get; set; }
-        public Player Player2 { get; set; }
+        private List<Creature> ActiveCreatures { get; set; }
+        private Player Player1 { get; set; }
+        private Player Player2 { get; set; }
         // Winner: is "Undecided" while playing, otherwise will say "Player 1", "Player 2" or "Tie" depending on who wins (not used since in case no one is able to win or lose)
         public string Winner { get; set; }
         
@@ -117,14 +117,14 @@ namespace SAD_Assignment
 
                 LogActivities($"\nAmount of lands on board = {this.LandsOnBoard.Count}:");
                 if (this.LandsOnBoard.Count > 0) {
-                    foreach (Creature land in this.LandsOnBoard) {
+                    foreach (Land land in this.LandsOnBoard) {
                         LogActivities($"[Owner = Player {land.PlayerId}]");
                     }
                 }
 
                 LogActivities($"\nAmount of creatures on board = {this.ActiveCreatures.Count}:");
                 if (this.ActiveCreatures.Count > 0) {
-                    foreach (PermaSpell creature in this.ActiveCreatures) {
+                    foreach (Creature creature in this.ActiveCreatures) {
                         LogActivities($"[Owner = Player {creature.PlayerId}] : {creature.CardName} has {creature.Attack} Attack & {creature.HP} HP.");
                         creature.DecrementTurns();
                     }
@@ -136,7 +136,7 @@ namespace SAD_Assignment
         /// <summary>
         /// Method <c>SimulatedPlayerTurn</c> simulates a player playing a turn (not interactive since the assignment description apparantly says so)
         /// </summary>
-        public void PlayerTurn(Player p, Player otherP, int currentTurn) {
+        private void PlayerTurn(Player p, Player otherP, int currentTurn) {
             // reset lands at the beginning of the turn
             if (this.LandsOnBoard.Count > 0) {
                 for (int i = 0; i < this.LandsOnBoard.Count; i++) {
@@ -150,11 +150,11 @@ namespace SAD_Assignment
                 if (p.ID == 1) {
                     // player 1 plays 2 lands & nothing else
                     LogActivities($"Player {p.ID} has chosen to play a land card.");
-                    this.AddLands(p.Hand[0] as Creature);
+                    this.AddLands(p.Hand[0] as Land);
                     p.DiscardHand(p.Hand[0]);
 
                     LogActivities($"Player {p.ID} has chosen to play a land card.");
-                    this.AddLands(p.Hand[0] as Creature);
+                    this.AddLands(p.Hand[0] as Land);
                     p.DiscardHand(p.Hand[0]);
 
                     LogActivities($"Player {p.ID}'s turn has ended.");
@@ -162,7 +162,7 @@ namespace SAD_Assignment
                 else {
                     // player 2 plays 1 land & nothing else
                     LogActivities($"Player {p.ID} has chosen to play a land card.");
-                    this.AddLands(p.Hand[0] as Creature);
+                    this.AddLands(p.Hand[0] as Land);
                     p.DiscardHand(p.Hand[0]);
 
                     LogActivities($"Player {p.ID}'s turn has ended.");
@@ -175,7 +175,7 @@ namespace SAD_Assignment
 
                     // play 1 land
                     LogActivities($"Player {p.ID} has chosen to play a land card.");
-                    this.AddLands(p.Hand[0] as Creature);
+                    this.AddLands(p.Hand[0] as Land);
                     p.DiscardHand(p.Hand[0]);
 
                     // harvest energy from 2 lands
@@ -187,13 +187,13 @@ namespace SAD_Assignment
                     
                     // cast blue creature (and discard 1 opponent card)
                     LogActivities($"Player {p.ID} has chosen to play a creature card.");
-                    PermaSpell creature = p.Hand[0] as PermaSpell;
+                    Creature creature = p.Hand[0] as Creature;
                     // check if creature has discard card effect; activate effect
                     if (creature.EffectType == EffectType.ForceDiscard) {
                         LogActivities($"Player {p.ID}'s creature has forced Player {otherP.ID} to discard 1 random card from their hand.");
                         otherP.DiscardHand(1);
                     }
-                    this.AddPermas(creature, p);
+                    this.AddCreatures(creature, p);
                     p.DiscardHand(p.Hand[0]);
 
                     LogActivities($"Player {p.ID}'s turn has ended.");
@@ -211,8 +211,8 @@ namespace SAD_Assignment
                 // player 1 counters red counter by casting blue counter (harvests 2 energy first)
 
                 // harvest 3 energy
-                List<Creature> player1Lands = GetPlayerLands(p);
-                foreach (Creature land in player1Lands) {
+                List<Land> player1Lands = GetPlayerLands(p);
+                foreach (Land land in player1Lands) {
                     LogActivities($"Player {p.ID} has chosen to use one of their active lands to generate an energy point.");
                     land.GenerateEnergy();
                 }
@@ -222,8 +222,8 @@ namespace SAD_Assignment
                 this.AddToCardStack(this.ActiveCreatures[0]);
 
                 // set creature target if there is a defending creature active (should not be the case in example)
-                List<PermaSpell> player2Creatures = GetPlayerCreatures(otherP);
-                foreach (PermaSpell creature in player2Creatures) {
+                List<Creature> player2Creatures = GetPlayerCreatures(otherP);
+                foreach (Creature creature in player2Creatures) {
                     if (creature.State == CardState.Defending) {
                         this.ActiveCreatures[0].TargetCreature = creature;
                     }
@@ -249,7 +249,7 @@ namespace SAD_Assignment
         /// <summary>
         /// Method <c>SimulatedPlayerInterrupt</c> lets specified player interrupt the specified other player's turn (simulation of)
         /// </summary>
-        public void InterruptPlayerTurn(Player p, Player otherP) {
+        private void InterruptPlayerTurn(Player p, Player otherP) {
             // reset lands at the beginning of the turn
             if (this.LandsOnBoard.Count > 0) {
                 for (int i = 0; i < this.LandsOnBoard.Count; i++) {
@@ -258,7 +258,7 @@ namespace SAD_Assignment
                 }
             }
             // get current player's lands
-            List<Creature> playerLands = GetPlayerLands(p);
+            List<Land> playerLands = GetPlayerLands(p);
             
             if (p.ID == 1) {
                 // player 1 harvests 2 energy, then uses blue counter
@@ -278,7 +278,7 @@ namespace SAD_Assignment
                 // player 2 harvests 1 energy, then uses red counter
 
                 // harvests 1 energy
-                foreach (Creature land in playerLands) {
+                foreach (Land land in playerLands) {
                     LogActivities($"Player {p.ID} has chosen to use one of their active lands to generate an energy point.");
                     land.GenerateEnergy();
                 }
@@ -289,7 +289,7 @@ namespace SAD_Assignment
                 p.DiscardHand(p.Hand[0]);
             }
         }
-        public void HandleActivationStack() {
+        private void HandleActivationStack() {
             // handles card effects in CardQueue when they need to activate
             if (this.CardActivationStack.Count > 0) {
                 LogActivities($"\nActivating the card stack.");
@@ -306,7 +306,7 @@ namespace SAD_Assignment
                 // check if card is a buff; buff next item in stack (if next item exists & is a creature)
                 else if (this.CardActivationStack.Count > 0 && stackCard.EffectType == EffectType.Buff && this.CardActivationStack.Peek().CardType == CardType.Creature) {
                     // get relevant cards
-                    PermaSpell creatureToBuff = this.CardActivationStack.Peek() as PermaSpell;
+                    Creature creatureToBuff = this.CardActivationStack.Peek() as Creature;
                     InstaSpell currentBuff = stackCard as InstaSpell;
                     LogActivities($"Player {stackCard.PlayerId}'s {stackCard.CardName} has been activated; buffing {creatureToBuff.CardName} by +{currentBuff.HPAugment}/+{currentBuff.AttackAugment}");
 
@@ -316,7 +316,7 @@ namespace SAD_Assignment
                 }
                 // attack with creature (if target is null; attack opposing player)
                 else if (stackCard.CardType == CardType.Creature) {
-                    PermaSpell attackingCreature = stackCard as PermaSpell;
+                    Creature attackingCreature = stackCard as Creature;
                     LogActivities($"Player {stackCard.PlayerId}'s {attackingCreature.CardName} is going to attack it's opponent (Creature has {attackingCreature.Attack} Attack & {attackingCreature.HP} HP).");
                     if (attackingCreature.State == CardState.Attacking) {
                         // update target (if stored target is dead; will attack player instead)
@@ -348,16 +348,16 @@ namespace SAD_Assignment
         /// <summary>
         /// Method <c>AddLands</c> adds specified land to list of active lands
         /// </summary>
-        public void AddLands(Creature landToAdd) {
+        private void AddLands(Land landToAdd) {
             // add lands to LandsOnBoard
             LogActivities("A land has been played and added to the list of active lands.");
             landToAdd.State = CardState.AlreadyUsed;
             this.LandsOnBoard.Add(landToAdd);
         }
         /// <summary>
-        /// Method <c>AddPermas</c> adds specified PermaSpell (creature) to list of active creatures
+        /// Method <c>AddCreatures</c> adds specified PermaSpell (creature) to list of active creatures
         /// </summary>
-        public void AddPermas(PermaSpell creatureToAdd, Player p) {
+        private void AddCreatures(Creature creatureToAdd, Player p) {
             // add creature to ActiveSpells & subtract energy from player
             LogActivities("A creature has been played and added to the list of active creatures.");
             this.ActiveCreatures.Add(creatureToAdd);
@@ -366,7 +366,7 @@ namespace SAD_Assignment
         /// <summary>
         /// Method <c>AddToCardStack</c> adds specified card to stack of cards to be activated
         /// </summary>
-        public void AddToCardStack(Card cardToAdd) {
+        private void AddToCardStack(Card cardToAdd) {
             // add card to CardStack
             LogActivities($"A {cardToAdd.CardName} has been added to the card stack.");
             this.CardActivationStack.Push(cardToAdd);
@@ -374,9 +374,9 @@ namespace SAD_Assignment
         /// <summary>
         /// Method <c>GetPlayerLands</c> gives list of active lands owned by specified player
         /// </summary>
-        public List<Creature> GetPlayerLands(Player p) {
-            List<Creature> returnList = new List<Creature>();
-            foreach (Creature land in this.LandsOnBoard) {
+        public List<Land> GetPlayerLands(Player p) {
+            List<Land> returnList = new List<Land>();
+            foreach (Land land in this.LandsOnBoard) {
                 if (land.PlayerId == p.ID) {
                     returnList.Add(land);
                 }
@@ -386,9 +386,9 @@ namespace SAD_Assignment
         /// <summary>
         /// Method <c>GetPlayerCreatures</c> gives list of active creatures owned by specified player
         /// </summary>
-        public List<PermaSpell> GetPlayerCreatures(Player p) {
-            List<PermaSpell> returnList = new List<PermaSpell>();
-            foreach (PermaSpell creature in this.ActiveCreatures) {
+        public List<Creature> GetPlayerCreatures(Player p) {
+            List<Creature> returnList = new List<Creature>();
+            foreach (Creature creature in this.ActiveCreatures) {
                 if (creature.PlayerId == p.ID) {
                     returnList.Add(creature);
                 }
@@ -402,26 +402,26 @@ namespace SAD_Assignment
         /// <summary>
         /// Method <c>PrintToConsole</c> prints to console based on given parameters
         /// </summary>
-        public static void PrintToConsole(string happening, Player p, List<Creature> lands = null, List<PermaSpell> creatures = null, List<InstaSpell> counters = null, string chosenAction = null) {
+        private static void PrintToConsole(string happening, Player p, List<Land> lands = null, List<Creature> creatures = null, List<InstaSpell> counters = null) {
             // not implemented; deliverable case does not require it's implementation (case does not require a GUI)
         }
         /// <summary>
         /// Method <c>WinConditionCheck</c> checks if a win condition has been satisfied
         /// </summary>
-        public string WinConditionCheck(Player p1, Player p2) {
+        private string WinConditionCheck() {
             // not implemented; deliverable case does not require it's implementation (no win condition is satisfied in example)
             return null;
         }
         /// <summary>
-        /// Method <c>RevertPermaEffects</c> reverts effects of active creatures and removes expired cards from board
+        /// Method <c>RevertCreatureEffects</c> reverts effects of active creatures and removes expired cards from board
         /// </summary>
-        public void RevertPermaEffects() {
+        private void RevertCreatureEffects() {
             // not implemented; deliverable case does not require it's implementation (no effects to revert)
         }
         /// <summary>
-        /// Method <c>ActivatePermaEffects</c> activates effects of active creatures
+        /// Method <c>AcivateCreatureEffects</c> activates effects of active creatures
         /// </summary>
-        public void AcivatePermaEffects() {
+        private void AcivateCreatureEffects() {
             // not implemented; deliverable case does not require it's implementation (no effects to re-activate after RevertPermaEffects())
         }
         /// <summary>
