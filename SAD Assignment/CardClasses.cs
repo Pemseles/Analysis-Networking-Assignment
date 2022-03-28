@@ -8,7 +8,7 @@ Thijmen Bouwsema 1008331
 namespace SAD_Assignment
 {
     public enum Color { Red, Blue, Yellow, Green, Black, Colorless } // not every color is required for deliverable's case
-    public enum CardType { Land, Creature, InstantSpell, Irrelevant } // Irrelevant type is for deliverable purposes only
+    public enum CardType { Land, PermaSpell, InstantSpell, Irrelevant } // Irrelevant type is for deliverable purposes only
     public enum EffectType { None, GenerateEnergy, StatAugment, Counter, Buff, Debuff, ForceDiscard }
     public enum CardState { Inactive, AlreadyUsed, Attacking, Defending }
     /// <summary>
@@ -88,9 +88,9 @@ namespace SAD_Assignment
         public override void RevertEffects() { /* not implemented; deliverable case does not require it's implementation (case doesn't have an instance of reverting effects) */ }
     }
     /// <summary>
-    /// Class <c>PermaSpell</c> defines a creature card
+    /// Class <c>PermaSpell</c> defines a PermaSpell card
     /// </summary>
-    public class Creature : Card, IUpdateRecipients {
+    public class PermaSpell : Card, IUpdateRecipients {
         private int _hp;
         public int HP { 
             get { return _hp; }
@@ -102,36 +102,36 @@ namespace SAD_Assignment
             }
         }
         public int Attack { get; set; }
-        public Creature TargetCreature { get; set; }
+        public PermaSpell TargetPerma { get; set; }
         public List<IUpdateRecipients> ObjectsToUpdate = new List<IUpdateRecipients>();
         public int TurnsLeft { get; set; }
-        public Creature(int cost, int playerId, string cardName, string cardDescription, Color color, int turnsActive, EffectType effectType, int hp, int attack) {
+        public PermaSpell(int cost, int playerId, string cardName, string cardDescription, Color color, int turnsActive, EffectType effectType, int hp, int attack) {
             this.EnergyCost = cost;
             this.PlayerId = playerId;
             this.CardName = cardName;
             this.CardDescription = cardDescription;
             this.Color = color;
-            this.CardType = CardType.Creature;
+            this.CardType = CardType.PermaSpell;
             this.State = CardState.Inactive;
             this.TurnsLeft = turnsActive;
             this.EffectType = effectType;
             this.HP = hp;
             this.Attack = attack;
-            this.TargetCreature = null;
+            this.TargetPerma = null;
         }
         /// <summary>
-        /// Method <c>DoAttack</c> attacks using creature; if no creature is defending, it attacks opposing player
+        /// Method <c>DoAttack</c> attacks using Perma; if no Perma is defending, it attacks opposing player
         /// </summary>
         public void DoAttack() {
-            // attack the given Creature; uses this.attack to reduce it's hp
+            // attack the given Perma; uses this.attack to reduce it's hp
             PlayerContainer players = PlayerContainer.GetInstance();
             
             // update & check targetting; will attack player if target field is null
-            if (this.TargetCreature != null) {
+            if (this.TargetPerma != null) {
                 // attack stored target
-                Game.LogActivities($"Player {this.PlayerId}'s {this.CardName} has attacked Player {this.TargetCreature.PlayerId}'s {this.TargetCreature.CardName}: HP was reduced from {this.TargetCreature.HP} to {this.TargetCreature.HP - this.Attack}");
-                this.TargetCreature.HP = this.TargetCreature.HP - this.Attack;
-                this.TargetCreature = null;
+                Game.LogActivities($"Player {this.PlayerId}'s {this.CardName} has attacked Player {this.TargetPerma.PlayerId}'s {this.TargetPerma.CardName}: HP was reduced from {this.TargetPerma.HP} to {this.TargetPerma.HP - this.Attack}");
+                this.TargetPerma.HP = this.TargetPerma.HP - this.Attack;
+                this.TargetPerma = null;
             }
             else {
                 // attack other player
@@ -148,18 +148,18 @@ namespace SAD_Assignment
             }
         }
         /// <summary>
-        /// Method <c>SetTarget</c> sets target to specified creature
+        /// Method <c>SetTarget</c> sets target to specified perma
         /// </summary>
-        public void SetTarget(Creature creature) {
-            if (creature.HP > 0) {
-                this.TargetCreature = creature;
+        public void SetTarget(PermaSpell perma) {
+            if (perma.HP > 0) {
+                this.TargetPerma = perma;
             }
         }
         /// <summary>
-        /// Method <c>DoDefend</c> sets creature to defending state
+        /// Method <c>DoDefend</c> sets perma to defending state
         /// </summary>
         public void DoDefend() {
-            // creature is defending; any attack from opponent this turn is redirected at it
+            // perma is defending; any attack from opponent this turn is redirected at it
             if (this.State == CardState.Inactive) {
                 this.State = CardState.Defending;
                 this.Notify(this._hp, this.State);
@@ -189,9 +189,9 @@ namespace SAD_Assignment
         public void Notify(int hp, CardState state) {
             if (this.ObjectsToUpdate.Count > 0) {
                 foreach (var element in this.ObjectsToUpdate) {
-                    if (element is Creature) {
-                        Creature creature = (Creature)element;
-                        creature.Update(hp, state, element);
+                    if (element is PermaSpell) {
+                        PermaSpell perma = (PermaSpell)element;
+                        perma.Update(hp, state, element);
                     }
                     else if (element is InstaSpell) {
                         InstaSpell spell = (InstaSpell)element;
@@ -202,14 +202,14 @@ namespace SAD_Assignment
             
         }
         /// <summary>
-        /// Method <c>Update</c> will check if this.targetCreature is dead; if yes the target will be a player instead
+        /// Method <c>Update</c> will check if this.targetPerma is dead; if yes the target will be a player instead
         /// </summary>
         public void Update(int hp, CardState state, IUpdateRecipients elementToRemove) {
             if (state != CardState.Defending || hp <= 0) {
-                this.TargetCreature = null;
+                this.TargetPerma = null;
             }
-            if (elementToRemove is Creature) {
-                Creature removeMe = (Creature)elementToRemove;
+            if (elementToRemove is PermaSpell) {
+                PermaSpell removeMe = (PermaSpell)elementToRemove;
                 if (removeMe.TurnsLeft <= 0) {
                     this.ObjectsToUpdate.Remove(elementToRemove);
                 }
@@ -232,7 +232,7 @@ namespace SAD_Assignment
     public class InstaSpell : Card, IUpdateRecipients {
         public int HPAugment { get; set; }
         public int AttackAugment { get; set; }
-        public Creature TargetCreature { get; set; }
+        public PermaSpell TargetPerma { get; set; }
         public InstaSpell(int cost, int playerId, string cardName, string cardDescription, Color color, EffectType effectType, int hpAugment = 0, int attackAugment = 0) {
             this.EnergyCost = cost;
             this.PlayerId = playerId;
@@ -254,25 +254,25 @@ namespace SAD_Assignment
         public override void RevertEffects() { /* not implemented; deliverable case does not require it's implementation (case doesn't have an instance of reverting effects) */ }
         public void ActivateEffect() {
             if (this.EffectType == EffectType.Buff || this.EffectType == EffectType.Debuff) {
-                this.TargetCreature.RecieveStatAugment(this.HPAugment, this.AttackAugment);
+                this.TargetPerma.RecieveStatAugment(this.HPAugment, this.AttackAugment);
                 this.State = CardState.AlreadyUsed;
             }
-            this.Update(this.TargetCreature.HP, this.State);
+            this.Update(this.TargetPerma.HP, this.State);
         }
-        public void SetTarget(Creature target) {
+        public void SetTarget(PermaSpell target) {
             if (this.EffectType == EffectType.Buff && target.PlayerId == this.PlayerId) {
-                this.TargetCreature = target;
-                this.TargetCreature.ObjectsToUpdate.Add(this);
+                this.TargetPerma = target;
+                this.TargetPerma.ObjectsToUpdate.Add(this);
             }
             else if (this.EffectType == EffectType.Debuff && target.PlayerId != this.PlayerId) {
-                this.TargetCreature = target;
-                this.TargetCreature.ObjectsToUpdate.Add(this);
+                this.TargetPerma = target;
+                this.TargetPerma.ObjectsToUpdate.Add(this);
             }
         }
-        public void Update(int creatureHp, CardState creatureState) {
-            if (creatureHp <= 0) {
-                this.TargetCreature = null;
-                this.TargetCreature.ObjectsToUpdate.Remove(this);
+        public void Update(int permaHp, CardState permaState) {
+            if (permaHp <= 0) {
+                this.TargetPerma = null;
+                this.TargetPerma.ObjectsToUpdate.Remove(this);
             }
         }
     }
@@ -293,7 +293,7 @@ namespace SAD_Assignment
         // constructor
         public CardComposite(string name) : base(name) {}
         public override void Add(Card card) {
-            // adds a new branch (like land- or creature-branch)
+            // adds a new branch (like land- or perma-branch)
             Children.Add(card);
         }
         public override void Remove(Card card) {
@@ -354,12 +354,12 @@ namespace SAD_Assignment
         }
     }
     /// <summary>
-    /// Class <c>CreatureCreator</c> creates creatures using CreateCard
+    /// Class <c>PermaCreator</c> creates perma using CreateCard
     /// </summary>
-    class CreatureCreator : CardCreator {
+    class PermaCreator : CardCreator {
         public override Card CreateCard(int playerId, string cardName, string cardDescription, Color color, int cost, EffectType effectType, int hp, int attack, int turnsActive)
         {
-            return new Creature(cost, playerId, cardName, cardDescription, color, turnsActive, effectType, hp, attack);
+            return new PermaSpell(cost, playerId, cardName, cardDescription, color, turnsActive, effectType, hp, attack);
         }
     }
     /// <summary>

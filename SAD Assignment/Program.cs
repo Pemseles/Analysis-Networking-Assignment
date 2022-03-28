@@ -33,7 +33,7 @@ namespace SAD_Assignment
         public static CardComposite GenerateDeck(Player p) {
             // init composite & card creators
             CardComposite staticDeck = new CardComposite("Root");
-            CardCreator[] cardCreators = new CardCreator[] { new LandCreator(), new CreatureCreator(), new InstaCreator() };
+            CardCreator[] cardCreators = new CardCreator[] { new LandCreator(), new PermaCreator(), new InstaCreator() };
             int emptyCardsCount = 0;
 
             if (p.ID == 1) {

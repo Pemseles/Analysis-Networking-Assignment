@@ -34,7 +34,7 @@ Amount of lands on board = 3:
 [Owner = Player 1]
 [Owner = Player 2]
 
-Amount of creatures on board = 0:
+Amount of permas on board = 0:
 -------------------
 Starting Turn 2.
 -------------------
@@ -68,7 +68,7 @@ Amount of lands on board = 4:
 [Owner = Player 2]
 [Owner = Player 1]
 
-Amount of creatures on board = 1:
+Amount of permas on board = 1:
 [Owner = Player 1] : Unnamed blue creature has 2 Attack & 2 HP.
 -------------------
 Starting Turn 3.
@@ -113,5 +113,5 @@ Amount of lands on board = 4:
 [Owner = Player 2]
 [Owner = Player 1]
 
-Amount of creatures on board = 1:
+Amount of permas on board = 1:
 [Owner = Player 1] : Unnamed blue creature has 5 Attack & 5 HP.

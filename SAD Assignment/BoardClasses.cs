@@ -23,7 +23,7 @@ namespace SAD_Assignment
             this.TurnNum = 1;
             this.CardActivationStack = new Stack<Card>();
             this.LandsOnBoard = new List<Land>();
-            this.ActiveCreatures = new List<Creature>();
+            this.ActivePermas = new List<PermaSpell>();
             this.Player1 = p1;
             this.Player2 = p2;
             this.PlayerPriority = -1;
@@ -42,8 +42,8 @@ namespace SAD_Assignment
         private Stack<Card> CardActivationStack { get; set; }
         // LandsOnBoard holds all lands currently in play
         private List<Land> LandsOnBoard { get; set; }
-        // ActiveSpells holds all permanent spells or 'creatures' in play
-        private List<Creature> ActiveCreatures { get; set; }
+        // ActiveSpells holds all permanent spells in play
+        private List<PermaSpell> ActivePermas { get; set; }
         private Player Player1 { get; set; }
         private Player Player2 { get; set; }
         // Winner: is "Undecided" while playing, otherwise will say "Player 1", "Player 2" or "Tie" depending on who wins (not used since in case no one is able to win or lose)
@@ -122,11 +122,11 @@ namespace SAD_Assignment
                     }
                 }
 
-                LogActivities($"\nAmount of creatures on board = {this.ActiveCreatures.Count}:");
-                if (this.ActiveCreatures.Count > 0) {
-                    foreach (Creature creature in this.ActiveCreatures) {
-                        LogActivities($"[Owner = Player {creature.PlayerId}] : {creature.CardName} has {creature.Attack} Attack & {creature.HP} HP.");
-                        creature.DecrementTurns();
+                LogActivities($"\nAmount of permas on board = {this.ActivePermas.Count}:");
+                if (this.ActivePermas.Count > 0) {
+                    foreach (PermaSpell perma in this.ActivePermas) {
+                        LogActivities($"[Owner = Player {perma.PlayerId}] : {perma.CardName} has {perma.Attack} Attack & {perma.HP} HP.");
+                        perma.DecrementTurns();
                     }
                 }
                 this.TurnNum++;
@@ -150,11 +150,11 @@ namespace SAD_Assignment
                 if (p.ID == 1) {
                     // player 1 plays 2 lands & nothing else
                     LogActivities($"Player {p.ID} has chosen to play a land card.");
-                    this.AddLands(p.Hand[0] as Land);
+                    this.AddLand(p.Hand[0] as Land);
                     p.DiscardHand(p.Hand[0]);
 
                     LogActivities($"Player {p.ID} has chosen to play a land card.");
-                    this.AddLands(p.Hand[0] as Land);
+                    this.AddLand(p.Hand[0] as Land);
                     p.DiscardHand(p.Hand[0]);
 
                     LogActivities($"Player {p.ID}'s turn has ended.");
@@ -162,7 +162,7 @@ namespace SAD_Assignment
                 else {
                     // player 2 plays 1 land & nothing else
                     LogActivities($"Player {p.ID} has chosen to play a land card.");
-                    this.AddLands(p.Hand[0] as Land);
+                    this.AddLand(p.Hand[0] as Land);
                     p.DiscardHand(p.Hand[0]);
 
                     LogActivities($"Player {p.ID}'s turn has ended.");
@@ -171,11 +171,11 @@ namespace SAD_Assignment
             else if (currentTurn == 2) {
                 // turn 2 happenings
                 if (p.ID == 1) {
-                    // player 1 plays 1 land, harvests 2 lands, casts the blue creature (which removes 1 card from opponent's hand)
+                    // player 1 plays 1 land, harvests 2 lands, casts the blue perma (which removes 1 card from opponent's hand)
 
                     // play 1 land
                     LogActivities($"Player {p.ID} has chosen to play a land card.");
-                    this.AddLands(p.Hand[0] as Land);
+                    this.AddLand(p.Hand[0] as Land);
                     p.DiscardHand(p.Hand[0]);
 
                     // harvest energy from 2 lands
@@ -187,13 +187,13 @@ namespace SAD_Assignment
                     
                     // cast blue creature (and discard 1 opponent card)
                     LogActivities($"Player {p.ID} has chosen to play a creature card.");
-                    Creature creature = p.Hand[0] as Creature;
+                    PermaSpell creature = p.Hand[0] as PermaSpell;
                     // check if creature has discard card effect; activate effect
                     if (creature.EffectType == EffectType.ForceDiscard) {
                         LogActivities($"Player {p.ID}'s creature has forced Player {otherP.ID} to discard 1 random card from their hand.");
                         otherP.DiscardHand(1);
                     }
-                    this.AddCreatures(creature, p);
+                    this.AddPerma(creature, p);
                     p.DiscardHand(p.Hand[0]);
 
                     LogActivities($"Player {p.ID}'s turn has ended.");
@@ -218,14 +218,14 @@ namespace SAD_Assignment
                 }
 
                 // set creature to attack & add to cardstack
-                this.ActiveCreatures[0].State = CardState.Attacking;
-                this.AddToCardStack(this.ActiveCreatures[0]);
+                this.ActivePermas[0].State = CardState.Attacking;
+                this.AddToCardStack(this.ActivePermas[0]);
 
                 // set creature target if there is a defending creature active (should not be the case in example)
-                List<Creature> player2Creatures = GetPlayerCreatures(otherP);
-                foreach (Creature creature in player2Creatures) {
+                List<PermaSpell> player2Creatures = GetPlayerPermas(otherP);
+                foreach (PermaSpell creature in player2Creatures) {
                     if (creature.State == CardState.Defending) {
-                        this.ActiveCreatures[0].TargetCreature = creature;
+                        this.ActivePermas[0].TargetPerma = creature;
                     }
                 }
 
@@ -303,31 +303,31 @@ namespace SAD_Assignment
                     LogActivities($"Player {stackCard.PlayerId}'s {stackCard.CardName} has been activated; removed {this.CardActivationStack.Peek().CardName} from card stack.");
                     this.CardActivationStack.Pop();
                 }
-                // check if card is a buff; buff next item in stack (if next item exists & is a creature)
-                else if (this.CardActivationStack.Count > 0 && stackCard.EffectType == EffectType.Buff && this.CardActivationStack.Peek().CardType == CardType.Creature) {
+                // check if card is a buff; buff next item in stack (if next item exists & is a perma)
+                else if (this.CardActivationStack.Count > 0 && stackCard.EffectType == EffectType.Buff && this.CardActivationStack.Peek().CardType == CardType.PermaSpell) {
                     // get relevant cards
-                    Creature creatureToBuff = this.CardActivationStack.Peek() as Creature;
+                    PermaSpell permaToBuff = this.CardActivationStack.Peek() as PermaSpell;
                     InstaSpell currentBuff = stackCard as InstaSpell;
-                    LogActivities($"Player {stackCard.PlayerId}'s {stackCard.CardName} has been activated; buffing {creatureToBuff.CardName} by +{currentBuff.HPAugment}/+{currentBuff.AttackAugment}");
+                    LogActivities($"Player {stackCard.PlayerId}'s {stackCard.CardName} has been activated; buffing {permaToBuff.CardName} by +{currentBuff.HPAugment}/+{currentBuff.AttackAugment}");
 
                     // set target & activate
-                    currentBuff.SetTarget(creatureToBuff);
+                    currentBuff.SetTarget(permaToBuff);
                     currentBuff.ActivateEffect();
                 }
-                // attack with creature (if target is null; attack opposing player)
-                else if (stackCard.CardType == CardType.Creature) {
-                    Creature attackingCreature = stackCard as Creature;
-                    LogActivities($"Player {stackCard.PlayerId}'s {attackingCreature.CardName} is going to attack it's opponent (Creature has {attackingCreature.Attack} Attack & {attackingCreature.HP} HP).");
-                    if (attackingCreature.State == CardState.Attacking) {
+                // attack with perma (if target is null; attack opposing player)
+                else if (stackCard.CardType == CardType.PermaSpell) {
+                    PermaSpell attackingPerma = stackCard as PermaSpell;
+                    LogActivities($"Player {stackCard.PlayerId}'s {attackingPerma.CardName} is going to attack it's opponent (Creature has {attackingPerma.Attack} Attack & {attackingPerma.HP} HP).");
+                    if (attackingPerma.State == CardState.Attacking) {
                         // update target (if stored target is dead; will attack player instead)
-                        attackingCreature.DoAttack();
+                        attackingPerma.DoAttack();
                     }
                 }
             }
-            // remove dead creatures from play
-            for (int i = 0; i < this.ActiveCreatures.Count; i++) {
-                if (this.ActiveCreatures[i].HP <= 0) {
-                    this.ActiveCreatures.RemoveAt(i);
+            // remove dead permas from play
+            for (int i = 0; i < this.ActivePermas.Count; i++) {
+                if (this.ActivePermas[i].HP <= 0) {
+                    this.ActivePermas.RemoveAt(i);
                 }
             }
         }
@@ -346,22 +346,22 @@ namespace SAD_Assignment
             }
         }
         /// <summary>
-        /// Method <c>AddLands</c> adds specified land to list of active lands
+        /// Method <c>AddLand</c> adds specified land to list of active lands
         /// </summary>
-        private void AddLands(Land landToAdd) {
+        private void AddLand(Land landToAdd) {
             // add lands to LandsOnBoard
             LogActivities("A land has been played and added to the list of active lands.");
             landToAdd.State = CardState.AlreadyUsed;
             this.LandsOnBoard.Add(landToAdd);
         }
         /// <summary>
-        /// Method <c>AddCreatures</c> adds specified PermaSpell (creature) to list of active creatures
+        /// Method <c>AddPerma</c> adds specified PermaSpell to list of active permas
         /// </summary>
-        private void AddCreatures(Creature creatureToAdd, Player p) {
-            // add creature to ActiveSpells & subtract energy from player
+        private void AddPerma(PermaSpell permaToAdd, Player p) {
+            // add perma to ActiveSpells & subtract energy from player
             LogActivities("A creature has been played and added to the list of active creatures.");
-            this.ActiveCreatures.Add(creatureToAdd);
-            p.ChangeEnergy(creatureToAdd.EnergyCost * -1);
+            this.ActivePermas.Add(permaToAdd);
+            p.ChangeEnergy(permaToAdd.EnergyCost * -1);
         }
         /// <summary>
         /// Method <c>AddToCardStack</c> adds specified card to stack of cards to be activated
@@ -386,11 +386,11 @@ namespace SAD_Assignment
         /// <summary>
         /// Method <c>GetPlayerCreatures</c> gives list of active creatures owned by specified player
         /// </summary>
-        public List<Creature> GetPlayerCreatures(Player p) {
-            List<Creature> returnList = new List<Creature>();
-            foreach (Creature creature in this.ActiveCreatures) {
-                if (creature.PlayerId == p.ID) {
-                    returnList.Add(creature);
+        public List<PermaSpell> GetPlayerPermas(Player p) {
+            List<PermaSpell> returnList = new List<PermaSpell>();
+            foreach (PermaSpell perma in this.ActivePermas) {
+                if (perma.PlayerId == p.ID) {
+                    returnList.Add(perma);
                 }
             }
             return returnList;
@@ -402,7 +402,7 @@ namespace SAD_Assignment
         /// <summary>
         /// Method <c>PrintToConsole</c> prints to console based on given parameters
         /// </summary>
-        private static void PrintToConsole(string happening, Player p, List<Land> lands = null, List<Creature> creatures = null, List<InstaSpell> counters = null) {
+        private static void PrintToConsole(string happening, Player p, List<Land> lands = null, List<PermaSpell> perma = null, List<InstaSpell> counters = null) {
             // not implemented; deliverable case does not require it's implementation (case does not require a GUI)
         }
         /// <summary>
@@ -413,15 +413,15 @@ namespace SAD_Assignment
             return null;
         }
         /// <summary>
-        /// Method <c>RevertCreatureEffects</c> reverts effects of active creatures and removes expired cards from board
+        /// Method <c>RevertPermaEffects</c> reverts effects of active permas and removes expired cards from board
         /// </summary>
-        private void RevertCreatureEffects() {
+        private void RevertPermaEffects() {
             // not implemented; deliverable case does not require it's implementation (no effects to revert)
         }
         /// <summary>
-        /// Method <c>AcivateCreatureEffects</c> activates effects of active creatures
+        /// Method <c>AcivatePermaEffects</c> activates effects of active permas
         /// </summary>
-        private void AcivateCreatureEffects() {
+        private void AcivatePermaEffects() {
             // not implemented; deliverable case does not require it's implementation (no effects to re-activate after RevertPermaEffects())
         }
         /// <summary>
