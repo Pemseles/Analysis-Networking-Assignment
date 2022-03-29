@@ -402,7 +402,7 @@ namespace SAD_Assignment
         /// <summary>
         /// Method <c>PrintToConsole</c> prints to console based on given parameters
         /// </summary>
-        private static void PrintToConsole(string happening, Player p, List<Land> lands = null, List<PermaSpell> perma = null, List<InstaSpell> counters = null) {
+        private static void PrintToConsole(string happening, Player p, List<Land> lands = null, List<PermaSpell> permas = null, List<InstaSpell> counters = null) {
             // not implemented; deliverable case does not require it's implementation (case does not require a GUI)
         }
         /// <summary>
