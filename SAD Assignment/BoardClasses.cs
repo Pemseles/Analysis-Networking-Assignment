@@ -13,7 +13,7 @@ namespace SAD_Assignment
     public sealed class Game {
         // singleton portion
         private static Game _instance = null;
-        public static Game GetInstance(Player p1, Player p2) {
+        public static Game GetInstance(Player p1 = null, Player p2 = null) {
             if (_instance == null) {
                 _instance = new Game(p1, p2);
             }
@@ -44,8 +44,8 @@ namespace SAD_Assignment
         private List<Land> LandsOnBoard { get; set; }
         // ActiveSpells holds all permanent spells in play
         private List<PermaSpell> ActivePermas { get; set; }
-        private Player Player1 { get; set; }
-        private Player Player2 { get; set; }
+        public Player Player1 { get; set; }
+        public Player Player2 { get; set; }
         // Winner: is "Undecided" while playing, otherwise will say "Player 1", "Player 2" or "Tie" depending on who wins (not used since in case no one is able to win or lose)
         public string Winner { get; set; }
         
