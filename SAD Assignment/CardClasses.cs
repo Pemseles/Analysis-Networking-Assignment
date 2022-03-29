@@ -126,7 +126,7 @@ namespace SAD_Assignment
             // attack the given Perma; uses this.attack to reduce it's hp
             Game game = Game.GetInstance();
             
-            // update & check targetting; will attack player if target field is null
+            // check targetting; will attack player if target field is null
             if (this.TargetPerma != null) {
                 // attack stored target
                 Game.LogActivities($"Player {this.PlayerId}'s {this.CardName} has attacked Player {this.TargetPerma.PlayerId}'s {this.TargetPerma.CardName}: HP was reduced from {this.TargetPerma.HP} to {this.TargetPerma.HP - this.Attack}");
