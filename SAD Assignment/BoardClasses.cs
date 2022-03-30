@@ -138,12 +138,7 @@ namespace SAD_Assignment
         /// </summary>
         private void PlayerTurn(Player p, Player otherP, int currentTurn) {
             // reset lands at the beginning of the turn
-            if (this.LandsOnBoard.Count > 0) {
-                for (int i = 0; i < this.LandsOnBoard.Count; i++) {
-                    // resets all lands on board so they can be used during later phases
-                    this.LandsOnBoard[i].ResetLand();
-                }
-            }
+            this.ResetLands();
 
             if (currentTurn == 1) {
                 // turn 1 happenings
@@ -251,12 +246,7 @@ namespace SAD_Assignment
         /// </summary>
         private void InterruptPlayerTurn(Player p, Player otherP) {
             // reset lands at the beginning of the turn
-            if (this.LandsOnBoard.Count > 0) {
-                for (int i = 0; i < this.LandsOnBoard.Count; i++) {
-                    // resets all lands on board so they can be used during later phases
-                    this.LandsOnBoard[i].ResetLand();
-                }
-            }
+            this.ResetLands();
             // get current player's lands
             List<Land> playerLands = GetPlayerLands(p);
             
@@ -289,6 +279,9 @@ namespace SAD_Assignment
                 p.DiscardHand(p.Hand[0]);
             }
         }
+        /// <summary>
+        /// Method <c>HandleActivationStack</c> handles queue of cards to be activated
+        /// </summary>
         private void HandleActivationStack() {
             // handles card effects in CardQueue when they need to activate
             if (this.CardActivationStack.Count > 0) {
@@ -395,6 +388,14 @@ namespace SAD_Assignment
             }
             return returnList;
         }
+        /// <summary>
+        /// Method <c>ResetLands</c> resets all lands on board's states to 'Inactive'
+        /// </summary>
+        private void ResetLands() {
+            foreach (Land land in this.LandsOnBoard) {
+                land.ResetLand();
+            }
+        }
 
         // unused methods in required implementation (necessary for class diagram)
 
@@ -424,8 +425,5 @@ namespace SAD_Assignment
         private void AcivatePermaEffects() {
             // not implemented; deliverable case does not require it's implementation (no effects to re-activate after RevertPermaEffects())
         }
-        /// <summary>
-        /// Method <c>HandleActivationStack</c> handles queue of cards to be activated
-        /// </summary>
     }
 }
