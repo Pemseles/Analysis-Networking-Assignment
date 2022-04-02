@@ -140,6 +140,7 @@ namespace SAD_Assignment
             // reset lands at the beginning of the turn
             this.ResetLands();
 
+            // normally would call this.DecideAction(), but it's all hard-coded to satisfy deliverable case
             if (currentTurn == 1) {
                 // turn 1 happenings
                 if (p.ID == 1) {
@@ -397,7 +398,7 @@ namespace SAD_Assignment
             }
         }
 
-        // unused methods in required implementation (necessary for class diagram)
+        // unused methods in required implementation (necessary for diagrams)
 
 
         /// <summary>
@@ -405,6 +406,12 @@ namespace SAD_Assignment
         /// </summary>
         private static void PrintToConsole(string happening, Player p, List<Land> lands = null, List<PermaSpell> permas = null, List<InstaSpell> counters = null) {
             // not implemented; deliverable case does not require it's implementation (case does not require a GUI)
+        }
+        /// <summary>
+        /// Method <c>DecideAction</c> asks the player to decide an action
+        /// </summary>
+        public void DecideAction(Player p, Player otherP, int turnNum, string happening) {
+            // not implemented; deliverable case does not require it's implementation (case does not require player-interactivity)
         }
         /// <summary>
         /// Method <c>WinConditionCheck</c> checks if a win condition has been satisfied

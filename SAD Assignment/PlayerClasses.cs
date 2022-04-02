@@ -128,5 +128,13 @@ namespace SAD_Assignment
         public void ShuffleDeck() {
             // not implemented; deliverable case does not require it's implementation (decks have specific cards; shuffling would randomise their order in the deck)
         }
+        public enum PlayerDecision { Nothing, EndTurn, PlayLand, HarvestLand, PlayPermaSpell, AttackPermaSpell, DefendPermaSpell, NothingPermaSpell, BuffInstantSpell, DebuffInstantSpell, CounterInstantSpell } // is able to be expanded upon
+        /// <summary>
+        /// Method <c>DecideAction</c> asks the player to decide an action
+        /// </summary>
+        public Tuple<PlayerDecision, Card, int, string> DecideAction(Player otherP, int turnNum, string happening) {
+            // not implemented; deliverable case does not require it's implementation (case does not require player-interactivity)
+            return new Tuple<PlayerDecision, Card, int, string>(0, null, 0, "");
+        }
     }
 }
