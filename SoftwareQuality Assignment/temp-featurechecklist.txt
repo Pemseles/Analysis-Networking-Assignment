@@ -1,0 +1,15 @@
+- basic UI design
+- login system
+- username & password requirements
+- client membership application system
+- database
+- user info encryption
+- log file
+- log file encryption
+- advisor functionalities
+- system admin functionalities
+- superadmin functionalities
+- search function
+- database & log backup creation
+- database & log backup restoring
+- user manual
