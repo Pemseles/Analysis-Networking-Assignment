@@ -121,4 +121,3 @@ if __name__ == '__main__':
     print ("Printing users in db:")
     for j in selectAllFromTable("Users"):
         print(j.getInfo())
-        print(decrypt(j.username, generateKey("advisor", "advisorkey")))
