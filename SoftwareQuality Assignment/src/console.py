@@ -28,6 +28,7 @@ def GetSysAdminOptions(role):
         print("3 ) Add a User account to the system.")
         print("4 ) Change existing User's information.")
         print("5 ) Delete existing User's account.")
+        # resetting password should set a temporary password, which gets changed back to what it was upon target's login
         print("6 ) Reset existing User's password.")
         print("7 ) Create database back-up")
         print("8 ) Restore database from back-up.")

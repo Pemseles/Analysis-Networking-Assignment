@@ -1,4 +1,5 @@
 # uses Vigenère cipher
+# key can just be hardcoded & stored in database
 
 def Encrypt(string, key): 
     encrypt_text = [] 
