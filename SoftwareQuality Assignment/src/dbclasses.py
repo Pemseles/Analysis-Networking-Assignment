@@ -1,3 +1,5 @@
+import database as db
+
 class Members:
     def __init__(self, membership_id, registration_date, first_name, last_name, address, email_address, phone_number):
         self.membership_id = membership_id
@@ -8,7 +10,7 @@ class Members:
         self.email_address = email_address
         self.phone_number = phone_number
 
-    def getInfo(self):
+    def GetInfo(self):
         return f"[{self.membership_id}] ({self.registration_date}) {self.first_name} {self.last_name} - {self.address} - {self.email_address} - {self.phone_number}"
 
 class Users:
@@ -25,8 +27,14 @@ class Users:
         self.role = role
         self.role_name = role_name
     
-    def getInfo(self):
+    def GetInfo(self):
         return f"[{self.id} - {self.role_name}] ({self.registration_date}) {self.first_name} {self.last_name} (username = {self.username}), password = {self.password} - {self.address} - {self.email_address} - {self.phone_number}"
     
-    def getProfile(self):
+    def GetProfile(self):
         return f"[{self.id} - {self.role_name}] {self.first_name} {self.last_name}, registered at {self.registration_date}"
+
+def AuthenticateCredentials(username, password):
+    for i in db.SelectAllFromTable("Users"):
+        if i.password == password and i.username.upper() == username.upper():
+            return i
+    return 0

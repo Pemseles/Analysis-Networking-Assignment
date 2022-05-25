@@ -1,9 +1,11 @@
+legend: - (to-do) x (done)
+
 - basic UI design
 - login system
 - username & password requirements
 - client membership application system
-- database
-- user info encryption
+x database
+- database encryption
 - log file
 - log file encryption
 - advisor functionalities
