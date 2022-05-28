@@ -1,7 +1,7 @@
 legend: - (to-do) x (done)
 
-- basic UI design
-- login system
+x basic UI design
+x login system
 - username & password requirements
 - client membership application system
 x database

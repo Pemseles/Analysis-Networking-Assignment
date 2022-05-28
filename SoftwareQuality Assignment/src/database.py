@@ -71,13 +71,13 @@ def InsertIntoUsersTable(registration_date, first_name, last_name, username, pas
             role_name = "Super Administrator"
         
         # encrypt sensitive info
-        #first_name = enc.Encrypt(first_name, generateKey(first_name, keyword))
-        #last_name = enc.Encrypt(last_name, generateKey(last_name, keyword))
-        #username = enc.Encrypt(username, generateKey(username, keyword))
-        #password = enc.Encrypt(password, generateKey(password, keyword))
-        #address = enc.Encrypt(address, generateKey(address, keyword))
-        #email_address = enc.Encrypt(email_address, generateKey(email_address, keyword))
-        #phone_number = enc.Encrypt(phone_number, generateKey(phone_number, keyword))
+        first_name = enc.Encrypt(first_name)
+        last_name = enc.Encrypt(last_name)
+        username = enc.Encrypt(username)
+        password = enc.Encrypt(password)
+        address = enc.Encrypt(address)
+        email_address = enc.Encrypt(email_address)
+        phone_number = enc.Encrypt(phone_number)
 
         c.execute(""" INSERT INTO Users (registration_date, first_name, last_name, username, password, address, email_address, phone_number, role, role_name)
             VALUES(?,?,?,?,?,?,?,?,?,?)""",(registration_date, first_name, last_name, username, password, address, email_address, phone_number, role, role_name))
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     # print statements for test purposes
     print("Printing members in db:")
     for i in SelectAllFromTable("Members"):
-        print(i.getInfo())
+        print(i.GetInfo())
     print ("Printing users in db:")
     for j in SelectAllFromTable("Users"):
-        print(j.getInfo())
+        print(j.GetInfo())
