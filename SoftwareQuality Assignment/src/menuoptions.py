@@ -1,6 +1,30 @@
-import console as co
+import consolemenus as cm
 import encryption as enc
 import database as db
+from datetime import date
+import random
+
+def GenerateMemberID():
+    # get already used membership IDs
+    alreadyUsedRaw = db.SelectColumnFromTable("Members", "membership_id")
+    alreadyUsed = enc.DecryptTupleOrArray(db.ConvertFetchToArray(alreadyUsedRaw))
+    
+    # will prob never reach this, but better be safe than stuck in a while loop
+    tries = 10000
+    while tries > 0:
+        middleDigits = ""
+        memberId = int(str(random.randrange(1, 10)))
+        while len(middleDigits) < 8:
+            middleDigits += str(random.randrange(0, 10))
+        memberId = int(str(memberId) + middleDigits)
+        digitSum = 0
+        for digit in str(memberId):
+            digitSum += int(digit)
+        memberId = int(str(memberId) + str(digitSum % 10))
+        if not memberId in alreadyUsed:
+            return memberId
+        tries -= 1
+    return None
 
 def CheckPassword(password):
     # check length of password
@@ -14,12 +38,30 @@ def CheckPassword(password):
             return True
     return False
 
+def CheckUsername(username):
+    # check if unique, at least 6 and at most 9 characters
+    # check if starts w a letter
+    # should only contain [a-z0-9_'.] with no difference between upper & lowercase
+    return False
+
+def CheckAddress(address):
+    
+    return False
+
+def CheckEmail(email):
+
+    return False
+
+def CheckPhone(phone):
+
+    return False
+
 def MainMenuPageShortcut(pagenum, loggedInUser):
     # literally just here so i don't have to write this code 2x
     if pagenum == 1:
-        return co.MainMenu(loggedInUser)
+        return cm.MainMenu(loggedInUser)
     else:
-        return co.MainMenuPage2(loggedInUser)
+        return cm.MainMenuPage2(loggedInUser)
 
 def HandleSystemScreenOption(choice):
     # will keep user in the loop until they input 1 or 2, 1 brings them to loginscreen, 2 terminates program
@@ -36,10 +78,10 @@ def HandleMenuOptionBase(choice, pagenum, loggedInUser):
         return
     elif choice == "n" and pagenum == 1:
         print("\nNavigating to page 2.")
-        return co.MainMenuPage2(loggedInUser)
+        return cm.MainMenuPage2(loggedInUser)
     elif choice == "p" and pagenum == 2:
         print("\nNavigating to page 1.")
-        return co.MainMenu(loggedInUser)
+        return cm.MainMenu(loggedInUser)
     else:
         try:
             if pagenum == 1 and (int(choice) >= 1 and int(choice) <= 4) or (pagenum == 2 and (int(choice) >= 1 and int(choice) <= 5)):
@@ -61,6 +103,7 @@ def HandleMenuOptions(option, loggedInUser):
     # add members/users to system
     elif option == 2:
         print("implement add members/users to system (3 options, depends on authorization lvl)")
+        return cm.AddToSystemSubmenu(loggedInUser)
     # change existing member's/user's info
     elif option == 3:
         print("implement change member/user info (3 options, depends on authorization lvl)")
@@ -83,8 +126,25 @@ def HandleMenuOptions(option, loggedInUser):
     elif option == 9:
         print("implement view system's log file")
 
+def HandleMenuOptionsAdd(option, loggedInUser):
+    if option == "x":
+        # return to page 1
+        print("\nReturning to main page...")
+    elif option == "1":
+        # proceed to add member
+        return AddMember()
+    elif (option == "2" and loggedInUser.role > 0) or (option == "3" and loggedInUser.role > 1):
+        # proceed to add user
+        AddUser(int(option) - 2)
+        return cm.AddToSystemSubmenu(loggedInUser)
+    else:
+        # if anything else is inputted
+        print(f"{choice} was not recognised as a valid menu choice")
+        return cm.AddToSystemSubmenu(loggedInUser)
+    return cm.MainMenu(loggedInUser)
+
 def ChangePassword(target):
-    co.LineInTerminal()
+    cm.LineInTerminal()
     print("New password must be at least 8 and at most 29 characters long & must contain at least 1 lowercase, uppercase, number and special character.")
     print(f"To change {target.first_name} {target.last_name}'s password, please enter the following:\n")
 
@@ -92,7 +152,7 @@ def ChangePassword(target):
     newPassRepeat = input("Repeat new password: ")
 
     if newPass == newPassRepeat and CheckPassword(newPass):
-        encryptedArr = enc.EncryptTuple((target.first_name, target.last_name, target.username, newPass, target.address, target.email_address, target.phone_number)) + [target.id]
+        encryptedArr = enc.EncryptTupleOrArray((target.first_name, target.last_name, target.username, newPass, target.address, target.email_address, target.phone_number)) + [target.id]
         db.UpdateUserEntry(tuple(encryptedArr))
         print("\nPassword changed successfully. Logging out...")
         return "logout"
@@ -101,3 +161,24 @@ def ChangePassword(target):
     else:
         print("\nPassword change failed; new password did not meet requirements.")
     return
+
+def AddMember():
+    print("\nTo add a member to the system, please enter the following credentials.\n")
+
+    firstName = input("First name: ")
+    lastName = input("Last name: ")
+    addressp1 = input("Address (Format = ([Street name] [House number] [Zip code])): ")
+    # valid cities are: (Amsterdam, Rotterdam, Den Haag, Leiden, Groningen, Utrecht, Middelburg, Dordrecht, Assen, Arnhem)
+    addressp2 = input("City (Check list of valid cities in user manual): ")
+    email = input("Email Address: ")
+    phone = "+31-6-" + input("Mobile Phone (Must be 8 digits after pre-set value): +31-6-")
+
+    registrationDate = date.today().strftime("%d-%m-%y")
+    memberId = GenerateMemberID()
+    fullAddress = f"{addressp1} {addressp2}"
+
+    # check if address, email & phone is valid before adding to db
+
+
+def AddUser(role):
+    print("")

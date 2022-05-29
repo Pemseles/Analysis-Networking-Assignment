@@ -1,11 +1,9 @@
-import console as cs
+import consolemenus as cm
 import database as db
-
-def RunApplication():
-    cs.SystemScreenLoop()
+import menuoptions as mo
 
 if __name__ == '__main__':
-    cs.SystemScreenLoop()
+    cm.SystemScreenLoop()
 
     # print statements for test purposes
     print("Printing members in db:")

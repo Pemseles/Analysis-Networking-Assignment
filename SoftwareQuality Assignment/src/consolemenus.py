@@ -102,3 +102,16 @@ def MainMenuPage2(loggedInUser):
 
     menuChoice = input("\nOption choice: ")
     return mo.HandleMenuOptionBase(menuChoice, 2, loggedInUser)
+
+def AddToSystemSubmenu(loggedInUser):
+    LineInTerminal()
+    print("Please select which of the following you would like to add to the system.\n")
+    print("1 ) Add new Member.")
+    if (loggedInUser.role == 1 or loggedInUser.role == 2):
+        print("2 ) Add new Advisor.")
+    if (loggedInUser.role == 2):
+        print("3 ) Add new System Administrator.")
+    print("\nx ) Return to main menu.")
+
+    menuChoice = input("\nOption choice: ")
+    return mo.HandleMenuOptionsAdd(menuChoice, loggedInUser)

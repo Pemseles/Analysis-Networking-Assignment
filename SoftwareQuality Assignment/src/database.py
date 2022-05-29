@@ -84,14 +84,20 @@ def InsertIntoUsersTable(registration_date, first_name, last_name, username, pas
 
 # only here for testing purposes & convenience
 def InsertStaticUsers():
-    # insert static super admin
-    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "Super", "Admin", "superadmin", "Admin321!", "Someplace", "super@admin.com", "+31-6-12345678", 2)
+    # insert static super admin (change back username to superadmin & password to Admin321!)
+    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "Super", "Admin", "sa", "sa", "Someplace", "super@admin.com", "+31-6-12345678", 2)
     
-    # insert static system admin
+    # insert static system admin (remove before delivering)
     InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "System", "Admin", "systemadmin", "System321!", "Someotherplace", "system@admin.com", "+31-6-87654321", 1)
 
-    # insert static advisor
+    # insert static advisor (remove before delivering)
     InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "Ad", "Visor", "advisor", "Advisor321!", "Somerandomplace", "ad@visor.com", "+31-6-11111111", 0)
+
+def ConvertFetchToArray(fetched):
+    newArr = []
+    for i in fetched:
+        newArr.append(list(i)[0])
+    return newArr
 
 def SelectAllFromTable(table_name):
     with Create_Connection("database.db") as db:
@@ -103,6 +109,13 @@ def SelectAllFromTable(table_name):
                 rows[i] = dbc.Members(*rows[i])
             elif (table_name == "Users"):
                 rows[i] = dbc.Users(*rows[i])
+        return rows
+
+def SelectColumnFromTable(table_name, column_name):
+    with Create_Connection("database.db") as db:
+        c = db.cursor()
+        c.execute(f"""SELECT {column_name} FROM {table_name}""")
+        rows = c.fetchall()
         return rows
 
 def SelectFilterUsersTable(column, filter):

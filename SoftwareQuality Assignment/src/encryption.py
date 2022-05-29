@@ -5,6 +5,7 @@
 # ranges can be found at: (basic latin) https://www.ssec.wisc.edu/~tomw/java/unicode.html#x0000
 
 def AlphabetExtended(length, offset):
+    # fills array with characters within specified range
     newAlphabet = []
     for i in range(length):
         newAlphabet.append(chr(i + offset))
@@ -31,6 +32,7 @@ def Decrypt(encrypt_text):
     return("" . join(orig_text))
 
 def GenerateKey(string):
+    # hardcoded key = Secret
     key = list("Secret")
     if len(string) == len(key):
         return("" . join(key))
@@ -39,8 +41,14 @@ def GenerateKey(string):
             key.append(key[i % len(key)])
     return("" . join(key))
 
-def EncryptTuple(tupleToEnc):
+def EncryptTupleOrArray(toEnc):
     cipherArr = []
-    for x in tupleToEnc:
+    for x in toEnc:
         cipherArr.append(Encrypt(x))
     return cipherArr
+
+def DecryptTupleOrArray(toDecr):
+    normalArr = []
+    for x in toDecr:
+        normalArr.append(Decrypt(x))
+    return normalArr
