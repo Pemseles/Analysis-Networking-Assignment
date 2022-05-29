@@ -29,7 +29,7 @@ class Users:
         self.role_name = role_name
     
     def GetInfo(self):
-        return f"[{self.id} - {self.role_name}] ({self.registration_date}) {self.first_name} {self.last_name} (username = {self.username}), password = {self.password} - {self.address} - {self.email_address} - {self.phone_number}"
+        return f"[{self.id} - {self.role_name}] ({self.registration_date}) {self.first_name} {self.last_name} (username = {self.username}, password = {self.password}) - {self.address} - {self.email_address} - {self.phone_number}"
     
     def GetProfile(self):
         return f"[{self.id} - {self.role_name}] {self.first_name} {self.last_name}, registered at {self.registration_date}"

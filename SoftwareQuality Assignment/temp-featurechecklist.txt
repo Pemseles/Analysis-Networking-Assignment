@@ -3,9 +3,9 @@ legend: - (to-do) x (done)
 x basic UI design
 x login system
 - username & password requirements
-- client membership application system
+- adding members to system
 x database
-- database encryption
+x database encryption
 - log file
 - log file encryption
 - advisor functionalities

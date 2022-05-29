@@ -6,8 +6,8 @@ console-based interface for managing membership
 * Advisors (defined by super or system adminstrators) - can manage membership in system (register, modify, search for & retrieve info about members)
 ------------------
 
-client requests membership, their info should be registered in the system first, to then be approved by advisor or higher
-following must be entered by client:
+advisor or higher is able to add clients to system
+following must be entered to add client:
 
 * first & last name
 * Address (street name, house number, zip code (DDDDXX)) & City (system generates a list of 10 predifined cities by me)

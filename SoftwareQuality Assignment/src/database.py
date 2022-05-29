@@ -43,7 +43,7 @@ def CreateUserTable():
             role_name text NOT NULL
             ); """) # role defines if user is Advisor (0), System Admin (1) or Super Admin (2)
 
-def InsertIntoMembersTable(membership_id, registration_date, first_name, last_name, address, email_address, phone_number, key):
+def InsertIntoMembersTable(membership_id, registration_date, first_name, last_name, address, email_address, phone_number):
     with Create_Connection("database.db") as db:
         c = db.cursor()
 
@@ -57,7 +57,7 @@ def InsertIntoMembersTable(membership_id, registration_date, first_name, last_na
         c.execute(""" INSERT INTO Members (membership_id, registration_date, first_name, last_name, address, email_address, phone_number) 
             VALUES(?,?,?,?,?,?,?)""",(membership_id, registration_date, first_name, last_name, address, email_address, phone_number))
 
-def InsertIntoUsersTable(registration_date, first_name, last_name, username, password, address, email_address, phone_number, role, keyword):
+def InsertIntoUsersTable(registration_date, first_name, last_name, username, password, address, email_address, phone_number, role):
     with Create_Connection("database.db") as db:
         c = db.cursor()
 
@@ -85,13 +85,13 @@ def InsertIntoUsersTable(registration_date, first_name, last_name, username, pas
 # only here for testing purposes & convenience
 def InsertStaticUsers():
     # insert static super admin
-    InsertIntoUsersTable(date.today().strftime("%m-%d-%y"), "Super", "Admin", "superadmin", "Admin321!", "Someplace", "super@admin.com", "+31-6-12345678", 2, "superkey")
+    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "Super", "Admin", "superadmin", "Admin321!", "Someplace", "super@admin.com", "+31-6-12345678", 2)
     
     # insert static system admin
-    InsertIntoUsersTable(date.today().strftime("%m-%d-%y"), "System", "Admin", "systemadmin", "System321!", "Someotherplace", "system@admin.com", "+31-6-87654321", 1, "systemkey")
+    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "System", "Admin", "systemadmin", "System321!", "Someotherplace", "system@admin.com", "+31-6-87654321", 1)
 
     # insert static advisor
-    InsertIntoUsersTable(date.today().strftime("%m-%d-%y"), "Ad", "Visor", "advisor", "Advisor321!", "Somerandomplace", "ad@visor.com", "+31-6-11111111", 0, "advisorkey")
+    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "Ad", "Visor", "advisor", "Advisor321!", "Somerandomplace", "ad@visor.com", "+31-6-11111111", 0)
 
 def SelectAllFromTable(table_name):
     with Create_Connection("database.db") as db:
@@ -104,6 +104,44 @@ def SelectAllFromTable(table_name):
             elif (table_name == "Users"):
                 rows[i] = dbc.Users(*rows[i])
         return rows
+
+def SelectFilterUsersTable(column, filter):
+    with Create_Connection("database.db") as db:
+        c = db.cursor()
+        c.execute(f"""SELECT * FROM Users WHERE {column} = {filter}""")
+        rows = c.fetchall()
+        for i in range(len(rows)):
+            rows[i] = dbc.Users(*rows[i])
+        return rows
+
+def SelectFilterMembersTable(column, filter):
+    with Create_Connection("database.db") as db:
+        c = db.cursor()
+        c.execute(f"""SELECT * FROM Members WHERE {column} = {filter}""")
+        rows = c.fetchall()
+        for i in range(len(rows)):
+            rows[i] = dbc.Members(*rows[i])
+        return rows
+
+def UpdateUserEntry(newEntry):
+    with Create_Connection("database.db") as db:
+        c = db.cursor()
+        c.execute(""" UPDATE Users 
+                    SET first_name = ? , 
+                        last_name = ? , 
+                        username = ? , 
+                        password = ? , 
+                        address = ? , 
+                        email_address = ? , 
+                        phone_number = ? 
+                    WHERE id = ?""", newEntry)
+        db.commit()
+
+def UpdateMemberEntry(newEntry):
+    with Create_Connection("database.db") as db:
+        c = db.cursor()
+        c.execute("""UPDATE Members SET first_name = ? , last_name = ? , address = ? , email_address = ? , phone_number = ? WHERE membership_id = ?""", newEntry)
+        db.commit()
 
 if __name__ == '__main__':
     with Create_Connection("database.db") as db:

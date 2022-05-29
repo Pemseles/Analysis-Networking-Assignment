@@ -16,6 +16,7 @@ def LineInTerminal():
 def GetGeneralOptions(role):
     if role >= 0 and role <= 2:
         print("1 ) Change your password.")
+        # for all role-dependent options: advisor+ can edit members, system admin+ can edit advisors, super admin can edit system admins
         if role == 0:
             print("2 ) Add Members to system.")
         else:
@@ -31,7 +32,6 @@ def GetGeneralOptions(role):
 
 def GetSysAdminOptions(role):
     if role == 1 or role == 2:
-        # 2-5) should be able to do this to sys admin as super admin & only to advisors as sys admin
         if role == 1:
             print("1 ) Delete existing Member.")
         else:
@@ -51,7 +51,6 @@ def SystemScreenLoop():
             return
 
 def SystemScreen():
-    print()
     LineInTerminal()
     print("Welcome to the Furnicor Administrative system.\nPlease select one of the following options:\n")
     print("1 ) Log into account.")
