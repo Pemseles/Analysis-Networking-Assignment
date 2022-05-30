@@ -23,7 +23,7 @@ def CreateMemberTable():
             last_name text NOT NULL,
             address text NOT NULL,
             email_address text NOT NULL UNIQUE,
-            phone_number text NOT NULL UNIQUE
+            phone_number text NOT NULL
             ); """)
 
 def CreateUserTable():
@@ -46,6 +46,7 @@ def CreateUserTable():
 def InsertIntoMembersTable(membership_id, registration_date, first_name, last_name, address, email_address, phone_number):
     with Create_Connection("database.db") as db:
         c = db.cursor()
+
         # encrypt sensitive info
         first_name = enc.Encrypt(first_name)
         last_name = enc.Encrypt(last_name)

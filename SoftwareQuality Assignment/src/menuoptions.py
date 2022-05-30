@@ -31,6 +31,9 @@ def GenerateMemberID():
     return None
 
 def CheckPassword(password):
+    alreadyUsedRaw = db.SelectColumnFromTable("Users", "password")
+    alreadyUsed = enc.DecryptTupleOrArray(db.ConvertFetchToArray(alreadyUsedRaw))
+
     # check length of password
     if len(password) >= 8 and len(password) < 30:
         # check if password contains lowercase, uppercase, digit & special character
@@ -38,18 +41,37 @@ def CheckPassword(password):
         upperPresent = any(x in password for x in enc.AlphabetExtended(26, 65))
         digitPresent = any(x in password for x in enc.AlphabetExtended(10, 48))
         specialPresent = any(x in password for x in (enc.AlphabetExtended(15, 33) + enc.AlphabetExtended(7, 58) + enc.AlphabetExtended(6, 91) + enc.AlphabetExtended(4, 123)))
-        if lowerPresent and upperPresent and digitPresent and specialPresent:
+        if lowerPresent and upperPresent and digitPresent and specialPresent and not password in alreadyUsed:
             return True
     return False
 
 def CheckUsername(username):
+    alreadyUsedRaw = db.SelectColumnFromTable("Users", "username")
+    alreadyUsed = enc.DecryptTupleOrArray(db.ConvertFetchToArray(alreadyUsedRaw))
+
     # checks username length
-    if len(username) >= 6 and len(username) < 10:
+    if len(username) >= 6 and len(username) < 10 and not username in alreadyUsed:
         letterStart = username[0] in (enc.AlphabetExtended(26, 97) + enc.AlphabetExtended(26, 65))
         for letter in username:
             if not letter in (enc.AlphabetExtended(26, 97) + enc.AlphabetExtended(26, 65) + enc.AlphabetExtended(10, 48) + ["_", "'", ".", "-"]) or not letterStart:
                 # username contains invalid character; invalid
                 return False
+        # username was evaluated as valid as it passed every check
+        return True
+    return False
+
+def CheckFirstAndLastName(firstName, lastName):
+    # checks if first & last names are actually something real, like a real name
+    if len(firstName) > 0 and len(lastName) > 0:
+        for letter in firstName:
+            if not letter in (enc.AlphabetExtended(26, 97) + enc.AlphabetExtended(26, 65) + ["'", "-", "."]):
+                # firstname contains invalid character; invalid
+                return False
+        for letter in lastName:
+            if not letter in (enc.AlphabetExtended(26, 97) + enc.AlphabetExtended(26, 65) + ["'", "-", "."]):
+                # lastname contains invalid character; invalid
+                return False
+        # first & last names were evaluated as valid as they passed every check
         return True
     return False
 
@@ -79,6 +101,11 @@ def CheckAddress(street, houseNum, zipCode, city):
     return False
 
 def CheckEmail(email):
+    alreadyUsedRaw = db.SelectColumnFromTable("Members", "email_address")
+    alreadyUsed = enc.DecryptTupleOrArray(db.ConvertFetchToArray(alreadyUsedRaw))
+    alreadyUsedRaw = db.SelectColumnFromTable("Users", "email_address")
+    alreadyUsed += enc.DecryptTupleOrArray(db.ConvertFetchToArray(alreadyUsedRaw))
+
     # build email prefix & domain seperately
     emailPrefix = ""
     emailDomain = ""
@@ -96,6 +123,9 @@ def CheckEmail(email):
             emailPrefix += char.lower()
         else:
             emailDomain += char.lower()
+    # check duplicate as email must be unique
+    if f"{emailPrefix}@{emailDomain}" in alreadyUsed:
+        return False
 
     # evaluating email prefix
     prefixSpecChars = ["_", ".", "-"]
@@ -205,7 +235,6 @@ def HandleMenuOptions(option, loggedInUser):
         return ChangePassword(loggedInUser, loggedInUser)
     # add members/users to system
     elif option == 2:
-        print("implement add members/users to system (3 options, depends on authorization lvl)")
         return cm.AddToSystemSubmenu(loggedInUser)
     # change existing member's/user's info
     elif option == 3:
@@ -239,13 +268,12 @@ def HandleMenuOptionsAdd(option, loggedInUser):
         return AddMember(loggedInUser)
     elif (option == "2" and loggedInUser.role > 0) or (option == "3" and loggedInUser.role > 1):
         # proceed to add user
-        AddUser(int(option) - 2)
-        return cm.AddToSystemSubmenu(loggedInUser)
+        return AddUser(int(option) - 2)
     else:
         # if anything else is inputted
         print(f"{choice} was not recognised as a valid menu choice")
         return cm.AddToSystemSubmenu(loggedInUser)
-    return cm.MainMenu(loggedInUser)
+    return
 
 def ChangePassword(target, loggedInUser):
     if loggedInUser.role <= target.role and not loggedInUser.id == target.id:
@@ -283,8 +311,8 @@ def AddMember(loggedInUser):
     email = input("Email Address: ")
     phone = "+31-6-" + input("Mobile Phone (Must be 8 digits after pre-set value): +31-6-")
 
-    if CheckAddress(addressStreet, addressHouseNum, addressZip, addressCity) and CheckEmail(email) and CheckPhone(phone):
-        print("inputs passed all evaluation, adding member...")
+    if CheckFirstAndLastName(firstName, lastName) and CheckAddress(addressStreet, addressHouseNum, addressZip, addressCity) and CheckEmail(email) and CheckPhone(phone):
+        print("Inputs passed all evaluation, adding Member...")
         registrationDate = date.today().strftime("%d-%m-%y")
         memberId = GenerateMemberID()
         address = f"{addressStreet} {addressHouseNum} {addressZip} {addressCity.upper()}"
@@ -292,8 +320,35 @@ def AddMember(loggedInUser):
         db.InsertIntoMembersTable(memberId, registrationDate, firstName, lastName, address, email, phone)
         return "sub-menu"
     else:
-        print(f"inputs did not pass evaluation ({firstName}, {lastName}, {address}, {email}, {phone}, {memberId})")
+        print("At least one input was invalid, please try again.")
         return
     
 def AddUser(role):
-    print("")
+    if role != 0 and role != 1:
+        return
+    roleName = "Advisor" if role == 0 else "System Admin"
+    printReferTo = "an" if role == 0 else "a"
+    print(f"\nTo add {printReferTo} {roleName} to the system, please enter the following credentials.\n")
+    
+    firstName = input("First name: ")
+    lastName = input("Last name: ")
+    username = input("Username: ")
+    password = input("Password: ")
+    addressStreet = input("Address part 1/4 (Street name): ")
+    addressHouseNum = input("Address part 2/4 (House number): ")
+    addressZip = input("Address part 3/4 (Zip Code [DDDDXX]): ")
+    addressCity = input("Address part 4/4 (City; Check list of valid cities in user manual): ")
+    email = input("Email Address: ")
+    phone = "+31-6-" + input("Mobile Phone (Must be 8 digits after pre-set value): +31-6-")
+
+    if CheckFirstAndLastName(firstName, lastName) and CheckAddress(addressStreet, addressHouseNum, addressZip, addressCity) and CheckEmail(email) and CheckPhone(phone) and CheckPassword(password) and CheckUsername(username):
+        print(f"inputs passed all evaluation, adding {roleName}...")
+        registrationDate = date.today().strftime("%d-%m-%y")
+        memberId = GenerateMemberID()
+        address = f"{addressStreet} {addressHouseNum} {addressZip} {addressCity.upper()}"
+
+        db.InsertIntoUsersTable(registrationDate, firstName, lastName, username, password, address, email, phone, role)
+        return "sub-menu"
+    else:
+        print("At least one input was invalid, please try again.")
+        return
