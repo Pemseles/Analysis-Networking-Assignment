@@ -1,7 +1,7 @@
 # uses Vigenère cipher
 # key can just be hardcoded & stored in database
 
-# alphabet is in unicode from 33 - 126 (latin lowercase & uppercase, digits and most relevant special characters)
+# alphabet is in unicode from 32 - 126 (latin lowercase & uppercase, digits and most relevant special characters)
 # ranges can be found at: (basic latin) https://www.ssec.wisc.edu/~tomw/java/unicode.html#x0000
 
 def AlphabetExtended(length, offset):
@@ -13,7 +13,7 @@ def AlphabetExtended(length, offset):
 
 def Encrypt(string):
     key = GenerateKey(string)
-    sample = AlphabetExtended(94, 33)
+    sample = AlphabetExtended(95, 32)
     encrypt_text = []
     for i in range(len(string)):
         x = (sample.index(string[i]) + sample.index(key[i])) % len(sample)
@@ -23,7 +23,7 @@ def Encrypt(string):
 
 def Decrypt(encrypt_text):
     key = GenerateKey(encrypt_text)
-    sample = AlphabetExtended(94, 33)
+    sample = AlphabetExtended(95, 32)
     orig_text = []
     for i in range(len(encrypt_text)):
         x = ((sample.index(encrypt_text[i]) - sample.index(key[i])) + len(sample)) % len(sample)
@@ -50,5 +50,5 @@ def EncryptTupleOrArray(toEnc):
 def DecryptTupleOrArray(toDecr):
     normalArr = []
     for x in toDecr:
-        normalArr.append(Decrypt(x))
+        normalArr.append(Decrypt(str(x)))
     return normalArr

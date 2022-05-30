@@ -12,15 +12,19 @@ def GenerateMemberID():
     # will prob never reach this, but better be safe than stuck in a while loop
     tries = 10000
     while tries > 0:
+        # generates first digit (1-9)
         middleDigits = ""
-        memberId = int(str(random.randrange(1, 10)))
+        memberId = random.randrange(1, 10)
         while len(middleDigits) < 8:
+            # appends until 9 digits long (0-9)
             middleDigits += str(random.randrange(0, 10))
         memberId = int(str(memberId) + middleDigits)
+        # calculates checksum digit and appends it
         digitSum = 0
         for digit in str(memberId):
             digitSum += int(digit)
         memberId = int(str(memberId) + str(digitSum % 10))
+        # checks if already used by other member, if true; invalid and retry from beginning
         if not memberId in alreadyUsed:
             return memberId
         tries -= 1
@@ -39,21 +43,114 @@ def CheckPassword(password):
     return False
 
 def CheckUsername(username):
-    # check if unique, at least 6 and at most 9 characters
-    # check if starts w a letter
-    # should only contain [a-z0-9_'.] with no difference between upper & lowercase
+    # checks username length
+    if len(username) >= 6 and len(username) < 10:
+        letterStart = username[0] in (enc.AlphabetExtended(26, 97) + enc.AlphabetExtended(26, 65))
+        for letter in username:
+            if not letter in (enc.AlphabetExtended(26, 97) + enc.AlphabetExtended(26, 65) + enc.AlphabetExtended(10, 48) + ["_", "'", ".", "-"]) or not letterStart:
+                # username contains invalid character; invalid
+                return False
+        return True
     return False
 
-def CheckAddress(address):
-    
+def CheckAddress(street, houseNum, zipCode, city):
+    # checks address
+    validCities = ["amsterdam", "rotterdam", "den haag", "leiden", "groningen", "utrecht", "middelburg", "dordrecht", "assen", "arnhem"]
+
+    # street name & street number can be anything really, just not nothing (also streetnum must contain a number)
+    if street == "" or street == None or houseNum == "" or houseNum == None or not any(x in houseNum for x in enc.AlphabetExtended(10, 48)):
+        return False
+
+    # check if city = valid & evaluate zip code
+    if city.lower() in validCities and len(zipCode) == 6:
+        # check zip code
+        zipFirst4 = zipCode[0:4]
+        for digit in zipFirst4:
+            if not digit in enc.AlphabetExtended(10, 48):
+                # first 4 characters contained non-numbers; invalid
+                return False
+        zipLast2 = zipCode[4:]
+        for letter in zipLast2:
+            if not letter in enc.AlphabetExtended(26, 65):
+                # last 2 characters contained non-uppercase letters; invalid
+                return False
+        # zip code evaluated valid
+        return True
     return False
 
 def CheckEmail(email):
+    # build email prefix & domain seperately
+    emailPrefix = ""
+    emailDomain = ""
+    appendPrefix = True
+    atCount = 0
+    for char in email:
+        if char == "@":
+            appendPrefix = False
+            atCount += 1
+            if atCount > 1:
+                # email cannot contain more than 1 '@'; invalid
+                return False
+            continue
+        if appendPrefix:
+            emailPrefix += char.lower()
+        else:
+            emailDomain += char.lower()
 
+    # evaluating email prefix
+    prefixSpecChars = ["_", ".", "-"]
+    if not emailPrefix[len(emailPrefix) - 1:] in prefixSpecChars and not emailPrefix[0] in prefixSpecChars:
+        for char in emailPrefix:
+            if not char in (enc.AlphabetExtended(26, 97) + enc.AlphabetExtended(10, 48) + prefixSpecChars):
+                # prefix contains invalid character; invalid
+                return False
+        specCharMap = ([pos for pos, char in enumerate(emailPrefix) if char in prefixSpecChars])
+        if len(specCharMap) > 0:
+            for pos in specCharMap:
+                if emailPrefix[pos + 1] in prefixSpecChars:
+                    # 2+ special characters are next to eachother; invalid
+                    return False
+    else:
+        # started/ended with a special character; invalid
+        return False
+    
+    # email prefix evaluated as valid
+    # evaluating email domain
+    domainSpecChars = [".", "-"]
+    if not emailDomain[len(emailDomain) - 1:] in domainSpecChars and not emailDomain[0] in domainSpecChars:
+        for char in emailDomain:
+            if not char in (enc.AlphabetExtended(26, 97) + enc.AlphabetExtended(10, 48) + domainSpecChars):
+                # domain contains invalid character; invalid
+                return False
+        specCharMap = ([pos for pos, char in enumerate(emailDomain) if char in domainSpecChars])
+        if len(specCharMap) > 0:
+            for pos in specCharMap:
+                if emailDomain[pos + 1] in domainSpecChars:
+                    # 2+ special characters are next to eachother; invalid
+                    return False
+            if not specCharMap[-1] + 2 < len(emailDomain):
+                # not enough characters after the '.'; invalid
+                return False
+        else:
+            # did not contain a '.'; invalid
+            return False
+        # domain + prefix is valid as it passed each check
+        return True
+    else:
+        # started/ended with a special character; invalid
+        return False
     return False
 
 def CheckPhone(phone):
-
+    # check phone number
+    if len(phone) == 14 and phone[0:6] == "+31-6-":
+        phoneDigits = phone[6:]
+        for digit in phoneDigits:
+            if not digit in enc.AlphabetExtended(10, 48):
+                # phone number after '+31-6-' contains non-number character; invalid
+                return False
+        # phone number is valid as it passed each check
+        return True
     return False
 
 def MainMenuPageShortcut(pagenum, loggedInUser):
@@ -73,6 +170,7 @@ def HandleSystemScreenOption(choice):
         return None
 
 def HandleMenuOptionBase(choice, pagenum, loggedInUser):
+    # handles base option choices
     if choice == "x":
         print("\nLogging out...")
         return
@@ -90,16 +188,21 @@ def HandleMenuOptionBase(choice, pagenum, loggedInUser):
                 result = HandleMenuOptions(int(choice), loggedInUser)
                 if result == "logout":
                     return
+                elif result == "sub-menu":
+                    return cm.AddToSystemSubmenu(loggedInUser)
             else:
                 print(f"{choice} was not recognised as a valid menu choice")
-        except:
+        except Exception as e:
             print(f"{choice} was not recognised as a valid menu choice")
+            print(f"or something went wrong: {e}")
     return MainMenuPageShortcut(pagenum, loggedInUser)
 
 def HandleMenuOptions(option, loggedInUser):
+    # handles options of pages 1 & 2 of main menu
+
     # change password of loggedInUser
     if option == 1:
-        return ChangePassword(loggedInUser)
+        return ChangePassword(loggedInUser, loggedInUser)
     # add members/users to system
     elif option == 2:
         print("implement add members/users to system (3 options, depends on authorization lvl)")
@@ -127,12 +230,13 @@ def HandleMenuOptions(option, loggedInUser):
         print("implement view system's log file")
 
 def HandleMenuOptionsAdd(option, loggedInUser):
+    # handles options of sub-menu of adding member/user to system
     if option == "x":
         # return to page 1
         print("\nReturning to main page...")
     elif option == "1":
         # proceed to add member
-        return AddMember()
+        return AddMember(loggedInUser)
     elif (option == "2" and loggedInUser.role > 0) or (option == "3" and loggedInUser.role > 1):
         # proceed to add user
         AddUser(int(option) - 2)
@@ -143,7 +247,10 @@ def HandleMenuOptionsAdd(option, loggedInUser):
         return cm.AddToSystemSubmenu(loggedInUser)
     return cm.MainMenu(loggedInUser)
 
-def ChangePassword(target):
+def ChangePassword(target, loggedInUser):
+    if loggedInUser.role <= target.role and not loggedInUser.id == target.id:
+        return
+    # change password menu
     cm.LineInTerminal()
     print("New password must be at least 8 and at most 29 characters long & must contain at least 1 lowercase, uppercase, number and special character.")
     print(f"To change {target.first_name} {target.last_name}'s password, please enter the following:\n")
@@ -162,23 +269,31 @@ def ChangePassword(target):
         print("\nPassword change failed; new password did not meet requirements.")
     return
 
-def AddMember():
+def AddMember(loggedInUser):
+    if loggedInUser.role < 0 and loggedInUser.role > 3:
+        return
     print("\nTo add a member to the system, please enter the following credentials.\n")
 
     firstName = input("First name: ")
     lastName = input("Last name: ")
-    addressp1 = input("Address (Format = ([Street name] [House number] [Zip code])): ")
-    # valid cities are: (Amsterdam, Rotterdam, Den Haag, Leiden, Groningen, Utrecht, Middelburg, Dordrecht, Assen, Arnhem)
-    addressp2 = input("City (Check list of valid cities in user manual): ")
+    addressStreet = input("Address part 1/4 (Street name): ")
+    addressHouseNum = input("Address part 2/4 (House number): ")
+    addressZip = input("Address part 3/4 (Zip Code [DDDDXX]): ")
+    addressCity = input("Address part 4/4 (City; Check list of valid cities in user manual): ")
     email = input("Email Address: ")
     phone = "+31-6-" + input("Mobile Phone (Must be 8 digits after pre-set value): +31-6-")
 
-    registrationDate = date.today().strftime("%d-%m-%y")
-    memberId = GenerateMemberID()
-    fullAddress = f"{addressp1} {addressp2}"
+    if CheckAddress(addressStreet, addressHouseNum, addressZip, addressCity) and CheckEmail(email) and CheckPhone(phone):
+        print("inputs passed all evaluation, adding member...")
+        registrationDate = date.today().strftime("%d-%m-%y")
+        memberId = GenerateMemberID()
+        address = f"{addressStreet} {addressHouseNum} {addressZip} {addressCity.upper()}"
 
-    # check if address, email & phone is valid before adding to db
-
-
+        db.InsertIntoMembersTable(memberId, registrationDate, firstName, lastName, address, email, phone)
+        return "sub-menu"
+    else:
+        print(f"inputs did not pass evaluation ({firstName}, {lastName}, {address}, {email}, {phone}, {memberId})")
+        return
+    
 def AddUser(role):
     print("")

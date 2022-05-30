@@ -46,13 +46,12 @@ def CreateUserTable():
 def InsertIntoMembersTable(membership_id, registration_date, first_name, last_name, address, email_address, phone_number):
     with Create_Connection("database.db") as db:
         c = db.cursor()
-
         # encrypt sensitive info
-        first_name = enc.Encrypt(first_name, key)
-        last_name = enc.Encrypt(last_name, key)
-        address = enc.Encrypt(address, key)
-        email_address = enc.Encrypt(email_address, key)
-        phone_number = enc.Encrypt(phone_number, key)
+        first_name = enc.Encrypt(first_name)
+        last_name = enc.Encrypt(last_name)
+        address = enc.Encrypt(address)
+        email_address = enc.Encrypt(email_address.lower())
+        phone_number = enc.Encrypt(phone_number)
 
         c.execute(""" INSERT INTO Members (membership_id, registration_date, first_name, last_name, address, email_address, phone_number) 
             VALUES(?,?,?,?,?,?,?)""",(membership_id, registration_date, first_name, last_name, address, email_address, phone_number))
@@ -73,10 +72,10 @@ def InsertIntoUsersTable(registration_date, first_name, last_name, username, pas
         # encrypt sensitive info
         first_name = enc.Encrypt(first_name)
         last_name = enc.Encrypt(last_name)
-        username = enc.Encrypt(username)
+        username = enc.Encrypt(username.lower())
         password = enc.Encrypt(password)
         address = enc.Encrypt(address)
-        email_address = enc.Encrypt(email_address)
+        email_address = enc.Encrypt(email_address.lower())
         phone_number = enc.Encrypt(phone_number)
 
         c.execute(""" INSERT INTO Users (registration_date, first_name, last_name, username, password, address, email_address, phone_number, role, role_name)

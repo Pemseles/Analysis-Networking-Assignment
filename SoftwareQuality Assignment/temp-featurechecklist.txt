@@ -2,7 +2,8 @@ legend: - (to-do) x (done)
 
 x basic UI design
 x login system
-- username & password requirements
+x username & password requirements
+x email, address & phone requirements
 - adding members to system
 x database
 x database encryption

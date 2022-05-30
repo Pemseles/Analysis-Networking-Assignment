@@ -7,9 +7,6 @@ import menuoptions as mo
 def ClearTerminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def NewLinesTerminal():
-    print("\n\n\n\n\n\n\n\n\n")
-
 def LineInTerminal():
     print("-------------------------------------------------------------------------------------------\n")
 
@@ -43,6 +40,7 @@ def GetSysAdminOptions(role):
         print("5 ) View system's log file.")
 
 def SystemScreenLoop():
+    # keeps opening SystemScreen() until user enters 1 or 2
     while True:
         goToLogin = SystemScreen()
         if goToLogin:
@@ -51,6 +49,7 @@ def SystemScreenLoop():
             return
 
 def SystemScreen():
+    # 1st menu, forces user to either log in or exit
     LineInTerminal()
     print("Welcome to the Furnicor Administrative system.\nPlease select one of the following options:\n")
     print("1 ) Log into account.")
@@ -76,6 +75,7 @@ def LoginScreen():
         return MainMenu(loginResult)
 
 def MainMenu(loggedInUser):
+    # page 1 of main menu
     LineInTerminal()
     if (loggedInUser.role == 0):
         print(f"Welcome to the main menu of Furnicor Administrative system.\n(logged in as {loggedInUser.first_name} {loggedInUser.last_name} - {loggedInUser.role_name})")
@@ -92,6 +92,7 @@ def MainMenu(loggedInUser):
     return mo.HandleMenuOptionBase(menuChoice, 1, loggedInUser)
 
 def MainMenuPage2(loggedInUser):
+    # page 2 of main menu
     LineInTerminal()
     print(f"Welcome to the main menu of Furnicor Administrative system (page 2/2)")
     print("Please select one of the following options:\n")
@@ -104,6 +105,7 @@ def MainMenuPage2(loggedInUser):
     return mo.HandleMenuOptionBase(menuChoice, 2, loggedInUser)
 
 def AddToSystemSubmenu(loggedInUser):
+    # sub-menu to decide to add member or some type of user
     LineInTerminal()
     print("Please select which of the following you would like to add to the system.\n")
     print("1 ) Add new Member.")
