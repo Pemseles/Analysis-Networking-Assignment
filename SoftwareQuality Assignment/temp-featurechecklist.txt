@@ -4,7 +4,7 @@ x basic UI design
 x login system
 x username & password requirements
 x email, address & phone requirements
-- adding members to system
+x adding members to system
 x database
 x database encryption
 - log file
