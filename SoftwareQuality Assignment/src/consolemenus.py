@@ -66,6 +66,8 @@ def LoginScreen():
     username = input("Username: ")
     password = input("Password: ")
 
+    # TODO; check if username & password inputs are valid with checkUsername() & checkPassword()
+
     loginResult = dbc.AuthenticateCredentials(username, password)
     if loginResult == 0:
         print("\nLogin failed; incorrect username or password")

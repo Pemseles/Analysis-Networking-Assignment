@@ -168,7 +168,7 @@ if __name__ == '__main__':
     # print statements for test purposes
     print("Printing members in db:")
     for i in SelectAllFromTable("Members"):
-        print(i.GetInfo())
+        print(i.GetInfo2())
     print ("Printing users in db:")
     for j in SelectAllFromTable("Users"):
-        print(j.GetInfo())
+        print(j.GetInfo2())
