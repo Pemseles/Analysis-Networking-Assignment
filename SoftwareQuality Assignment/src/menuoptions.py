@@ -42,6 +42,7 @@ def CheckPassword(password):
         digitPresent = any(x in password for x in enc.AlphabetExtended(10, 48))
         specialPresent = any(x in password for x in (enc.AlphabetExtended(15, 33) + enc.AlphabetExtended(7, 58) + enc.AlphabetExtended(6, 91) + enc.AlphabetExtended(4, 123)))
         if lowerPresent and upperPresent and digitPresent and specialPresent and not password in alreadyUsed:
+            print("Password is valid")
             return True
     return False
 
@@ -57,6 +58,7 @@ def CheckUsername(username):
                 # username contains invalid character; invalid
                 return False
         # username was evaluated as valid as it passed every check
+        print("Username is valid")
         return True
     return False
 
@@ -72,6 +74,7 @@ def CheckFirstAndLastName(firstName, lastName):
                 # lastname contains invalid character; invalid
                 return False
         # first & last names were evaluated as valid as they passed every check
+        print("First & Last names are valid")
         return True
     return False
 
@@ -97,6 +100,7 @@ def CheckAddress(street, houseNum, zipCode, city):
                 # last 2 characters contained non-uppercase letters; invalid
                 return False
         # zip code evaluated valid
+        print("Address is valid")
         return True
     return False
 
@@ -165,6 +169,7 @@ def CheckEmail(email):
             # did not contain a '.'; invalid
             return False
         # domain + prefix is valid as it passed each check
+        print("Email is valid")
         return True
     else:
         # started/ended with a special character; invalid
@@ -180,6 +185,7 @@ def CheckPhone(phone):
                 # phone number after '+31-6-' contains non-number character; invalid
                 return False
         # phone number is valid as it passed each check
+        print("Phone number is valid")
         return True
     return False
 
@@ -192,6 +198,7 @@ def MainMenuPageShortcut(pagenum, loggedInUser):
 
 def HandleSystemScreenOption(choice):
     # will keep user in the loop until they input 1 or 2, 1 brings them to loginscreen, 2 terminates program
+    print(f"Inside HandleSystemScreenOption; choice = {choice}")
     if choice == "1":
         return True
     elif choice == "2":
@@ -201,6 +208,7 @@ def HandleSystemScreenOption(choice):
 
 def HandleMenuOptionBase(choice, pagenum, loggedInUser):
     # handles base option choices
+    print(f"Inside HandleMenuOptionBase; choice = {choice}, page = {pagenum}, user = {loggedInUser.username}")
     if choice == "x":
         print("\nLogging out...")
         return
@@ -211,24 +219,24 @@ def HandleMenuOptionBase(choice, pagenum, loggedInUser):
         print("\nNavigating to page 1.")
         return cm.MainMenu(loggedInUser)
     else:
-        try:
+        if choice in enc.AlphabetExtended(10, 48):
             if pagenum == 1 and (int(choice) >= 1 and int(choice) <= 4) or (pagenum == 2 and (int(choice) >= 1 and int(choice) <= 5)):
+                result = ""
                 if pagenum == 2:
                     choice = str(int(choice) + 4)
-                result = HandleMenuOptions(int(choice), loggedInUser)
+                while result == "sub-menu" or result == "":
+                    result = HandleMenuOptions(int(choice), loggedInUser)
                 if result == "logout":
                     return
-                elif result == "sub-menu":
-                    return cm.AddToSystemSubmenu(loggedInUser)
             else:
                 print(f"{choice} was not recognised as a valid menu choice")
-        except Exception as e:
+        else:
             print(f"{choice} was not recognised as a valid menu choice")
-            print(f"or something went wrong: {e}")
     return MainMenuPageShortcut(pagenum, loggedInUser)
 
 def HandleMenuOptions(option, loggedInUser):
     # handles options of pages 1 & 2 of main menu
+    print(f"Inside HandleMenuOptions; choice = {option}, user = {loggedInUser.username}")
 
     # change password of loggedInUser
     if option == 1:
@@ -260,6 +268,8 @@ def HandleMenuOptions(option, loggedInUser):
 
 def HandleMenuOptionsAdd(option, loggedInUser):
     # handles options of sub-menu of adding member/user to system
+    print(f"Inside HandleMenuOptionsAdd; choice = {option}, user = {loggedInUser.username}")
+
     if option == "x":
         # return to page 1
         print("\nReturning to main page...")
@@ -271,7 +281,7 @@ def HandleMenuOptionsAdd(option, loggedInUser):
         return AddUser(int(option) - 2)
     else:
         # if anything else is inputted
-        print(f"{choice} was not recognised as a valid menu choice")
+        print(f"{option} was not recognised as a valid menu choice")
         return cm.AddToSystemSubmenu(loggedInUser)
     return
 
