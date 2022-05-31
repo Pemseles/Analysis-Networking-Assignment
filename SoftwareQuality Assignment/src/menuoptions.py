@@ -4,6 +4,7 @@ import database as db
 import inputchecks as ic
 import dbclasses as dbc
 from datetime import date
+import inspect
 
 def MainMenuPageShortcut(pagenum, loggedInUser):
     # literally just here so i don't have to write this code 2x
@@ -28,10 +29,10 @@ def HandleMenuOptionBase(choice, pagenum, loggedInUser):
     if choice == "x":
         print("\nLogging out...")
         return
-    elif choice == "n" and pagenum == 1:
+    elif choice == "n" and pagenum == 1 and loggedInUser.role >= 1 and loggedInUser.role <= 2:
         print("\nNavigating to page 2.")
         return cm.MainMenuPage2(loggedInUser)
-    elif choice == "p" and pagenum == 2:
+    elif choice == "p" and pagenum == 2 and loggedInUser.role >= 1 and loggedInUser.role <= 2:
         print("\nNavigating to page 1.")
         return cm.MainMenu(loggedInUser)
     else:
@@ -45,9 +46,10 @@ def HandleMenuOptionBase(choice, pagenum, loggedInUser):
                 if result == "logout":
                     return
             else:
-                print(f"{choice} was not recognised as a valid menu choice")
+                print(f"{choice} was not recognised as a valid menu choice.")
         else:
-            print(f"{choice} was not recognised as a valid menu choice")
+            print(f"{choice} was not recognised as a valid menu choice.")
+    # return to the page logged in user was on previously
     return MainMenuPageShortcut(pagenum, loggedInUser)
 
 def HandleMenuOptions(option, loggedInUser):
@@ -98,7 +100,7 @@ def HandleMenuOptionsAdd(option, loggedInUser):
         return AddUser(int(option) - 2, loggedInUser)
     else:
         # if anything else is inputted
-        print(f"{option} was not recognised as a valid menu choice")
+        print(f"{option} was not recognised as a valid menu choice.")
         return cm.AddToSystemSubmenu(loggedInUser)
     return
 
@@ -202,8 +204,49 @@ def DeleteUserMember(loggedInUser):
     if loggedInUser.role != 1 and loggedInUser.role != 2:
         # logged in user does not have authentication to do this
         return
-    for entry in dbc.BuildDeleteList(loggedInUser):
-        print(entry)
+    # get list of deletable members/users (depends on logged in user's role)
+    delListPrint = dbc.BuildDeleteList(loggedInUser)
+    # delListInstances is here to easily get the chosen thing to delete
+    delListInstances = []
+    # print entries & add them to delListInstances
+    for entry in delListPrint:
+        if isinstance(entry, dbc.Members):
+            print(f"{delListPrint.index(entry)} ) {entry.GetInfo(loggedInUser)}")
+            delListInstances.append(entry)
+        elif isinstance(entry, dbc.Users):
+            print(f"{delListPrint.index(entry) - 1} ) {entry.GetProfile(loggedInUser)}")
+            delListInstances.append(entry)
+        else:
+            print(entry)
     
     choice = input("\nOption choice: ")
-    return
+
+    # validate if choice is actually possible
+    if int(choice) >= 1 and int(choice) <= len(delListInstances):
+        # get entry and check if it's a member or not
+        chosenEntry = delListInstances[int(choice) - 1]
+        isMember = True if isinstance(chosenEntry, dbc.Members) else False
+        
+        # confirmation to delete
+        if isMember:
+            print(f"Are you sure you wish to delete\n{chosenEntry.GetInfo(loggedInUser)}\n")
+        else:
+            print(f"Are you sure you wish to delete\n{chosenEntry.GetProfile(loggedInUser)}\n")
+        print("1 ) Yes, proceed with deletion.")
+        print("2 ) No, end process of deletion.")
+
+        choice = input("\nOption choice: ")
+
+        if int(choice) == 1:
+            # delete chosen entry
+            print("continue deleting")
+        elif int(choice) == 2:
+            # return to page 2
+            print("return to page 2")
+        else:
+            # re-print the deletion list
+            cm.LineInTerminal()
+            print("re-print entire sequence")
+    else:
+        print(f"{choice} was not recognized as a valid menu choice.")
+        return

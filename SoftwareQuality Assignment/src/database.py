@@ -82,15 +82,23 @@ def InsertIntoUsersTable(registration_date, first_name, last_name, username, pas
         c.execute(""" INSERT INTO Users (registration_date, first_name, last_name, username, password, address, email_address, phone_number, role, role_name)
             VALUES(?,?,?,?,?,?,?,?,?,?)""",(registration_date, first_name, last_name, username, password, address, email_address, phone_number, role, role_name))
 
+def DeleteFromMembersTable():
+    with Create_Connection("database.db") as db:
+        print("delete from members table")
+
+def DeleteFromUsersTable():
+    with Create_Connection("database.db") as db:
+        print("delete from users table")
+
 # only here for testing purposes & convenience
 def InsertStaticUsers():
     # insert static super admin (change back username to superadmin & password to Admin321!)
     InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "Super", "Admin", "sa", "sa", "Someplace", "super@admin.com", "+31-6-12345678", 2)
     
-    # insert static system admin (remove before delivering)
+    # insert static system admin (TODO: remove before delivering)
     InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "System", "Admin", "systemadmin", "System321!", "Someotherplace", "system@admin.com", "+31-6-87654321", 1)
 
-    # insert static advisor (remove before delivering)
+    # insert static advisor (TODO: remove before delivering)
     InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "Ad", "Visor", "advisor", "Advisor321!", "Somerandomplace", "ad@visor.com", "+31-6-11111111", 0)
 
 def ConvertFetchToArray(fetched):

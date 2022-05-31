@@ -75,10 +75,8 @@ def BuildDeleteList(loggedInUser):
     membersAndUsers = db.SelectAllFromTable("Members") + db.SelectAllFromTable("Users")
     currentlyMembers = True
     result = []
-    entryNum = 0
-    print("Members:")
+    result.append("Members:")
     for entry in membersAndUsers:
-        entryNum += 1
         if entry != None and entry != "":
             try:
                 # guaranteed to be a user
@@ -87,9 +85,9 @@ def BuildDeleteList(loggedInUser):
                     if currentlyMembers:
                         result.append("\nUsers:")
                         currentlyMembers = False
-                    result.append(f"{entryNum} ) {entry.GetProfile(loggedInUser)}")
+                    result.append(entry)
             except:
                 # guaranteed to be a member
                 # add member to result
-                result.append(f"{entryNum} ) {entry.GetInfo(loggedInUser)}")
+                result.append(entry)
     return result
