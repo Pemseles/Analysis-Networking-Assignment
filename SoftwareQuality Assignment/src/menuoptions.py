@@ -13,6 +13,12 @@ def MainMenuPageShortcut(pagenum, loggedInUser):
     else:
         return cm.MainMenuPage2(loggedInUser)
 
+def InvalidSubMenuChoice(returnStr, choice, newLine=False):
+    if newLine:
+        cm.LineInTerminal()
+    print(f"{choice} was not recognized as a valid menu choice.")
+    return returnStr
+
 def HandleSystemScreenOption(choice):
     # will keep user in the loop until they input 1 or 2, 1 brings them to loginscreen, 2 terminates program
     print(f"Inside HandleSystemScreenOption; choice = {choice}")
@@ -43,6 +49,7 @@ def HandleMenuOptionBase(choice, pagenum, loggedInUser):
                     choice = str(int(choice) + 4)
                 while result == "sub-menu" or result == "":
                     result = HandleMenuOptions(int(choice), loggedInUser)
+                    print("result:", result)
                 if result == "logout":
                     return
             else:
@@ -71,7 +78,7 @@ def HandleMenuOptions(option, loggedInUser):
     # delete existing member/user
     elif option == 5:
         print("implement delete existing member/user (depends on auth lvl)")
-        DeleteUserMember(loggedInUser)
+        return DeleteUserMember(loggedInUser)
     # temp reset existing user's password
     elif option == 6:
         print("implement reset existing user's password temporarily")
@@ -208,45 +215,58 @@ def DeleteUserMember(loggedInUser):
     delListPrint = dbc.BuildDeleteList(loggedInUser)
     # delListInstances is here to easily get the chosen thing to delete
     delListInstances = []
+    noMembers = False
     # print entries & add them to delListInstances
+    if not isinstance(delListPrint[1], dbc.Members):
+        noMembers = True
     for entry in delListPrint:
+        # print members
         if isinstance(entry, dbc.Members):
             print(f"{delListPrint.index(entry)} ) {entry.GetInfo(loggedInUser)}")
             delListInstances.append(entry)
+        # print users (if no users, the option offset is -1 to make sure it doesn't start with 0)
         elif isinstance(entry, dbc.Users):
-            print(f"{delListPrint.index(entry) - 1} ) {entry.GetProfile(loggedInUser)}")
+            if not noMembers:
+                print(f"{delListPrint.index(entry) - 1} ) {entry.GetProfile(loggedInUser)}")
+            elif noMembers:
+                print(f"{delListPrint.index(entry)} ) {entry.GetProfile(loggedInUser)}")
             delListInstances.append(entry)
         else:
             print(entry)
+    print("\nx ) Return to main menu.")
     
     choice = input("\nOption choice: ")
 
     # validate if choice is actually possible
-    if int(choice) >= 1 and int(choice) <= len(delListInstances):
-        # get entry and check if it's a member or not
-        chosenEntry = delListInstances[int(choice) - 1]
-        isMember = True if isinstance(chosenEntry, dbc.Members) else False
-        
-        # confirmation to delete
-        if isMember:
-            print(f"Are you sure you wish to delete\n{chosenEntry.GetInfo(loggedInUser)}\n")
-        else:
-            print(f"Are you sure you wish to delete\n{chosenEntry.GetProfile(loggedInUser)}\n")
-        print("1 ) Yes, proceed with deletion.")
-        print("2 ) No, end process of deletion.")
-
-        choice = input("\nOption choice: ")
-
-        if int(choice) == 1:
-            # delete chosen entry
-            print("continue deleting")
-        elif int(choice) == 2:
-            # return to page 2
-            print("return to page 2")
-        else:
-            # re-print the deletion list
-            cm.LineInTerminal()
-            print("re-print entire sequence")
-    else:
-        print(f"{choice} was not recognized as a valid menu choice.")
+    if choice == "x":
+        print("Returning to main menu.")
         return
+    try:
+        if int(choice) >= 1 and int(choice) <= len(delListInstances):
+            # get entry and check if it's a member or not
+            chosenEntry = delListInstances[int(choice) - 1]
+            isMember = True if isinstance(chosenEntry, dbc.Members) else False
+            
+            # confirmation to delete
+            if isMember:
+                print(f"Are you sure you wish to delete\n{chosenEntry.GetInfo(loggedInUser)}\n")
+            else:
+                print(f"Are you sure you wish to delete\n{chosenEntry.GetProfile(loggedInUser)}\n")
+            print("1 ) Yes, proceed with deletion.")
+            print("2 ) No, end process of deletion.")
+
+            choice = input("\nOption choice: ")
+            if choice == "1":
+                # delete chosen entry
+                db.DeleteFromTable(loggedInUser, chosenEntry)
+                return "sub-menu"
+            elif choice == "2":
+                # return to sub-menu
+                return "sub-menu"
+            # LOG: not sus
+            return InvalidSubMenuChoice("sub-menu", choice, True)
+        # LOG: not sus
+        return InvalidSubMenuChoice("sub-menu", choice, True)
+    except:
+        # LOG: not sus
+        return InvalidSubMenuChoice("sub-menu", choice, True)

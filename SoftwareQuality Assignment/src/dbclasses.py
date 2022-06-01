@@ -1,3 +1,5 @@
+from gettext import install
+from msilib.schema import InstallUISequence
 import database as db
 import encryption as enc
 
@@ -75,7 +77,8 @@ def BuildDeleteList(loggedInUser):
     membersAndUsers = db.SelectAllFromTable("Members") + db.SelectAllFromTable("Users")
     currentlyMembers = True
     result = []
-    result.append("Members:")
+    if isinstance(membersAndUsers[0], Members):
+        result.append("Members:")
     for entry in membersAndUsers:
         if entry != None and entry != "":
             try:

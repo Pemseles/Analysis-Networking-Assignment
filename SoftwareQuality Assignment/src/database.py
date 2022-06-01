@@ -1,5 +1,7 @@
 import email
 from msilib.schema import Error
+
+from numpy import isin
 import dbclasses as dbc
 import encryption as enc
 from datetime import date
@@ -82,13 +84,34 @@ def InsertIntoUsersTable(registration_date, first_name, last_name, username, pas
         c.execute(""" INSERT INTO Users (registration_date, first_name, last_name, username, password, address, email_address, phone_number, role, role_name)
             VALUES(?,?,?,?,?,?,?,?,?,?)""",(registration_date, first_name, last_name, username, password, address, email_address, phone_number, role, role_name))
 
-def DeleteFromMembersTable():
+def DeleteFromTable(loggedInUser, target):
+    # delete from table
+    table = ""
+    filterDigit = 0
+    filter = ""
+    # check if target is member or user
+    if isinstance(target, dbc.Members):
+        if not loggedInUser.role == 0 and not loggedInUser.role == 1 and not loggedInUser.role == 2:
+            # logged in user is not authorized to delete member
+            return "Not authorized to delete member."
+        table = "Members"
+        filterDigit = target.membership_id
+        filter = "membership_id"
+    elif isinstance(target, dbc.Users):
+        if loggedInUser.role <= target.role and loggedInUser.role > 0 and loggedInUser.role < 3:
+            # logged in user is not authorized to delete user
+            return "Not authorized to delete user."
+        table = "Users"
+        filterDigit = target.id
+        filter = "id"
+    # preceed with deleting target
     with Create_Connection("database.db") as db:
-        print("delete from members table")
+        c = db.cursor()
+        print("deleting from table...")
 
-def DeleteFromUsersTable():
-    with Create_Connection("database.db") as db:
-        print("delete from users table")
+        # fill sql statement with table, filter and filterDigit & execute
+        c.execute(f"""DELETE FROM {table} WHERE {filter}={filterDigit}""")
+        db.commit()
 
 # only here for testing purposes & convenience
 def InsertStaticUsers():
