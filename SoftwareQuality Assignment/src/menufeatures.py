@@ -12,7 +12,7 @@ def ChangePassword(target, loggedInUser):
         return
     cm.LineInTerminal()
     print("New password must be at least 8 and at most 29 characters long & must contain at least 1 lowercase, uppercase, number and special character.")
-    print(f"To change {target.first_name} {target.last_name}'s password, please enter the following:\n(If, at any point, you wish to return to the sub-menu, enter 'x' for any input)\n")
+    print(f"To change {target.first_name} {target.last_name}'s password, please enter the following:\n")
 
     # inputs
     newPass = input("New password: ")
@@ -60,7 +60,7 @@ def AddMemberOrUser(loggedInUser, role):
     # required input-loops
     # check first & last names
     firstName = lastName = ""
-    while not ic.CheckFirstAndLastName(firstName, lastName):
+    while not ic.CheckFirstOrLastName(firstName) and not ic.CheckFirstOrLastName(lastName):
         firstName = input("First name: ")
         if HandleXInput(firstName): return "sub-menu"
         lastName = input("Last name: ")
@@ -120,6 +120,7 @@ def DeleteUserMember(loggedInUser):
     print("\nPlease select which of the following you want to remove from the system.\n")
     if loggedInUser.role != 1 and loggedInUser.role != 2:
         # logged in user does not have authentication to do this
+        # LOG: sus
         return
     # get list of deletable members/users (depends on logged in user's role)
     delListPrint = dbc.BuildUserAndMemberList(loggedInUser)
@@ -185,6 +186,7 @@ def ModifyInfoList(loggedInUser):
     print("\nPlease select which of the following you would like to modify.\n")
     if loggedInUser.role != 1 and loggedInUser.role != 2:
         # logged in user does not have authentication to do this
+        # LOG: sus
         return
     # get list of modifiable members/users (depends on logged in user's role)
     userMemberListPrint = dbc.BuildUserAndMemberList(loggedInUser)
@@ -229,6 +231,23 @@ def ModifyInfoList(loggedInUser):
         return InvalidSubMenuChoice("sub-menu", choice, True)
     return
 
-def UpdateInfo(loggedInUser, target, infoPiece):
-    
+def UpdateInfo(loggedInUser, target, infoPiece, isMember):
+    if isMember:
+        if loggedInUser.role < 0 or loggedInUser.role > 2:
+            # logged in user does not have authentication to do this
+            # LOG: sus
+            return
+    else:
+        if (loggedInUser.role < 0 or loggedInUser.role > 2) and loggedInUser.role <= target.role:
+            # logged in user does not have authentication to do this
+            # LOG: sus
+            return
+    print(f"To modify {target.first_name} {target.last_name}'s {infoPiece}, please enter the following:\n")
+    newInput = ""
+    if infoPiece == "Phone number":
+        newInput = "+31-6-" + input(f"New {infoPiece}: +31-6-")
+    else:
+        newInput = (f"New {infoPiece}: ")
+    # continue w figuring out how to build the tuple to pass to db update function
+
     return

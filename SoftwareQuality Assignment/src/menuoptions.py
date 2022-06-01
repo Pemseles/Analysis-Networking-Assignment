@@ -115,26 +115,21 @@ def HandleMenuOptionsAdd(option, loggedInUser):
 def HandleMenuOptionsModify(loggedInUser, target, isMember, option):
     # handles options of sub-menu of modifying information
     print(f"Inside HandleMenuOptionsModify; choice = {option}, user = {loggedInUser.username}")
+    # infoPiece will be passed to UpdateInfo()
+    optionNums = ["First name", "Last name", "Address", "Email address", "Phone number", "Registration date"]
+    infoPiece = ""
 
     if option == "x":
         # return to page 1
         print("\nReturning to main page...")
-    elif option == "1":
-        # change first name of target
-        print()
-    elif option == "2":
-        # change last name of target
-        print()
-    elif option == "3":
-        # change address of target
-        print()
-    elif option == "4":
-        # change email of target
-        print()
-    elif option == "5":
-        # change phone of target
-        print()
-    elif option == "6":
-        # update registration date to today
-        print()
+    try:
+        if int(option) >= 1 and int(option) <= 6:
+            # get infoPiece
+            infoPiece = optionNums[option - 1]
+            print(infoPiece)
+            return mf.UpdateInfo(loggedInUser, target, infoPiece, isMember)
+    except:
+        # return to sub-menu; invalid option
+        print(f"{option} was not recognised as a valid menu choice.")
+        return cm.ModifyInfoSubmenu(loggedInUser)
     return

@@ -79,29 +79,22 @@ def CheckUsername(username):
     # LOG: not sus
     return False
 
-def CheckFirstAndLastName(firstName, lastName):
+def CheckFirstOrLastName(name):
     # check if firstName or lastName is not ""; is for adding to system
-    if firstName == "" or lastName == "":
+    if name == "":
         return False
-
-    # checks if first & last names are actually something real, like a real name
-    if len(firstName) > 0 and len(lastName) > 0:
-        for letter in firstName:
+    # checks if first and/or last names are actually something real, like a real name
+    if len(name) > 0:
+        for letter in name:
             if not letter in (enc.AlphabetExtended(26, 97) + enc.AlphabetExtended(26, 65) + ["'", "-", "."]):
                 # firstname contains invalid character; invalid
-                print("First name contains invalid character.\n")
-                # LOG: not sus
-                return False
-        for letter in lastName:
-            if not letter in (enc.AlphabetExtended(26, 97) + enc.AlphabetExtended(26, 65) + ["'", "-", "."]):
-                # lastname contains invalid character; invalid
-                print("Last name contains invalid character.\n")
+                print("Name contains invalid character.\n")
                 # LOG: not sus
                 return False
         # first & last names were evaluated as valid as they passed every check
-        print("First & Last names are valid.\n")
+        print("Name is valid.\n")
         return True
-    print("First or Last name are of invalid length.\n")
+    print("Name is of invalid length.\n")
     # LOG: not sus
     return False
 

@@ -210,7 +210,13 @@ def UpdateMemberEntry(loggedInUser, newEntry):
         return "Nice Try"
     with Create_Connection("database.db", loggedInUser) as db:
         c = db.cursor()
-        c.execute("""UPDATE Members SET first_name = ? , last_name = ? , address = ? , email_address = ? , phone_number = ? WHERE membership_id = ?""", newEntry)
+        c.execute("""UPDATE Members 
+                    SET first_name = ? , 
+                        last_name = ? , 
+                        address = ? , 
+                        email_address = ? , 
+                        phone_number = ? 
+                    WHERE membership_id = ?""", newEntry)
         db.commit()
 
 if __name__ == '__main__':
