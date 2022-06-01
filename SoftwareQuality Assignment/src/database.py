@@ -8,7 +8,6 @@ from datetime import date
 import sqlite3
 
 def Create_Connection(db_file):
-    # TODO: add logged-in-user authentication
     conn = None
     try:
         conn = sqlite3.connect(db_file)
@@ -16,8 +15,10 @@ def Create_Connection(db_file):
         print(e)
     return conn
 
-def CreateMemberTable():
-    # TODO: add logged-in-user authentication
+def CreateMemberTable(loggedInUser):
+    if loggedInUser.role < 0 and loggedInUser.role > 2:
+        # LOG: sus
+        return "Nice Try"
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(""" CREATE TABLE IF NOT EXISTS Members (
@@ -30,8 +31,10 @@ def CreateMemberTable():
             phone_number text NOT NULL
             ); """)
 
-def CreateUserTable():
-    # TODO: add logged-in-user authentication
+def CreateUserTable(loggedInUser):
+    if loggedInUser.role < 0 and loggedInUser.role > 2:
+        # LOG: sus
+        return "Nice Try"
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(""" CREATE TABLE IF NOT EXISTS Users (
@@ -48,8 +51,10 @@ def CreateUserTable():
             role_name text NOT NULL
             ); """) # role defines if user is Advisor (0), System Admin (1) or Super Admin (2)
 
-def InsertIntoMembersTable(membership_id, registration_date, first_name, last_name, address, email_address, phone_number):
-    # TODO: add logged-in-user authentication
+def InsertIntoMembersTable(membership_id, registration_date, first_name, last_name, address, email_address, phone_number, loggedInUser):
+    if loggedInUser.role < 0 and loggedInUser.role > 2:
+        # LOG: sus
+        return "Nice Try"
     with Create_Connection("database.db") as db:
         c = db.cursor()
 
@@ -63,8 +68,10 @@ def InsertIntoMembersTable(membership_id, registration_date, first_name, last_na
         c.execute(""" INSERT INTO Members (membership_id, registration_date, first_name, last_name, address, email_address, phone_number) 
             VALUES(?,?,?,?,?,?,?)""",(membership_id, registration_date, first_name, last_name, address, email_address, phone_number))
 
-def InsertIntoUsersTable(registration_date, first_name, last_name, username, password, address, email_address, phone_number, role):
-    # TODO: add logged-in-user authentication
+def InsertIntoUsersTable(registration_date, first_name, last_name, username, password, address, email_address, phone_number, role, loggedInUser):
+    if loggedInUser.role < 1 and loggedInUser.role > 2:
+        # LOG: sus
+        return "Nice Try"
     with Create_Connection("database.db") as db:
         c = db.cursor()
 
@@ -138,7 +145,6 @@ def ConvertFetchToArray(fetched):
     return newArr
 
 def SelectAllFromTable(table_name):
-    # TODO: add logged-in-user authentication
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(f"""SELECT * FROM {table_name}""")
@@ -151,15 +157,16 @@ def SelectAllFromTable(table_name):
         return rows
 
 def SelectColumnFromTable(table_name, column_name):
-    # TODO: add logged-in-user authentication
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(f"""SELECT {column_name} FROM {table_name}""")
         rows = c.fetchall()
         return rows
 
-def SelectFilterUsersTable(column, filter):
-    # TODO: add logged-in-user authentication
+def SelectFilterUsersTable(loggedInUser, column, filter):
+    if loggedInUser.role < 0 and loggedInUser.role > 2:
+        # LOG: sus
+        return "Nice Try"
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(f"""SELECT * FROM Users WHERE {column} = {filter}""")
@@ -168,8 +175,10 @@ def SelectFilterUsersTable(column, filter):
             rows[i] = dbc.Users(*rows[i])
         return rows
 
-def SelectFilterMembersTable(column, filter):
-    # TODO: add logged-in-user authentication
+def SelectFilterMembersTable(loggedInUser, column, filter):
+    if loggedInUser.role < 0 and loggedInUser.role > 2:
+        # LOG: sus
+        return "Nice Try"
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(f"""SELECT * FROM Members WHERE {column} = {filter}""")
@@ -178,8 +187,10 @@ def SelectFilterMembersTable(column, filter):
             rows[i] = dbc.Members(*rows[i])
         return rows
 
-def UpdateUserEntry(newEntry):
-    # TODO: add logged-in-user authentication
+def UpdateUserEntry(loggedInUser, newEntry):
+    if loggedInUser.role < 1 and loggedInUser.role > 2:
+        # LOG: sus
+        return "Nice Try"
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(""" UPDATE Users 
@@ -193,9 +204,11 @@ def UpdateUserEntry(newEntry):
                     WHERE id = ?""", newEntry)
         db.commit()
 
-def UpdateMemberEntry(newEntry):
-    # TODO: add logged-in-user authentication
-    with Create_Connection("database.db") as db:
+def UpdateMemberEntry(loggedInUser, newEntry):
+    if loggedInUser.role < 0 and loggedInUser.role > 2:
+        # LOG: sus
+        return "Nice Try"
+    with Create_Connection("database.db", loggedInUser) as db:
         c = db.cursor()
         c.execute("""UPDATE Members SET first_name = ? , last_name = ? , address = ? , email_address = ? , phone_number = ? WHERE membership_id = ?""", newEntry)
         db.commit()

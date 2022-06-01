@@ -69,7 +69,7 @@ def AuthenticateCredentials(username, password):
             return i
     return 0
 
-def BuildDeleteList(loggedInUser):
+def BuildUserAndMemberList(loggedInUser):
     if loggedInUser.role != 1 and loggedInUser.role != 2:
         # logged in user cannot get list of members/users to delete
         return "Nice try, but you don't have the required authorization to see this."
