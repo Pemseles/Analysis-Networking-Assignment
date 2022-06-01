@@ -8,6 +8,7 @@ from datetime import date
 import sqlite3
 
 def Create_Connection(db_file):
+    # TODO: add logged-in-user authentication
     conn = None
     try:
         conn = sqlite3.connect(db_file)
@@ -16,6 +17,7 @@ def Create_Connection(db_file):
     return conn
 
 def CreateMemberTable():
+    # TODO: add logged-in-user authentication
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(""" CREATE TABLE IF NOT EXISTS Members (
@@ -29,6 +31,7 @@ def CreateMemberTable():
             ); """)
 
 def CreateUserTable():
+    # TODO: add logged-in-user authentication
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(""" CREATE TABLE IF NOT EXISTS Users (
@@ -46,6 +49,7 @@ def CreateUserTable():
             ); """) # role defines if user is Advisor (0), System Admin (1) or Super Admin (2)
 
 def InsertIntoMembersTable(membership_id, registration_date, first_name, last_name, address, email_address, phone_number):
+    # TODO: add logged-in-user authentication
     with Create_Connection("database.db") as db:
         c = db.cursor()
 
@@ -60,6 +64,7 @@ def InsertIntoMembersTable(membership_id, registration_date, first_name, last_na
             VALUES(?,?,?,?,?,?,?)""",(membership_id, registration_date, first_name, last_name, address, email_address, phone_number))
 
 def InsertIntoUsersTable(registration_date, first_name, last_name, username, password, address, email_address, phone_number, role):
+    # TODO: add logged-in-user authentication
     with Create_Connection("database.db") as db:
         c = db.cursor()
 
@@ -93,6 +98,7 @@ def DeleteFromTable(loggedInUser, target):
     if isinstance(target, dbc.Members):
         if not loggedInUser.role == 0 and not loggedInUser.role == 1 and not loggedInUser.role == 2:
             # logged in user is not authorized to delete member
+            # LOG: sus
             return "Not authorized to delete member."
         table = "Members"
         filterDigit = target.membership_id
@@ -100,6 +106,7 @@ def DeleteFromTable(loggedInUser, target):
     elif isinstance(target, dbc.Users):
         if loggedInUser.role <= target.role and loggedInUser.role > 0 and loggedInUser.role < 3:
             # logged in user is not authorized to delete user
+            # LOG: sus
             return "Not authorized to delete user."
         table = "Users"
         filterDigit = target.id
@@ -131,6 +138,7 @@ def ConvertFetchToArray(fetched):
     return newArr
 
 def SelectAllFromTable(table_name):
+    # TODO: add logged-in-user authentication
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(f"""SELECT * FROM {table_name}""")
@@ -143,6 +151,7 @@ def SelectAllFromTable(table_name):
         return rows
 
 def SelectColumnFromTable(table_name, column_name):
+    # TODO: add logged-in-user authentication
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(f"""SELECT {column_name} FROM {table_name}""")
@@ -150,6 +159,7 @@ def SelectColumnFromTable(table_name, column_name):
         return rows
 
 def SelectFilterUsersTable(column, filter):
+    # TODO: add logged-in-user authentication
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(f"""SELECT * FROM Users WHERE {column} = {filter}""")
@@ -159,6 +169,7 @@ def SelectFilterUsersTable(column, filter):
         return rows
 
 def SelectFilterMembersTable(column, filter):
+    # TODO: add logged-in-user authentication
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(f"""SELECT * FROM Members WHERE {column} = {filter}""")
@@ -168,6 +179,7 @@ def SelectFilterMembersTable(column, filter):
         return rows
 
 def UpdateUserEntry(newEntry):
+    # TODO: add logged-in-user authentication
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(""" UPDATE Users 
@@ -182,6 +194,7 @@ def UpdateUserEntry(newEntry):
         db.commit()
 
 def UpdateMemberEntry(newEntry):
+    # TODO: add logged-in-user authentication
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute("""UPDATE Members SET first_name = ? , last_name = ? , address = ? , email_address = ? , phone_number = ? WHERE membership_id = ?""", newEntry)

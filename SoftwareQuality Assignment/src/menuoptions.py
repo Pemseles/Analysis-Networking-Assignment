@@ -1,3 +1,4 @@
+from socket import create_server
 import consolemenus as cm
 import encryption as enc
 import database as db
@@ -18,6 +19,11 @@ def InvalidSubMenuChoice(returnStr, choice, newLine=False):
         cm.LineInTerminal()
     print(f"{choice} was not recognized as a valid menu choice.")
     return returnStr
+
+def HandleXInput(input):
+    if input == "x":
+        return True
+    return False
 
 def HandleSystemScreenOption(choice):
     # will keep user in the loop until they input 1 or 2, 1 brings them to loginscreen, 2 terminates program
@@ -77,7 +83,6 @@ def HandleMenuOptions(option, loggedInUser):
         print("implement search through/view list of members/users (2 options, depends on authorization lvl)")
     # delete existing member/user
     elif option == 5:
-        print("implement delete existing member/user (depends on auth lvl)")
         return DeleteUserMember(loggedInUser)
     # temp reset existing user's password
     elif option == 6:
@@ -101,10 +106,10 @@ def HandleMenuOptionsAdd(option, loggedInUser):
         print("\nReturning to main page...")
     elif option == "1":
         # proceed to add member
-        return AddMember(loggedInUser)
+        return AddMemberOrUser(loggedInUser, -1)
     elif (option == "2" and loggedInUser.role > 0) or (option == "3" and loggedInUser.role > 1):
         # proceed to add user
-        return AddUser(int(option) - 2, loggedInUser)
+        return AddMemberOrUser(loggedInUser, int(option) - 2)
     else:
         # if anything else is inputted
         print(f"{option} was not recognised as a valid menu choice.")
@@ -117,7 +122,7 @@ def ChangePassword(target, loggedInUser):
         return
     cm.LineInTerminal()
     print("New password must be at least 8 and at most 29 characters long & must contain at least 1 lowercase, uppercase, number and special character.")
-    print(f"To change {target.first_name} {target.last_name}'s password, please enter the following:\n")
+    print(f"To change {target.first_name} {target.last_name}'s password, please enter the following:\n(If, at any point, you wish to return to the sub-menu, enter 'x' for any input)\n")
 
     # inputs
     newPass = input("New password: ")
@@ -138,73 +143,88 @@ def ChangePassword(target, loggedInUser):
         print("\nPassword change failed; new password did not meet requirements.")
     return
 
-def AddMember(loggedInUser):
-    if loggedInUser.role < 0 and loggedInUser.role > 3:
-        # logged in user does not have authentication to do this
-        return
-    print("\nTo add a member to the system, please enter the following credentials.\n")
-
-    # required inputs
-    firstName = input("First name: ")
-    lastName = input("Last name: ")
-    addressStreet = input("Address part 1/4 (Street name): ")
-    addressHouseNum = input("Address part 2/4 (House number): ")
-    addressZip = input("Address part 3/4 (Zip Code [DDDDXX]): ")
-    addressCity = input("Address part 4/4 (City; Check list of valid cities in user manual): ")
-    email = input("Email Address: ")
-    phone = "+31-6-" + input("Mobile Phone (Must be 8 digits after pre-set value): +31-6-")
-
-    # check if inputs are valid
-    if ic.CheckFirstAndLastName(firstName, lastName) and ic.CheckAddress(addressStreet, addressHouseNum, addressZip, addressCity) and ic.CheckEmail(email) and ic.CheckPhone(phone):
-        print("Inputs passed all evaluation, adding Member...")
-        # get registrationDate, memberId and merge the 4 address-parts together
-        registrationDate = date.today().strftime("%d-%m-%y")
-        memberId = ic.GenerateMemberID()
-        address = f"{addressStreet} {addressHouseNum} {addressZip} {addressCity.upper()}"
-
-        # insert new user into database & return to same sub-menu (easier to add more than 1)
-        db.InsertIntoMembersTable(memberId, registrationDate, firstName, lastName, address, email, phone)
-        return "sub-menu"
+def AddMemberOrUser(loggedInUser, role):
+    if loggedInUser.role < 0 or loggedInUser.role > 2:
+        # insufficient authorization to perform adding to system; somehow logged in user has impossible role
+        # LOG: sus
+        return 
+    addingMember = True
+    if ((role == 0 or role == 1) and loggedInUser.role > role):
+        # adding user
+        print("adding user")
+        addingMember = False
+    elif (role == -1 and (loggedInUser.role >= 0 or loggedInUser.role <= 2)):
+        # adding member
+        print("adding member")
+        addingMember = True
     else:
-        # some input was incorrect, return to main page
-        print("At least one input was invalid, please try again.")
+        # either insufficient authorization to perform or role is somehow wrong
+        # LOG: sus
         return
     
-def AddUser(role, loggedInUser):
-    if role != 0 and role != 1 and loggedInUser.role != 1 and loggedInUser.role != 2:
-        # logged in user does not have authentication to do this or input is incorrect
-        return
-    roleName = "Advisor" if role == 0 else "System Admin"
+    # get print statement info
+    roleName = "Advisor" if role == 0 else "Member" if role == -1 else "System Admin"
     printReferTo = "an" if role == 0 else "a"
-    print(f"\nTo add {printReferTo} {roleName} to the system, please enter the following credentials.\n")
+    print(f"\nTo add {printReferTo} {roleName} to the system, please enter the following credentials.\n(If, at any point, you wish to return to the sub-menu, enter 'x' for any input)\n")
     
-    # several many inputs
-    firstName = input("First name: ")
-    lastName = input("Last name: ")
-    username = input("Username: ")
-    password = input("Password: ")
-    addressStreet = input("Address part 1/4 (Street name): ")
-    addressHouseNum = input("Address part 2/4 (House number): ")
-    addressZip = input("Address part 3/4 (Zip Code [DDDDXX]): ")
-    addressCity = input("Address part 4/4 (City; Check list of valid cities in user manual): ")
-    email = input("Email Address: ")
-    phone = "+31-6-" + input("Mobile Phone (Must be 8 digits after pre-set value): +31-6-")
+    # required input-loops
+    # check first & last names
+    firstName = lastName = ""
+    while not ic.CheckFirstAndLastName(firstName, lastName):
+        firstName = input("First name: ")
+        if HandleXInput(firstName): return "sub-menu"
+        lastName = input("Last name: ")
+        if HandleXInput(lastName): return "sub-menu"
+    # 2 user only fields; username & password
+    if not addingMember:
+        # check username
+        username = ""
+        while not ic.CheckUsername(username):
+            username = input("\nUsername: ")
+            if HandleXInput(username): return "sub-menu"
+        # check password
+        password = ""
+        while not ic.CheckPassword(password):
+            password = input("\nPassword: ")
+            if HandleXInput(password): return "sub-menu"
+    # check address
+    addressStreet = addressHouseNum = addressZip = addressCity = ""
+    while not ic.CheckAddress(addressStreet, addressHouseNum, addressZip, addressCity):
+        addressStreet = input("Address part 1/4 (Street name): ")
+        if HandleXInput(addressStreet): return "sub-menu"
+        addressHouseNum = input("Address part 2/4 (House number): ")
+        if HandleXInput(addressHouseNum): return "sub-menu"
+        addressZip = input("Address part 3/4 (Zip Code [DDDDXX]): ")
+        if HandleXInput(addressZip): return "sub-menu"
+        addressCity = input("Address part 4/4 (City; Check list of valid cities in user manual): ")
+        if HandleXInput(addressCity): return "sub-menu"
+    # check email
+    email = ""
+    while not ic.CheckEmail(email):
+        email = input("Email Address: ")
+        if HandleXInput(email): return "sub-menu"
+    # check phone
+    phone = ""
+    while not ic.CheckPhone(phone):
+        phone = "+31-6-" + input("Mobile Phone (Must be 8 digits after pre-set value): +31-6-")
+        if HandleXInput(phone): return "sub-menu"
+    
+    # inputs were evaluated as valid
+    print(f"\nInputs passed all evaluation, adding {roleName}...")
 
-    # check if inputs are valid
-    if ic.CheckFirstAndLastName(firstName, lastName) and ic.CheckAddress(addressStreet, addressHouseNum, addressZip, addressCity) and ic.CheckEmail(email) and ic.CheckPhone(phone) and ic.CheckPassword(password) and ic.CheckUsername(username):
-        print(f"inputs passed all evaluation, adding {roleName}...")
-        # get registrationDate, memberId and merge the 4 address-parts together
-        registrationDate = date.today().strftime("%d-%m-%y")
+    # get registrationDate (if adding member), memberId and merge the 4 address-parts together
+    registrationDate = date.today().strftime("%d-%m-%y")
+    if addingMember:
         memberId = ic.GenerateMemberID()
-        address = f"{addressStreet} {addressHouseNum} {addressZip} {addressCity.upper()}"
+    address = f"{addressStreet} {addressHouseNum} {addressZip} {addressCity.upper()}"
 
-        # insert new user into database & return to same sub-menu (easier to add more than 1)
-        db.InsertIntoUsersTable(registrationDate, firstName, lastName, username, password, address, email, phone, role)
-        return "sub-menu"
+    # insert new member/user into database & return to same sub-menu (easier to add more than 1)
+    if addingMember:
+        db.InsertIntoMembersTable(memberId, registrationDate, firstName, lastName, address, email, phone)
     else:
-        # some input was incorrect, return to main page
-        print("At least one input was invalid, please try again.")
-        return
+        db.InsertIntoUsersTable(registrationDate, firstName, lastName, username, password, address, email, phone, role)
+
+    return "sub-menu"
 
 def DeleteUserMember(loggedInUser):
     print("\nPlease select which of the following you want to remove from the system.\n")
