@@ -73,6 +73,7 @@ def HandleMenuOptions(option, loggedInUser):
     # change existing member's/user's info
     elif option == 3:
         print("implement change member/user info (3 options, depends on authorization lvl)")
+        return mf.ModifyInfoList(loggedInUser)
     # search through/view list of members/users
     elif option == 4:
         print("implement search through/view list of members/users (2 options, depends on authorization lvl)")
@@ -109,4 +110,31 @@ def HandleMenuOptionsAdd(option, loggedInUser):
         # if anything else is inputted
         print(f"{option} was not recognised as a valid menu choice.")
         return cm.AddToSystemSubmenu(loggedInUser)
+    return
+
+def HandleMenuOptionsModify(loggedInUser, target, isMember, option):
+    # handles options of sub-menu of modifying information
+    print(f"Inside HandleMenuOptionsModify; choice = {option}, user = {loggedInUser.username}")
+
+    if option == "x":
+        # return to page 1
+        print("\nReturning to main page...")
+    elif option == "1":
+        # change first name of target
+        print()
+    elif option == "2":
+        # change last name of target
+        print()
+    elif option == "3":
+        # change address of target
+        print()
+    elif option == "4":
+        # change email of target
+        print()
+    elif option == "5":
+        # change phone of target
+        print()
+    elif option == "6":
+        # update registration date to today
+        print()
     return

@@ -180,3 +180,55 @@ def DeleteUserMember(loggedInUser):
     except:
         # LOG: not sus
         return InvalidSubMenuChoice("sub-menu", choice, True)
+
+def ModifyInfoList(loggedInUser):
+    print("\nPlease select which of the following you would like to modify.\n")
+    if loggedInUser.role != 1 and loggedInUser.role != 2:
+        # logged in user does not have authentication to do this
+        return
+    # get list of modifiable members/users (depends on logged in user's role)
+    userMemberListPrint = dbc.BuildUserAndMemberList(loggedInUser)
+    # userMemberInstances is here to easily get the chosen thing to modify
+    userMemberInstances = []
+    noMembers = False
+    # print entries & add them to userMemberInstances
+    if not isinstance(userMemberListPrint[1], dbc.Members):
+        noMembers = True
+    for entry in userMemberListPrint:
+        # print members
+        if isinstance(entry, dbc.Members):
+            print(f"{userMemberListPrint.index(entry)} ) {entry.GetInfo(loggedInUser)}")
+            userMemberInstances.append(entry)
+        # print users (if no users, the option offset is -1 to make sure it doesn't start with 0)
+        elif isinstance(entry, dbc.Users):
+            if not noMembers:
+                print(f"{userMemberListPrint.index(entry) - 1} ) {entry.GetProfile(loggedInUser)}")
+            elif noMembers:
+                print(f"{userMemberListPrint.index(entry)} ) {entry.GetProfile(loggedInUser)}")
+            userMemberInstances.append(entry)
+        else:
+            print(entry)
+    print("\nx ) Return to main menu.")
+    
+    choice = input("\nOption choice: ")
+
+    # validate if choice is actually possible
+    if choice == "x":
+        print("Returning to main menu.")
+        return
+    try:
+        if int(choice) >= 1 and int(choice) <= len(delListInstances):
+            # get entry and check if it's a member or not
+            chosenEntry = delListInstances[int(choice) - 1]
+            isMember = True if isinstance(chosenEntry, dbc.Members) else False
+
+
+        return InvalidSubMenuChoice("sub-menu", choice, True)
+    except:
+        # LOG: not sus
+        return InvalidSubMenuChoice("sub-menu", choice, True)
+    return
+
+def UpdateInfo(loggedInUser, target, infoPiece):
+    
+    return
