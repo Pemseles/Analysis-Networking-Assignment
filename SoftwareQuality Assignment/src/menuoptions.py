@@ -78,7 +78,7 @@ def HandleMenuOptions(option, loggedInUser):
         return mf.ModifyInfoList(loggedInUser)
     # search through/view list of members/users
     elif option == 4:
-        print("implement search through/view list of members/users (2 options, depends on authorization lvl)")
+        return cm.SearchDatabase(loggedInUser)
     # delete existing member/user
     elif option == 5:
         return mf.DeleteUserMember(loggedInUser)
@@ -145,3 +145,20 @@ def DecideCheckFunction(loggedInUser, infoPiece, newInput, houseNum = "", zipCod
     elif infoPiece == "Phone number":
         return ic.CheckPhone(newInput)
     return False
+
+def HandleMenuOptionsSearch(loggedInUser, option):
+    # handles options of sub-menu of search-results
+    print(f"Inside HandleMenuOptionsSearch; choice = {option}, user = {loggedInUser.username}")
+
+    if option == "x":
+        # return to page 1
+        print("\nReturning to main page...")
+        return
+    elif option == "r":
+        # re-enter search sub-menu
+        print("returning to sub-menu TEMP")
+        return "sub-menu"
+    else:
+        # input was not recognized
+        print(f"{option} was not recognised as a valid menu choice. (search sub-handler)")
+        return cm.SearchDatabase(loggedInUser)

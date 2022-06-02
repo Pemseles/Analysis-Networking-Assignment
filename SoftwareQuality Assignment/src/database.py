@@ -163,30 +163,6 @@ def SelectColumnFromTable(table_name, column_name):
         rows = c.fetchall()
         return rows
 
-def SelectFilterUsersTable(loggedInUser, column, filter):
-    if loggedInUser.role < 0 and loggedInUser.role > 2:
-        # LOG: sus
-        return "Nice Try"
-    with Create_Connection("database.db") as db:
-        c = db.cursor()
-        c.execute(f"""SELECT * FROM Users WHERE {column} = {filter}""")
-        rows = c.fetchall()
-        for i in range(len(rows)):
-            rows[i] = dbc.Users(*rows[i])
-        return rows
-
-def SelectFilterMembersTable(loggedInUser, column, filter):
-    if loggedInUser.role < 0 and loggedInUser.role > 2:
-        # LOG: sus
-        return "Nice Try"
-    with Create_Connection("database.db") as db:
-        c = db.cursor()
-        c.execute(f"""SELECT * FROM Members WHERE {column} = {filter}""")
-        rows = c.fetchall()
-        for i in range(len(rows)):
-            rows[i] = dbc.Members(*rows[i])
-        return rows
-
 def UpdateUserEntry(loggedInUser, newEntry):
     if loggedInUser.role < 1 and loggedInUser.role > 2:
         # LOG: sus

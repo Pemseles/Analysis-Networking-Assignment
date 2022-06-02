@@ -116,12 +116,17 @@ def AddMemberOrUser(loggedInUser, role):
 
     return "sub-menu"
 
-def PrintUserMemberList(loggedInUser):
+def PrintUserMemberList(loggedInUser, filter = ""):
     # get list of members/users (depends on logged in user's role)
-    listPrint = dbc.BuildUserAndMemberList(loggedInUser)
+    listPrint = dbc.BuildUserAndMemberList(loggedInUser, filter)
     # listInstances contain only the members & users
     listInstances = []
     noMembers = False
+
+    if listPrint[0] == "There were no results matching your request.":
+        print(listPrint[0])
+        print("\nx ) Return to main menu.")
+        return listPrint
 
     # prints entries & adds them to listInstances
     if not isinstance(listPrint[1], dbc.Members):
@@ -131,8 +136,9 @@ def PrintUserMemberList(loggedInUser):
         if isinstance(entry, dbc.Members):
             print(f"{listPrint.index(entry)} ) {entry.GetInfo(loggedInUser)}")
             listInstances.append(entry)
+
         # print users (if no users, the option offset is -1 to make sure it doesn't start with 0)
-        elif isinstance(entry, dbc.Users):
+        elif isinstance(entry, dbc.Users) and loggedInUser.role > entry.role:
             if not noMembers:
                 print(f"{listPrint.index(entry) - 1} ) {entry.GetProfile(loggedInUser)}")
             elif noMembers:

@@ -69,14 +69,39 @@ def AuthenticateCredentials(username, password):
             return i
     return 0
 
-def BuildUserAndMemberList(loggedInUser):
+def BuildUserAndMemberList(loggedInUser, filter):
     if loggedInUser.role < 0 or loggedInUser.role > 2:
         # logged in user cannot get list of members/users to delete
         return "Nice try, but you don't have the required authorization to see this."
     # builds a list of members & users that logged in user is able to delete
-    membersAndUsers = db.SelectAllFromTable("Members") + db.SelectAllFromTable("Users")
+    if filter == "":
+        membersAndUsers = db.SelectAllFromTable("Members") + db.SelectAllFromTable("Users")
+    else:
+        # check filter
+        if filter == " ":
+            filter = ""
+        filter = filter.lower()
+        # get members&users, then apply filter
+        membersAndUsers = []
+        beforeFilterMembersAndUsers = db.SelectAllFromTable("Members") + db.SelectAllFromTable("Users")
+        for entry in beforeFilterMembersAndUsers:
+            # filters entries based on what the user gets to see (Members pretty much all info, Users only their profiles)
+            if isinstance(entry, Members) and (loggedInUser.role >= 0 and loggedInUser.role <= 2):
+                # checks if filter is substring of first/last name, address, email, phone num, membership_id or registration date of Member
+                if filter in entry.first_name.lower() or filter in entry.last_name.lower() or filter in entry.address.lower() or filter in entry.email_address or filter in entry.phone_number or filter in str(entry.membership_id) or filter in str(entry.registration_date):
+                    membersAndUsers.append(entry)
+            elif isinstance(entry, Users) and (loggedInUser.role > 0 and loggedInUser.role <= 2 and loggedInUser.role > entry.role):
+                # checks if filter is substring of first/last name, role_name, id or registration date
+                if filter in entry.first_name.lower() or filter in entry.last_name.lower() or filter in entry.role_name.lower() or filter in str(entry.id) or filter in str(entry.registration_date):
+                    membersAndUsers.append(entry)
+
     currentlyMembers = True
     result = []
+    # make sure there is more than 1 result
+    if len(membersAndUsers) < 1:
+        result.append("There were no results matching your request.")
+        return result
+
     if isinstance(membersAndUsers[0], Members):
         result.append("Members:")
     for entry in membersAndUsers:

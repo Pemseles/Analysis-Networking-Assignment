@@ -3,6 +3,7 @@ import os
 import database as db
 import dbclasses as dbc
 import menuoptions as mo
+import menufeatures as mf
 
 def ClearTerminal():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -134,3 +135,19 @@ def ModifyInfoSubmenu(loggedInUser, target, isMember):
 
     menuChoice = input("\nOption choice: ")
     return mo.HandleMenuOptionsModify(loggedInUser, target, isMember, menuChoice)
+
+def SearchDatabase(loggedInUser):
+    # sub-menu where user can enter any string and get a list of members & users that have any of their columns contain the string
+    LineInTerminal()
+    print(f"Please enter a search-parameter. Any entry that contains your input will be returned.\n(Note that first & last names are seperate and that entering nothing will return everything)\n")
+
+    filter = input("Search-parameter: ")
+    if filter == "": filter = " "
+    print("The following results matched your input:\n")
+
+    mf.PrintUserMemberList(loggedInUser, filter)
+
+    print("r ) Search again using a new parameter.")
+    
+    menuChoice = input("\nOption choice: ")
+    return mo.HandleMenuOptionsSearch(loggedInUser, menuChoice)
