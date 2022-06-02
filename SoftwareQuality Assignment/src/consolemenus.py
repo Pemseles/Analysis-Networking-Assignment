@@ -4,6 +4,7 @@ import database as db
 import dbclasses as dbc
 import menuoptions as mo
 import menufeatures as mf
+import logfeatures as lg
 
 def ClearTerminal():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -151,3 +152,7 @@ def SearchDatabase(loggedInUser):
     
     menuChoice = input("\nOption choice: ")
     return mo.HandleMenuOptionsSearch(loggedInUser, menuChoice)
+
+def ViewLogMenu(loggedInUser):
+
+    return

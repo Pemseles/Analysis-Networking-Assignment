@@ -9,10 +9,10 @@ x database
 x database encryption
 - log file
 - log file encryption
-- advisor functionalities
+x advisor functionalities
 - system admin functionalities
 - superadmin functionalities
-- search function
+x search function
 - database & log backup creation
 - database & log backup restoring
 - user manual

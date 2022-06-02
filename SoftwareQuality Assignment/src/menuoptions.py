@@ -93,7 +93,7 @@ def HandleMenuOptions(option, loggedInUser):
         print("implement restore database from back-up")
     # view system's log file
     elif option == 9:
-        print("implement view system's log file")
+        return cm.ViewLogMenu(loggedInUser)
 
 def HandleMenuOptionsAdd(option, loggedInUser):
     # handles options of sub-menu of adding member/user to system

@@ -4,11 +4,13 @@ import database as db
 import dbclasses as dbc
 import encryption as enc
 import inputchecks as ic
+import logfeatures as lg
 from datetime import date
 
 def ChangePassword(target, loggedInUser):
     if loggedInUser.role <= target.role and not loggedInUser.id == target.id:
         # logged in user has same authorization as target and target is not the logged in user themselves
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, f"Unauthorized attempt to change {target.username}'s password", "Password has remained unchanged"))
         return
     cm.LineInTerminal()
     print("New password must be at least 8 and at most 29 characters long & must contain at least 1 lowercase, uppercase, number and special character.")
@@ -24,32 +26,34 @@ def ChangePassword(target, loggedInUser):
         encryptedArr = enc.EncryptTupleOrArray((target.first_name, target.last_name, target.username, newPass, target.address, target.email_address, target.phone_number)) + [target.id]
         db.UpdateUserEntry(loggedInUser, tuple(encryptedArr))
         print("\nPassword changed successfully. Logging out...")
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, f"Successfully changed {target.username}'s password", "User's new password passed all checks and the database has been updated"))
         return "logout"
     elif newPass != newPassRepeat:
         # password repeat was not the same
         print("\nPassword change failed; did not repeat exact password.")
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Failed attempt at changing password", "User did not repeat exact password"))
     else:
         # password did not meet requirements
         print("\nPassword change failed; new password did not meet requirements.")
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Failed attempt at changing password", "User's new password did not meet requirements"))
     return
 
 def AddMemberOrUser(loggedInUser, role):
     if loggedInUser.role < 0 or loggedInUser.role > 2:
         # insufficient authorization to perform adding to system; somehow logged in user has impossible role
-        # LOG: sus
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt at adding user/member", "User did not have a sufficient role to attempt adding to the system"))
         return 
     addingMember = True
     if ((role == 0 or role == 1) and loggedInUser.role > role):
         # adding user
-        print("adding user")
         addingMember = False
     elif (role == -1 and (loggedInUser.role >= 0 or loggedInUser.role <= 2)):
         # adding member
-        print("adding member")
         addingMember = True
     else:
         # either insufficient authorization to perform or role is somehow wrong
         # LOG: sus
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt at adding user/member", "User did not have a sufficient role to attempt adding to the system"))
         return
     
     # get print statement info
@@ -333,3 +337,12 @@ def UpdateInfo(loggedInUser, target, infoPiece, isMember):
         print(f"{choice} was not recognised as a valid menu choice; ending process of modification...")
         # LOG: not sus
         return mo.InvalidSubMenuChoice("sub-menu", choice, True)
+    
+def ViewLog(loggedInUser):
+    if loggedInUser.role != 1 or loggedInUser.role != 2:
+        # does not have authentication to view log file
+        # LOG: sus
+        return
+
+    
+    return
