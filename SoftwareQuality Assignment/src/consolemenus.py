@@ -123,14 +123,14 @@ def AddToSystemSubmenu(loggedInUser):
 def ModifyInfoSubmenu(loggedInUser, target, isMember):
     # sub-menu to decide what specific piece of info to change
     LineInTerminal()
-    print("Please select which specific information you would like to modify.\n")
+    print(f"Please select which you would like to modify (Current choice = {target.first_name} {target.last_name}).\n")
     print("1 ) Change first name.")
     print("2 ) Change last name.")
     print("3 ) Change address.")
     print("4 ) Change email address.")
     print("5 ) Change phone number.")
     print("6 ) Update registration date to today.")
-    print("x ) Return to main menu.")
+    print("x ) Return to previous member & user overview.")
 
     menuChoice = input("\nOption choice: ")
     return mo.HandleMenuOptionsModify(loggedInUser, target, isMember, menuChoice)

@@ -191,6 +191,7 @@ def UpdateUserEntry(loggedInUser, newEntry):
     if loggedInUser.role < 1 and loggedInUser.role > 2:
         # LOG: sus
         return "Nice Try"
+    print(f"in UpdateUserEntry: {newEntry}")
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(""" UPDATE Users 
@@ -208,7 +209,8 @@ def UpdateMemberEntry(loggedInUser, newEntry):
     if loggedInUser.role < 0 and loggedInUser.role > 2:
         # LOG: sus
         return "Nice Try"
-    with Create_Connection("database.db", loggedInUser) as db:
+    print(f"in UpdateMemberEntry: {newEntry}")
+    with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute("""UPDATE Members 
                     SET first_name = ? , 
@@ -217,6 +219,30 @@ def UpdateMemberEntry(loggedInUser, newEntry):
                         email_address = ? , 
                         phone_number = ? 
                     WHERE membership_id = ?""", newEntry)
+        db.commit()
+
+def UpdateRegistrationDateMember(loggedInUser, newEntry):
+    if loggedInUser.role < 0 and loggedInUser.role > 2:
+        # LOG: sus
+        return "Nice Try"
+    print(f"in UpdateRegistrationDateMember: {newEntry}")
+    with Create_Connection("database.db") as db:
+        c = db.cursor()
+        c.execute("""UPDATE Members
+                    SET registration_date = ?
+                    WHERE membership_id = ?""", newEntry)
+        db.commit()
+
+def UpdateRegistrationDateUser(loggedInUser, newEntry):
+    if loggedInUser.role < 1 and loggedInUser.role > 2:
+        # LOG: sus
+        return "Nice Try"
+    print(f"in UpdateRegistrationDateUser: {newEntry}")
+    with Create_Connection("database.db") as db:
+        c = db.cursor()
+        c.execute("""UPDATE Users
+                    SET registration_date = ?
+                    WHERE id = ?""", newEntry)
         db.commit()
 
 if __name__ == '__main__':

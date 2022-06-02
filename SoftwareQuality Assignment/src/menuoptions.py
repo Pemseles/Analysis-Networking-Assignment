@@ -1,5 +1,6 @@
 import consolemenus as cm
 import menufeatures as mf
+import inputchecks as ic
 import encryption as enc
 
 def MainMenuPageShortcut(pagenum, loggedInUser):
@@ -12,7 +13,7 @@ def MainMenuPageShortcut(pagenum, loggedInUser):
 def InvalidSubMenuChoice(returnStr, choice, newLine=False):
     if newLine:
         cm.LineInTerminal()
-    print(f"{choice} was not recognized as a valid menu choice.")
+    print(f"{choice} was not recognised as a valid menu choice.")
     return returnStr
 
 def HandleXInput(input):
@@ -45,6 +46,8 @@ def HandleMenuOptionBase(choice, pagenum, loggedInUser):
     else:
         if choice in enc.AlphabetExtended(10, 48):
             if pagenum == 1 and (int(choice) >= 1 and int(choice) <= 4) or (pagenum == 2 and (int(choice) >= 1 and int(choice) <= 5)):
+                # where most of them go to sub-menus
+                # depending on return, can re-enter the same menu indefinitely
                 result = ""
                 if pagenum == 2:
                     choice = str(int(choice) + 4)
@@ -54,9 +57,9 @@ def HandleMenuOptionBase(choice, pagenum, loggedInUser):
                 if result == "logout":
                     return
             else:
-                print(f"{choice} was not recognised as a valid menu choice.")
+                print(f"{choice} was not recognised as a valid menu choice. (base handler; inner)")
         else:
-            print(f"{choice} was not recognised as a valid menu choice.")
+            print(f"{choice} was not recognised as a valid menu choice. (base handler; outer)")
     # return to the page logged in user was on previously
     return MainMenuPageShortcut(pagenum, loggedInUser)
 
@@ -72,7 +75,6 @@ def HandleMenuOptions(option, loggedInUser):
         return cm.AddToSystemSubmenu(loggedInUser)
     # change existing member's/user's info
     elif option == 3:
-        print("implement change member/user info (3 options, depends on authorization lvl)")
         return mf.ModifyInfoList(loggedInUser)
     # search through/view list of members/users
     elif option == 4:
@@ -108,7 +110,7 @@ def HandleMenuOptionsAdd(option, loggedInUser):
         return mf.AddMemberOrUser(loggedInUser, int(option) - 2)
     else:
         # if anything else is inputted
-        print(f"{option} was not recognised as a valid menu choice.")
+        print(f"{option} was not recognised as a valid menu choice. (add sub-handler)")
         return cm.AddToSystemSubmenu(loggedInUser)
     return
 
@@ -122,14 +124,24 @@ def HandleMenuOptionsModify(loggedInUser, target, isMember, option):
     if option == "x":
         # return to page 1
         print("\nReturning to main page...")
-    try:
+        return
+    if option in enc.AlphabetExtended(10, 48):
         if int(option) >= 1 and int(option) <= 6:
             # get infoPiece
-            infoPiece = optionNums[option - 1]
-            print(infoPiece)
+            infoPiece = optionNums[int(option) - 1]
             return mf.UpdateInfo(loggedInUser, target, infoPiece, isMember)
-    except:
+    else:
         # return to sub-menu; invalid option
-        print(f"{option} was not recognised as a valid menu choice.")
+        print(f"{option} was not recognised as a valid menu choice. (modify sub-handler)")
         return cm.ModifyInfoSubmenu(loggedInUser)
-    return
+
+def DecideCheckFunction(loggedInUser, infoPiece, newInput, houseNum = "", zipCode = "", city = ""):
+    if infoPiece == "First name" or infoPiece == "Last name":
+        return ic.CheckFirstOrLastName(newInput)
+    elif infoPiece == "Address":
+        return ic.CheckAddress(newInput, houseNum, zipCode, city)
+    elif infoPiece == "Email address":
+        return ic.CheckEmail(newInput)
+    elif infoPiece == "Phone number":
+        return ic.CheckPhone(newInput)
+    return False
