@@ -198,5 +198,8 @@ def ViewLogMenu(loggedInUser):
         # unauthorized
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Unauthorized attempt to access view log sub-menu", "User attempted to access view log sub-menu (is only for System Administrators or higher)"))
         return
-    # continue here
-    return
+    LineInTerminal()
+    print(f"To view the first 15 entries in the log file, press 'v'\nTo load 15 more entries, press 'n'\nTo return back to the main page, press 'x'\n")
+    
+    menuChoice = input("\nOption choice: ")
+    return mo.HandleMenuOptionsLog(loggedInUser, menuChoice)

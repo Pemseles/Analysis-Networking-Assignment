@@ -169,3 +169,23 @@ def HandleMenuOptionsSearch(loggedInUser, option):
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when deciding what to do after searching through members/users"))
         print(f"{option} was not recognised as a valid menu choice. (search sub-handler)")
         return cm.SearchDatabase(loggedInUser)
+
+def HandleMenuOptionsLog(loggedInUser, option):
+    # handles options of sub-menu of viewing log file
+    print(f"Inside HandleMenuOptionsLog; choice = {option}, user = {loggedInUser.username}")
+
+    if option == "x":
+        # return to main menu
+        print("\nReturning to main page...")
+        return
+    elif option == "v":
+        # load most recent 15 entries
+        return
+    elif option == "n":
+        # load 15 more entries
+        return
+    else:
+        # invalid option
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when attempting to view log file"))
+        print(f"{option} was not recognised as a valid menu choice. (search sub-handler)")
+        return cm.ViewLogMenu(loggedInUser)
