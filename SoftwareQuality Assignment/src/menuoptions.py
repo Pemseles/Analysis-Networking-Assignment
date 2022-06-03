@@ -89,6 +89,7 @@ def HandleMenuOptions(option, loggedInUser):
         return mf.DeleteUserMember(loggedInUser)
     # temp reset existing user's password
     elif option == 6:
+        # TODO: continue here
         print("implement reset existing user's password temporarily")
     # database back-up
     elif option == 7:

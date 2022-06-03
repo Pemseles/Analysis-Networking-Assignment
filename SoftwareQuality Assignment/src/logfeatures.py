@@ -3,7 +3,10 @@ import encryption as enc
 from datetime import date
 import time
 
+# TODO: delete log file before delivering
+
 def BuildLogText(loggedInUser, isSus, description, additionalInfo):
+    # builds log text to pass to AppendToLog depending on parameters
     sus = "Suspicious" if isSus else "Not Suspicious"
     curDate = date.today().strftime("%d-%m-%y")
     curTime = time.strftime("%H:%M:%S", time.localtime())
@@ -14,14 +17,15 @@ def BuildLogText(loggedInUser, isSus, description, additionalInfo):
     return logText
 
 def AppendToLog(text):
+    # appends text to log.txt (determines line count first as the line starts with [number])
     with open("log.txt", 'r+') as logfile:
         count = sum(1 for line in logfile)
-        print(f"Amount of lines: {count + 1}")
         
         logfile.write(enc.Encrypt(f"[{count + 1}]: {text}") + "\n")
     return
 
 def CreateLog():
+    # creates log.txt (if it already exists, does nothing)
     if not os.path.exists("log.txt"):
         with open("log.txt", 'w') as logFile:
             logFile.write("")
@@ -30,6 +34,7 @@ def CreateLog():
 
 def WipeLog(loggedInUser):
     if loggedInUser.role == 1 or loggedInUser.role == 2:
+        # empty log contents (actually overwrites log.txt with a new file)
         open("log.txt", 'w').close()
         print("Log file contents have been erased.")
         AppendToLog(BuildLogText(loggedInUser, False, "Authorized erasure of log file contents", "Log file has been erased entirely, it can be restored if a back-up is present."))
@@ -43,6 +48,7 @@ def ReadLog(loggedInUser):
         # decrypt & print log.txt
         AppendToLog(BuildLogText(loggedInUser, False, "Authorized reading of log file", "Log file has been decrypted and it's contents printed to the console."))
 
+        # get each log line into array, then remove '\n' character at end of line
         with open("log.txt", 'r') as logFile:
             logArr = logFile.readlines()
             for i in logArr:
