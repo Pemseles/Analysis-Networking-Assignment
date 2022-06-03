@@ -27,7 +27,7 @@ def GetGeneralOptions(loggedInUser):
         if loggedInUser.role == 0:
             print("4 ) Search through existing Members.")
         else:
-            print("4 ) Search through existing Members or view list of registered Users.")
+            print("4 ) Search through existing Members and Users.")
     else:
         # unauthorized to have any menu option
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Unauthorized attempt to get menu options (page 1)", "User attempted to get the menu options (is only for Advisors or higher)"))
@@ -91,7 +91,7 @@ def LoginScreen(loginAttempts):
     else:
         # successfull login result
         print(f"\nLogin successful, welcome {loginResult.first_name} {loginResult.last_name}")
-        lg.AppendToLog(lg.BuildLogText(loginResult, False, "User successfully logged into their account", f"User has logged into their account after _ attempts"))
+        lg.AppendToLog(lg.BuildLogText(loginResult, False, "User successfully logged into their account", f"User has logged into their account after {loginAttempts} attempts"))
         return MainMenu(loginResult)
 
 def MainMenu(loggedInUser):
@@ -198,8 +198,13 @@ def ViewLogMenu(loggedInUser):
         # unauthorized
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Unauthorized attempt to access view log sub-menu", "User attempted to access view log sub-menu (is only for System Administrators or higher)"))
         return
-    LineInTerminal()
-    print(f"To view the first 15 entries in the log file, press 'v'\nTo load 15 more entries, press 'n'\nTo return back to the main page, press 'x'\n")
+    # provide options
+    print("Please choose one of the following actions regarding the log file.\n")
+    print(f"v ) View the entire log file.\ne ) Erase the log file's contents.\nx ) Return back to the main page.")
     
-    menuChoice = input("\nOption choice: ")
-    return mo.HandleMenuOptionsLog(loggedInUser, menuChoice)
+    menuChoice = ""
+    result = "v"
+    while result == "v" or result == "e":
+        menuChoice = input("\nOption choice: ")
+        result = mo.HandleMenuOptionsLog(loggedInUser, menuChoice)
+    return

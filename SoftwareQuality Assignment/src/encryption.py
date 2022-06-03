@@ -11,9 +11,12 @@ def AlphabetExtended(length, offset):
         newAlphabet.append(chr(i + offset))
     return newAlphabet
 
-def Encrypt(string):
+def Encrypt(string, customRange = [], outliers = []):
     key = GenerateKey(string)
-    sample = AlphabetExtended(95, 32)
+    if len(customRange) == 0:
+        sample = AlphabetExtended(95, 32)
+    else:
+        sample = AlphabetExtended(customRange[0], customRange[1]) + outliers
     encrypt_text = []
     for i in range(len(string)):
         x = (sample.index(string[i]) + sample.index(key[i])) % len(sample)
@@ -21,9 +24,12 @@ def Encrypt(string):
     a = "" . join(encrypt_text)
     return("" . join(encrypt_text))
 
-def Decrypt(encrypt_text):
+def Decrypt(encrypt_text, customRange = [], outliers = []):
     key = GenerateKey(encrypt_text)
-    sample = AlphabetExtended(95, 32)
+    if len(customRange) == 0:
+        sample = AlphabetExtended(95, 32)
+    else:
+        sample = AlphabetExtended(customRange[0], customRange[1]) + outliers
     orig_text = []
     for i in range(len(encrypt_text)):
         x = ((sample.index(encrypt_text[i]) - sample.index(key[i])) + len(sample)) % len(sample)
@@ -41,14 +47,14 @@ def GenerateKey(string):
             key.append(key[i % len(key)])
     return("" . join(key))
 
-def EncryptTupleOrArray(toEnc):
+def EncryptTupleOrArray(toEnc, customRange = [], outliers = []):
     cipherArr = []
     for x in toEnc:
-        cipherArr.append(Encrypt(x))
+        cipherArr.append(Encrypt(x, customRange, outliers))
     return cipherArr
 
-def DecryptTupleOrArray(toDecr):
+def DecryptTupleOrArray(toDecr, customRange = [], outliers = []):
     normalArr = []
     for x in toDecr:
-        normalArr.append(Decrypt(str(x)))
+        normalArr.append(Decrypt(str(x), customRange, outliers))
     return normalArr

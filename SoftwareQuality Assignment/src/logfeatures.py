@@ -42,7 +42,12 @@ def ReadLog(loggedInUser):
     if loggedInUser.role == 1 or loggedInUser.role == 2:
         # decrypt & print log.txt
         AppendToLog(BuildLogText(loggedInUser, False, "Authorized reading of log file", "Log file has been decrypted and it's contents printed to the console."))
-        return
+
+        with open("log.txt", 'r') as logFile:
+            logArr = logFile.readlines()
+            for i in logArr:
+                logArr[logArr.index(i)] = i[:-1]
+            return logArr
     # logged in user isn't authenticated to read log.txt
     AppendToLog(BuildLogText(loggedInUser, False, "Unauthorized attempt to read log file", "Log file has not been decrypted."))
     return

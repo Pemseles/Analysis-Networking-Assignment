@@ -357,10 +357,15 @@ def UpdateInfo(loggedInUser, target, infoPiece, isMember):
         return mo.InvalidSubMenuChoice("sub-menu", choice, True)
     
 def ViewLog(loggedInUser):
-    if loggedInUser.role != 1 or loggedInUser.role != 2:
+    if loggedInUser.role != 1 and loggedInUser.role != 2:
         # does not have authentication to view log file
         lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to view system's log file", "User is not a System Administrator or higher"))
         return
 
-    
+    # get log file contents & decrypt
+    logArr = enc.DecryptTupleOrArray(lg.ReadLog(loggedInUser))
+
+    # print logArr individually
+    for i in logArr:
+        print(i)
     return

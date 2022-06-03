@@ -70,7 +70,8 @@ def HandleMenuOptionBase(choice, pagenum, loggedInUser):
 def HandleMenuOptions(option, loggedInUser):
     # handles options of pages 1 & 2 of main menu
     print(f"Inside HandleMenuOptions; choice = {option}, user = {loggedInUser.username}")
-
+    # loopResult is only here for a select few sub-menus
+    loopResult = ""
     # change password of loggedInUser
     if option == 1:
         return mf.ChangePassword(loggedInUser, loggedInUser)
@@ -177,15 +178,17 @@ def HandleMenuOptionsLog(loggedInUser, option):
     if option == "x":
         # return to main menu
         print("\nReturning to main page...")
-        return
+        return "x"
     elif option == "v":
-        # load most recent 15 entries
-        return
-    elif option == "n":
-        # load 15 more entries
-        return
+        # print entire log
+        mf.ViewLog(loggedInUser)
+        return "v"
+    elif option == "e":
+        # erase log file contents
+        lg.WipeLog(loggedInUser)
+        return "e"
     else:
         # invalid option
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when attempting to view log file"))
         print(f"{option} was not recognised as a valid menu choice. (search sub-handler)")
-        return cm.ViewLogMenu(loggedInUser)
+        return
