@@ -1,9 +1,7 @@
-import email
 from msilib.schema import Error
-
-from numpy import isin
 import dbclasses as dbc
 import encryption as enc
+import logfeatures as lg
 from datetime import date
 import sqlite3
 
@@ -17,7 +15,8 @@ def Create_Connection(db_file):
 
 def CreateMemberTable(loggedInUser):
     if loggedInUser.role < 0 and loggedInUser.role > 2:
-        # LOG: sus
+        # unauthorized access to create member table
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to create Members table"))
         return "Nice Try"
     with Create_Connection("database.db") as db:
         c = db.cursor()
@@ -33,7 +32,8 @@ def CreateMemberTable(loggedInUser):
 
 def CreateUserTable(loggedInUser):
     if loggedInUser.role < 0 and loggedInUser.role > 2:
-        # LOG: sus
+        # unauthorized attempt to create user table
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to create Users table"))
         return "Nice Try"
     with Create_Connection("database.db") as db:
         c = db.cursor()
@@ -53,7 +53,8 @@ def CreateUserTable(loggedInUser):
 
 def InsertIntoMembersTable(membership_id, registration_date, first_name, last_name, address, email_address, phone_number, loggedInUser):
     if loggedInUser.role < 0 and loggedInUser.role > 2:
-        # LOG: sus
+        # unauthorized inserting into member table
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to insert an entry into Members table"))
         return "Nice Try"
     with Create_Connection("database.db") as db:
         c = db.cursor()
@@ -70,6 +71,8 @@ def InsertIntoMembersTable(membership_id, registration_date, first_name, last_na
 
 def InsertIntoUsersTable(registration_date, first_name, last_name, username, password, address, email_address, phone_number, role, loggedInUser):
     if loggedInUser.role < 1 and loggedInUser.role > 2:
+        # unauthorized attempt to insert into user table
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to insert an entry into Users table"))
         # LOG: sus
         return "Nice Try"
     with Create_Connection("database.db") as db:
@@ -97,6 +100,11 @@ def InsertIntoUsersTable(registration_date, first_name, last_name, username, pas
             VALUES(?,?,?,?,?,?,?,?,?,?)""",(registration_date, first_name, last_name, username, password, address, email_address, phone_number, role, role_name))
 
 def DeleteFromTable(loggedInUser, target):
+    # check auth
+    if loggedInUser.role != 1 and loggedInUser.role != 2:
+        # unauthorized attempt to delete from table
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to delete an entry from Members/Users table"))
+
     # delete from table
     table = ""
     filterDigit = 0
@@ -165,7 +173,8 @@ def SelectColumnFromTable(table_name, column_name):
 
 def UpdateUserEntry(loggedInUser, newEntry):
     if loggedInUser.role < 1 and loggedInUser.role > 2:
-        # LOG: sus
+        # unauthorized attempt to update user info
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to update an entry in Users table"))
         return "Nice Try"
     print(f"in UpdateUserEntry: {newEntry}")
     with Create_Connection("database.db") as db:
@@ -183,7 +192,8 @@ def UpdateUserEntry(loggedInUser, newEntry):
 
 def UpdateMemberEntry(loggedInUser, newEntry):
     if loggedInUser.role < 0 and loggedInUser.role > 2:
-        # LOG: sus
+        # unauthorized attempt to update member entry
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to update an entry in Members table"))
         return "Nice Try"
     print(f"in UpdateMemberEntry: {newEntry}")
     with Create_Connection("database.db") as db:
@@ -199,7 +209,8 @@ def UpdateMemberEntry(loggedInUser, newEntry):
 
 def UpdateRegistrationDateMember(loggedInUser, newEntry):
     if loggedInUser.role < 0 and loggedInUser.role > 2:
-        # LOG: sus
+        # untauthorized attempt to update registration date 
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to update an entry's registration date in Members table"))
         return "Nice Try"
     print(f"in UpdateRegistrationDateMember: {newEntry}")
     with Create_Connection("database.db") as db:
@@ -211,7 +222,8 @@ def UpdateRegistrationDateMember(loggedInUser, newEntry):
 
 def UpdateRegistrationDateUser(loggedInUser, newEntry):
     if loggedInUser.role < 1 and loggedInUser.role > 2:
-        # LOG: sus
+        # untauthorized attempt to update registration date 
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to update an entry's registration date in Users table"))
         return "Nice Try"
     print(f"in UpdateRegistrationDateUser: {newEntry}")
     with Create_Connection("database.db") as db:

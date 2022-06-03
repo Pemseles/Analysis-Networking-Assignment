@@ -7,8 +7,8 @@ x email, address & phone requirements
 x adding members to system
 x database
 x database encryption
-- log file
-- log file encryption
+x log file
+x log file encryption
 x advisor functionalities
 - system admin functionalities
 - superadmin functionalities

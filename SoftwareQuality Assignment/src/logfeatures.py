@@ -1,4 +1,5 @@
 import os
+import encryption as enc
 from datetime import date
 import time
 
@@ -6,16 +7,18 @@ def BuildLogText(loggedInUser, isSus, description, additionalInfo):
     sus = "Suspicious" if isSus else "Not Suspicious"
     curDate = date.today().strftime("%d-%m-%y")
     curTime = time.strftime("%H:%M:%S", time.localtime())
-    logText = f"Performed by: {loggedInUser.username} | {curDate} - {curTime} | {description} | {additionalInfo} | {sus}"
+    if loggedInUser == "---":
+        logText = f"Performed by: User (not logged in) | {curDate} - {curTime} | {description} | {additionalInfo} | {sus}"
+    else:    
+        logText = f"Performed by: {loggedInUser.username} | {curDate} - {curTime} | {description} | {additionalInfo} | {sus}"
     return logText
 
 def AppendToLog(text):
     with open("log.txt", 'r+') as logfile:
-        for count in enumerate(logfile):
-            pass
-        print(f"Amount of lines: {count + 2}")
+        count = sum(1 for line in logfile)
+        print(f"Amount of lines: {count + 1}")
         
-        logfile.write(f"[{count + 2}]: {text}\n")
+        logfile.write(enc.Encrypt(f"[{count + 1}]: {text}") + "\n")
     return
 
 def CreateLog():

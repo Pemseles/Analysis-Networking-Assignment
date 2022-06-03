@@ -2,6 +2,7 @@ import consolemenus as cm
 import menufeatures as mf
 import inputchecks as ic
 import encryption as enc
+import logfeatures as lg
 
 def MainMenuPageShortcut(pagenum, loggedInUser):
     # literally just here so i don't have to write this code 2x
@@ -36,6 +37,7 @@ def HandleMenuOptionBase(choice, pagenum, loggedInUser):
     print(f"Inside HandleMenuOptionBase; choice = {choice}, page = {pagenum}, user = {loggedInUser.username}")
     if choice == "x":
         print("\nLogging out...")
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "User has logged out of their account", "No additional info required"))
         return
     elif choice == "n" and pagenum == 1 and loggedInUser.role >= 1 and loggedInUser.role <= 2:
         print("\nNavigating to page 2.")
@@ -57,8 +59,10 @@ def HandleMenuOptionBase(choice, pagenum, loggedInUser):
                 if result == "logout":
                     return
             else:
+                lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", f"User inputted an invalid option when navigating main menu (page {pagenum})"))
                 print(f"{choice} was not recognised as a valid menu choice. (base handler; inner)")
         else:
+            lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", f"User inputted an invalid option when navigating main menu (page`{pagenum})"))
             print(f"{choice} was not recognised as a valid menu choice. (base handler; outer)")
     # return to the page logged in user was on previously
     return MainMenuPageShortcut(pagenum, loggedInUser)
@@ -110,6 +114,7 @@ def HandleMenuOptionsAdd(option, loggedInUser):
         return mf.AddMemberOrUser(loggedInUser, int(option) - 2)
     else:
         # if anything else is inputted
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when choosing what to add to the system"))
         print(f"{option} was not recognised as a valid menu choice. (add sub-handler)")
         return cm.AddToSystemSubmenu(loggedInUser)
     return
@@ -132,6 +137,7 @@ def HandleMenuOptionsModify(loggedInUser, target, isMember, option):
             return mf.UpdateInfo(loggedInUser, target, infoPiece, isMember)
     else:
         # return to sub-menu; invalid option
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when choosing who's information to modify"))
         print(f"{option} was not recognised as a valid menu choice. (modify sub-handler)")
         return cm.ModifyInfoSubmenu(loggedInUser)
 
@@ -160,5 +166,6 @@ def HandleMenuOptionsSearch(loggedInUser, option):
         return "sub-menu"
     else:
         # input was not recognized
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when deciding what to do after searching through members/users"))
         print(f"{option} was not recognised as a valid menu choice. (search sub-handler)")
         return cm.SearchDatabase(loggedInUser)
