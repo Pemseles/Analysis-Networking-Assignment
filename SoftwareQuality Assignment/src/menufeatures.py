@@ -52,7 +52,6 @@ def AddMemberOrUser(loggedInUser, role):
         addingMember = True
     else:
         # either insufficient authorization to perform or role is somehow wrong
-        # LOG: sus
         lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt at adding user/member", "User did not have a sufficient role to attempt adding to the system"))
         return
     
@@ -112,11 +111,13 @@ def AddMemberOrUser(loggedInUser, role):
         memberId = ic.GenerateMemberID()
     address = f"{addressStreet} {addressHouseNum} {addressZip} {addressCity.upper()}"
 
-    # insert new member/user into database & return to same sub-menu (easier to add more than 1)
+    # insert new member/user into database & return to sub-menu
     if addingMember:
         db.InsertIntoMembersTable(memberId, registrationDate, firstName, lastName, address, email, phone, loggedInUser)
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Successfully added new member to system", f"New member is {firstName} {lastName}"))
     else:
         db.InsertIntoUsersTable(registrationDate, firstName, lastName, username, password, address, email, phone, role, loggedInUser)
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Successfully added new user to system", f"New user is {firstName} {lastName}"))
 
     return "sub-menu"
 
@@ -128,6 +129,7 @@ def PrintUserMemberList(loggedInUser, filter = ""):
     noMembers = False
 
     if listPrint[0] == "There were no results matching your request.":
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "User's search parameter returned no results", "No members/users in the system matched the parameter"))
         print(listPrint[0])
         print("\nx ) Return to main menu.")
         return listPrint
@@ -151,13 +153,14 @@ def PrintUserMemberList(loggedInUser, filter = ""):
         else:
             print(entry)
     print("\nx ) Return to main menu.")
+    lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "User's search parameter returned at least 1 result", "At least 1 member/user in the system matched the parameter"))
     return listInstances
 
 def DeleteUserMember(loggedInUser):
     print("\nPlease select which of the following you want to remove from the system.\n")
     if loggedInUser.role != 1 and loggedInUser.role != 2:
         # logged in user does not have authentication to do this
-        # LOG: sus
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to access delete user/member functionality", "User is not a System Administrator or higher"))
         return
     # print list of users & members
     delListInstances = PrintUserMemberList(loggedInUser)
@@ -185,6 +188,7 @@ def DeleteUserMember(loggedInUser):
             choice = input("\nOption choice: ")
             if choice == "1":
                 # delete chosen entry
+                lg.AppendToLog(lg.BuildLogText(loggedInUser, False, f"Successfully deleted {chosenEntry.first_name} {chosenEntry.last_name} from the system", "This entry has been removed from the system permanently"))
                 db.DeleteFromTable(loggedInUser, chosenEntry)
                 print("Successfully deleted entry from system.")
                 return "sub-menu"
@@ -192,20 +196,23 @@ def DeleteUserMember(loggedInUser):
                 # return to sub-menu
                 print("Ending process of deletion...")
                 return "sub-menu"
-            # LOG: not sus
+            # invalid menu-option (was a number, just not 1 or 2)
             print(f"{choice} was not recognised as a valid menu choice; ending process of deletion...")
+            lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when confirming delete member/user"))
             return mo.InvalidSubMenuChoice("sub-menu", choice, True)
-        # LOG: not sus
+        # invalid menu-option (was not a number)
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when confirming delete member/user"))
         return mo.InvalidSubMenuChoice("sub-menu", choice, True)
     except:
-        # LOG: not sus
+        # invalid menu-option (was not a number)
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when confirming delete member/user"))
         return mo.InvalidSubMenuChoice("sub-menu", choice, True)
 
 def ModifyInfoList(loggedInUser):
     print("\nPlease select which of the following you would like to modify.\n")
     if loggedInUser.role < 0 or loggedInUser.role > 2:
         # logged in user does not have authentication to do this
-        # LOG: sus
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to access modify member/user info", "User is not an Advisor or higher"))
         return
     # print list of users & members
     userMemberInstances = PrintUserMemberList(loggedInUser)
@@ -223,9 +230,12 @@ def ModifyInfoList(loggedInUser):
             isMember = True if isinstance(chosenEntry, dbc.Members) else False
             return cm.ModifyInfoSubmenu(loggedInUser, chosenEntry, isMember)
         else:
+            # invalid menu option (less than 1 or higher than len of instances)
+            lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when selecting member/user to modify"))
             return mo.InvalidSubMenuChoice("sub-menu", choice, True)
     except Exception as e:
-        # LOG: not sus
+        # still invalid menu option (TODO: remove print statement before submission)
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when selecting member/user to modify"))
         print(f"Error occured somewhere in ModifyInfoList(): {e}")
         return mo.InvalidSubMenuChoice("sub-menu", choice, True)
 
@@ -233,12 +243,12 @@ def UpdateInfo(loggedInUser, target, infoPiece, isMember):
     if isMember:
         if loggedInUser.role < 0 or loggedInUser.role > 2:
             # logged in user does not have authentication to do this
-            # LOG: sus
+            lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to update member info", "User is not an Advisor or higher"))
             return
     else:
         if (loggedInUser.role < 0 or loggedInUser.role > 2) and loggedInUser.role <= target.role:
             # logged in user does not have authentication to do this
-            # LOG: sus
+            lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to update user info", "User is not a System Administrator or higher"))
             return
 
     # handle updating registration date differently; doesn't need to be encrypted or inputted
@@ -252,21 +262,26 @@ def UpdateInfo(loggedInUser, target, infoPiece, isMember):
         choice = input("\nOption choice: ")
         if choice == "1":
             # modify registration date (process is slightly different for members)
+            newDate = date.today().strftime("%d-%m-%y")
             if isMember:
-                db.UpdateRegistrationDateMember(loggedInUser, tuple([date.today().strftime("%d-%m-%y"), target.membership_id]))
+                lg.AppendToLog(lg.BuildLogText(loggedInUser, False, f"{target.first_name} {target.last_name}'s registration date was successfully updated", f"Registration date was changed from {target.registration_date} to {newDate}"))
+                db.UpdateRegistrationDateMember(loggedInUser, tuple([newDate, target.membership_id]))
                 print("Member's Registration date modified successfully.")
             else:
-                db.UpdateRegistrationDateUser(loggedInUser, tuple([date.today().strftime("%d-%m-%y"), target.id]))
+                lg.AppendToLog(lg.BuildLogText(loggedInUser, False, f"{target.first_name} {target.last_name}'s registration date was successfully updated", f"Registration date was changed from {target.registration_date} to {newDate}"))
+                db.UpdateRegistrationDateUser(loggedInUser, tuple([newDate, target.id]))
                 print("User's Registration date modified successfully.")
         elif choice == "2":
             # return to sub-menu
             print("Ending process of modification...")
             return "sub-menu"
         else:
+            # invalid menu choice
             print(f"{choice} was not recognised as a valid menu choice; ending process of modification...")
-            # LOG: not sus
+            lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when confirming to modify member/user's registration date"))
             return mo.InvalidSubMenuChoice("sub-menu", choice, True)
 
+    # handle the other infoPieces
     print(f"\nTo modify {target.first_name} {target.last_name}'s {infoPiece}, please enter the following:\n(If, at any point, you wish to return to the sub-menu, enter 'x' for any input)\n")
 
     # input-loop
@@ -315,16 +330,18 @@ def UpdateInfo(loggedInUser, target, infoPiece, isMember):
             arrayToEncrypt[arrayToEncrypt.index(target.phone_number)] = newInput
         else:
             # shouldn't be able to reach here, but just in case
-            # LOG: sus
+            lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "User tried changing info using an unknown info piece", f"Denied action; user tried to change {target.first_name} {target.last_name}'s {infoPiece}"))
             return "Nice Try"
 
         # update entry (process is slightly different for members)
         if isMember:
+            lg.AppendToLog(lg.BuildLogText(loggedInUser, False, f"Successfully updated member's {infoPiece}", f"{target.first_name} {target.last_name}'s has been modified"))
             encryptedArr = enc.EncryptTupleOrArray(arrayToEncrypt) + [target.membership_id]
             db.UpdateMemberEntry(loggedInUser, tuple(encryptedArr))
             print(f"Member's {infoPiece} modified successfully.")
             return "sub-menu"
         else:
+            lg.AppendToLog(lg.BuildLogText(loggedInUser, False, f"Successfully updated user's {infoPiece}", f"{target.username}'s has been modified"))
             encryptedArr = enc.EncryptTupleOrArray(arrayToEncrypt) + [target.id]
             db.UpdateUserEntry(loggedInUser, tuple(encryptedArr))
             print(f"User's {infoPiece} modified successfully.")
@@ -334,14 +351,15 @@ def UpdateInfo(loggedInUser, target, infoPiece, isMember):
         print("Ending process of modification...")
         return "sub-menu"
     else:
+        # invalid menu option (was not 1 or 2)
         print(f"{choice} was not recognised as a valid menu choice; ending process of modification...")
-        # LOG: not sus
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", f"User inputted an invalid option when confirming to modify member/user's {infoPiece}"))
         return mo.InvalidSubMenuChoice("sub-menu", choice, True)
     
 def ViewLog(loggedInUser):
     if loggedInUser.role != 1 or loggedInUser.role != 2:
         # does not have authentication to view log file
-        # LOG: sus
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to view system's log file", "User is not a System Administrator or higher"))
         return
 
     
