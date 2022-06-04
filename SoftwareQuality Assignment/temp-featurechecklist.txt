@@ -13,6 +13,6 @@ x advisor functionalities
 - system admin functionalities
 - superadmin functionalities
 x search function
-- database & log backup creation
+x database & log backup creation
 - database & log backup restoring
 - user manual

@@ -31,7 +31,7 @@ def GetGeneralOptions(loggedInUser):
             print("4 ) Search through existing Members and Users.")
     else:
         # unauthorized to have any menu option
-        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Unauthorized attempt to get menu options (page 1)", "User attempted to get the menu options (is only for Advisors or higher)"))
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to get menu options (page 1)", "User attempted to get the menu options (is only for Advisors or higher)"))
 
 def GetSysAdminOptions(loggedInUser):
     if loggedInUser.role == 1 or loggedInUser.role == 2:
@@ -41,12 +41,12 @@ def GetSysAdminOptions(loggedInUser):
             print("1 ) Delete existing Member or User.")
         # resetting password should set a temporary password, which gets changed back to what it was upon target's login
         print("2 ) Reset existing User's password.")
-        print("3 ) Create database back-up")
-        print("4 ) Restore database from back-up.")
+        print("3 ) Create database/log back-up")
+        print("4 ) Restore database/log from back-up.")
         print("5 ) View system's log file.")
     else:
         # unauthorized to have page 2 menu option
-        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Unauthorized attempt to get menu options (page 2)", "User attempted to get the menu options (is only for System Administrators or higher)"))
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to get menu options (page 2)", "User attempted to get the menu options (is only for System Administrators or higher)"))
 
 def SystemScreenLoop():
     # keeps opening SystemScreen() until user enters 1 or 2
@@ -73,12 +73,16 @@ def SystemScreen():
 def LoginScreen(loginAttempts):
     # block access if loginAttempts >= 5
     if loginAttempts >= 5:
-        lg.AppendToLog(lg.BuildLogText("---", True, "Someone attempted too many times to log in", "Person has been blocked access to the login screen"))
+        lg.AppendToLog(lg.BuildLogText("---", True, "Someone unsuccessfully tried to log in 5 times consecutively", "Person has been blocked access to the login screen"))
         print("Too many attempts at logging in; Blocked access.")
         return loginAttempts
 
     # get users from db
-    registeredUsers = db.SelectAllFromTable("Users")
+    try:
+        registeredUsers = db.SelectAllFromTable("Users")
+    except:
+        print("Database was not recognised (possibly the wrong database.db was restored)")
+        return
     LineInTerminal()
     print("Welcome to the Furnicor Administrative system.\nPlease provide your login credentials.\n")
     username = input("Username: ")
@@ -114,7 +118,7 @@ def MainMenu(loggedInUser):
         print(f"Welcome to the main menu of Furnicor Administrative system (page 1/2).\n(logged in as {loggedInUser.first_name} {loggedInUser.last_name} - {loggedInUser.role_name})")
     else:
         # unauthorized attempt to access main menu
-        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Unauthorized attempt to access main menu (page 1)", "User attempted to access main menu (is only for Advisors or higher)"))
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to access main menu (page 1)", "User attempted to access main menu (is only for Advisors or higher)"))
         return
     print("Please select one of the following options:\n")
 
@@ -130,7 +134,7 @@ def MainMenuPage2(loggedInUser):
     # page 2 of main menu
     if loggedInUser.role != 1 and loggedInUser.role != 2:
         # unauthorized attempt to access page 2
-        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Unauthorized attempt to access main menu (page 2)", "User attempted to access main menu page 2 (is only for System Administrators or higher)"))
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to access main menu (page 2)", "User attempted to access main menu page 2 (is only for System Administrators or higher)"))
         return
     LineInTerminal()
     print(f"Welcome to the main menu of Furnicor Administrative system (page 2/2)")
@@ -147,7 +151,7 @@ def AddToSystemSubmenu(loggedInUser):
     # check authorization
     if loggedInUser.role < 0 or loggedInUser.role > 2:
         # unauthorized
-        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Unauthorized attempt to access add-to-system sub-menu", "User attempted to access add-to-system sub-menu (is only for Advisors or higher)"))
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to access add-to-system sub-menu", "User attempted to access add-to-system sub-menu (is only for Advisors or higher)"))
         return
     # sub-menu to decide to add member or some type of user
     LineInTerminal()
@@ -166,7 +170,7 @@ def ModifyInfoSubmenu(loggedInUser, target, isMember):
     # check auth
     if loggedInUser.role < 0 or loggedInUser.role > 2:
         # unauthorized
-        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Unauthorized attempt to access modify info sub-menu", "User attempted to access modify info sub-menu (is only for Advisors or higher)"))
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to access modify info sub-menu", "User attempted to access modify info sub-menu (is only for Advisors or higher)"))
         return
     # sub-menu to decide what specific piece of info to change
     LineInTerminal()
@@ -186,7 +190,7 @@ def SearchDatabase(loggedInUser):
     # check auth
     if loggedInUser.role < 0 or loggedInUser.role > 2:
         # unauthorized
-        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Unauthorized attempt to access search sub-menu", "User attempted to access search sub-menu (is only for Advisors or higher)"))
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to access search sub-menu", "User attempted to access search sub-menu (is only for Advisors or higher)"))
         return
     # sub-menu where user can enter any string and get a list of members & users that have any of their columns contain the string
     LineInTerminal()
@@ -235,3 +239,20 @@ def ResetPassMenu(loggedInUser):
 
     choice = input("\nOption choice: ")
     return mo.HandleMenuOptionsReset(loggedInUser, choice, resetInstances)
+
+def BackupMenu(loggedInUser):
+    # check auth
+    if loggedInUser.role != 1 and loggedInUser.role != 2:
+        # unauthorized
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to access back-up sub-menu", "User attempted to access back-up sub-menu (is only for System Administrators or higher)"))
+        return
+    # provide options
+    LineInTerminal()
+    print(f"Please choose which one of the following you would like to back up.\n")
+
+    print("1 ) Back up database.")
+    print("2 ) Back up log file.")
+    print("\nx ) Return to main page.")
+
+    choice = input("\nOption choice: ")
+    return mo.HandleMenuOptionsBackup(loggedInUser, choice)

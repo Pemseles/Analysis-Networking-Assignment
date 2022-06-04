@@ -3,7 +3,6 @@ import menufeatures as mf
 import inputchecks as ic
 import encryption as enc
 import logfeatures as lg
-from msilib.schema import Error
 
 def MainMenuPageShortcut(pagenum, loggedInUser):
     # literally just here so i don't have to write this code 2x
@@ -93,8 +92,7 @@ def HandleMenuOptions(option, loggedInUser):
         return cm.ResetPassMenu(loggedInUser)
     # database back-up
     elif option == 7:
-        print("implement create database back-up")
-        return 
+        return cm.BackupMenu(loggedInUser)
     # restore database from back-up
     elif option == 8:
         print("implement restore database from back-up")
@@ -214,4 +212,15 @@ def HandleMenuOptionsReset(loggedInUser, option, instances):
         # invalid menu-option (was not a number)
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when deciding which user's password to reset"))
         return
+    return
+
+def HandleMenuOptionsBackup(loggedInUser, option):
+    if option == "x":
+        # return to main menu
+        print("\nReturning to main page...")
+        return
+    elif option == "1" or option == "2":
+        # create back-up of either database or log
+        backupTarget = "database" if option == "1" else "log"
+        return mf.BackupFiles(loggedInUser, backupTarget)
     return

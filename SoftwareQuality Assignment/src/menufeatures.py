@@ -6,6 +6,8 @@ import encryption as enc
 import inputchecks as ic
 import logfeatures as lg
 from datetime import date
+import os.path
+import shutil
 
 def ChangePassword(target, loggedInUser):
     if loggedInUser.role <= target.role and not loggedInUser.id == target.id:
@@ -390,3 +392,47 @@ def ResetPassword(loggedInUser, targetUser):
     db.UpdateUserEntry(loggedInUser, updateArr)
     print(f"User's password has been temporarily reset to {tempPass} (turns back to normal upon them logging in)")
     return
+
+def BackupFiles(loggedInUser, targetFile):
+    # check auth
+    if loggedInUser.role != 1 and loggedInUser.role != 2:
+        # does not have authentication to view log file
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, f"Unauthorized attempt to back-up {targetFile} file", "User is not a System Administrator or higher"))
+        return
+
+    # back up database/log file
+    print("\nPlease provide a directory path to your desired back-up location.")
+    backupPath = input("\nBack-up path: ")
+    # check if directory exists
+    if not os.path.isdir(backupPath):
+        # dir does not exist
+        print("Directory does not exist")
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "User entered an invalid directory while backing up database/log", "Directory should be valid for a back-up to be created"))
+        return "sub-menu"
+    # dir exists
+    absBackupPath = os.path.abspath(backupPath)
+    absCurrentPath = ""
+    if targetFile == "database":
+        absCurrentPath = os.path.abspath("./database.db")
+        absBackupPath += "/database.db"
+    else:
+        absCurrentPath = os.path.abspath("./log.txt")
+        absBackupPath += "/log.txt"
+    # confirmation
+    print(f"Are you sure you wish to create a back-up of the {targetFile} at this location? ({absBackupPath})\n")
+    print("1 ) Yes, create backup.")
+    print("2 ) No, return to back-up sub-menu.")
+    choice = input("\nOption choice: ")
+    if choice == "2":
+        # return to sub-menu
+        print("Returning to back-up sub-menu...")
+        return "sub-menu"
+    elif choice == "1":
+        print("Back-up successfully created")
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, f"Back-up created of {targetFile} file", f"Back-up of {targetFile} is located at {absBackupPath}"))
+        shutil.copyfile(absCurrentPath, absBackupPath)
+        return "sub-menu"
+    # invalid menu option (was not 1 or 2)
+    print(f"{choice} was not recognised as a valid menu choice")
+    lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", f"User inputted an invalid option when confirming to back-up {targetFile}"))
+    return mo.InvalidSubMenuChoice("sub-menu", choice, True)
