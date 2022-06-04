@@ -12,12 +12,11 @@ def Create_Connection(db_file):
         print(e)
     return conn
 
-# TODO: re-add loggedInUser requirement
-def CreateMemberTable():
-    # if loggedInUser.role < 0 and loggedInUser.role > 2:
+def CreateMemberTable(loggedInUser):
+    if loggedInUser.role < 0 and loggedInUser.role > 2:
         # unauthorized access to create member table
-        # lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to create Members table"))
-        # return "Nice Try"
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to create Members table"))
+        return "Nice Try"
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(""" CREATE TABLE IF NOT EXISTS Members (
@@ -30,12 +29,11 @@ def CreateMemberTable():
             phone_number text NOT NULL
             ); """)
 
-# TODO: re-add loggedInUser requirement
-def CreateUserTable():
-    # if loggedInUser.role < 0 and loggedInUser.role > 2:
+def CreateUserTable(loggedInUser):
+    if loggedInUser.role < 0 and loggedInUser.role > 2:
         # unauthorized attempt to create user table
-        # lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to create Users table"))
-        # return "Nice Try"
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to create Users table"))
+        return "Nice Try"
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(""" CREATE TABLE IF NOT EXISTS Users (
@@ -53,12 +51,11 @@ def CreateUserTable():
             role_name text NOT NULL
             ); """) # role defines if user is Advisor (0), System Admin (1) or Super Admin (2)
 
-# TODO: re-add loggedInUser requirement
-def InsertIntoMembersTable(membership_id, registration_date, first_name, last_name, address, email_address, phone_number):
-    # if loggedInUser.role < 0 and loggedInUser.role > 2:
+def InsertIntoMembersTable(membership_id, registration_date, first_name, last_name, address, email_address, phone_number, loggedInUser):
+    if loggedInUser.role < 0 and loggedInUser.role > 2:
         # unauthorized inserting into member table
-        # lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to insert an entry into Members table"))
-        # return "Nice Try"
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to insert an entry into Members table"))
+        return "Nice Try"
     with Create_Connection("database.db") as db:
         c = db.cursor()
 
@@ -72,12 +69,11 @@ def InsertIntoMembersTable(membership_id, registration_date, first_name, last_na
         c.execute(""" INSERT INTO Members (membership_id, registration_date, first_name, last_name, address, email_address, phone_number) 
             VALUES(?,?,?,?,?,?,?)""",(membership_id, registration_date, first_name, last_name, address, email_address, phone_number))
 
-# TODO: re-add loggedInUser requirement
-def InsertIntoUsersTable(registration_date, first_name, last_name, username, password, temp_password, address, email_address, phone_number, role):
-    # if loggedInUser.role < 1 and loggedInUser.role > 2:
+def InsertIntoUsersTable(registration_date, first_name, last_name, username, password, temp_password, address, email_address, phone_number, role, loggedInUser):
+    if loggedInUser.role < 1 and loggedInUser.role > 2:
         # unauthorized attempt to insert into user table
-        # lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to insert an entry into Users table"))
-        # return "Nice Try"
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to insert an entry into Users table"))
+        return "Nice Try"
     with Create_Connection("database.db") as db:
         c = db.cursor()
 

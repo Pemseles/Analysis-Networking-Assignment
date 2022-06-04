@@ -256,3 +256,20 @@ def BackupMenu(loggedInUser):
 
     choice = input("\nOption choice: ")
     return mo.HandleMenuOptionsBackup(loggedInUser, choice)
+
+def RestoreMenu(loggedInUser):
+    # check auth
+    if loggedInUser.role != 1 and loggedInUser.role != 2:
+        # unauthorized
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to access restore back-up sub-menu", "User attempted to access restore back-up sub-menu (is only for System Administrators or higher)"))
+        return
+    # provide options
+    LineInTerminal()
+    print(f"Please choose which one of the following you would like to restore.\n")
+
+    print("1 ) Restore database.")
+    print("2 ) Restore log file.")
+    print("\nx ) Return to main page.")
+
+    choice = input("\nOption choice: ")
+    return mo.HandleMenuOptionsRestore(loggedInUser, choice)

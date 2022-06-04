@@ -1,5 +1,7 @@
 legend: - (to-do) x (done)
 
+PRE-Submission:
+
 x basic UI design
 x login system
 x username & password requirements
@@ -16,3 +18,8 @@ x search function
 x database & log backup creation
 - database & log backup restoring
 - user manual
+- protection against sql injection
+
+POST-Submission:
+
+- Presentation Slides

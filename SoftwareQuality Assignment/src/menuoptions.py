@@ -95,8 +95,7 @@ def HandleMenuOptions(option, loggedInUser):
         return cm.BackupMenu(loggedInUser)
     # restore database from back-up
     elif option == 8:
-        print("implement restore database from back-up")
-        return 
+        return cm.RestoreMenu(loggedInUser)
     # view system's log file
     elif option == 9:
         return cm.ViewLogMenu(loggedInUser)
@@ -223,4 +222,19 @@ def HandleMenuOptionsBackup(loggedInUser, option):
         # create back-up of either database or log
         backupTarget = "database" if option == "1" else "log"
         return mf.BackupFiles(loggedInUser, backupTarget)
+    # invalid menu-option
+    lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when deciding which file to back-up"))
+    return
+
+def HandleMenuOptionsRestore(loggedInUser, option):
+    if option == "x":
+        # return to main menu
+        print("\nReturning to main page...")
+        return
+    elif option == "1" or option == "2":
+        # restore back-up of either database or log
+        restoreTarget = "database" if option == "1" else "log"
+        return mf.RestoreBackup(loggedInUser, restoreTarget)
+    # invalid menu-option
+    lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when deciding which back-up to restore"))
     return
