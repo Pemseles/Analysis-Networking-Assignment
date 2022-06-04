@@ -12,11 +12,11 @@ x database encryption
 x log file
 x log file encryption
 x advisor functionalities
-- system admin functionalities
-- superadmin functionalities
+x system admin functionalities
+x superadmin functionalities
 x search function
 x database & log backup creation
-- database & log backup restoring
+x database & log backup restoring
 - user manual
 - protection against sql injection
 
