@@ -23,7 +23,7 @@ def ChangePassword(target, loggedInUser):
     # check if password is valid
     if newPass == newPassRepeat and ic.CheckPassword(newPass):
         # encrypt password & add to database; log out of account
-        encryptedArr = enc.EncryptTupleOrArray((target.first_name, target.last_name, target.username, newPass, target.address, target.email_address, target.phone_number)) + [target.id]
+        encryptedArr = enc.EncryptTupleOrArray((target.first_name, target.last_name, target.username, newPass, "", target.address, target.email_address, target.phone_number)) + [target.id]
         db.UpdateUserEntry(loggedInUser, tuple(encryptedArr))
         print("\nPassword changed successfully. Logging out...")
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, f"Successfully changed {target.username}'s password", "User's new password passed all checks and the database has been updated"))
@@ -73,12 +73,12 @@ def AddMemberOrUser(loggedInUser, role):
         # check username
         username = ""
         while not ic.CheckUsername(username):
-            username = input("\nUsername: ")
+            username = input("Username: ")
             if mo.HandleXInput(username): return "sub-menu"
         # check password
         password = ""
         while not ic.CheckPassword(password):
-            password = input("\nPassword: ")
+            password = input("Password: ")
             if mo.HandleXInput(password): return "sub-menu"
     # check address
     addressStreet = addressHouseNum = addressZip = addressCity = ""
@@ -116,14 +116,14 @@ def AddMemberOrUser(loggedInUser, role):
         db.InsertIntoMembersTable(memberId, registrationDate, firstName, lastName, address, email, phone, loggedInUser)
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Successfully added new member to system", f"New member is {firstName} {lastName}"))
     else:
-        db.InsertIntoUsersTable(registrationDate, firstName, lastName, username, password, address, email, phone, role, loggedInUser)
+        db.InsertIntoUsersTable(registrationDate, firstName, lastName, username, password, "", address, email, phone, role, loggedInUser)
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Successfully added new user to system", f"New user is {firstName} {lastName}"))
 
     return "sub-menu"
 
-def PrintUserMemberList(loggedInUser, filter = ""):
+def PrintUserMemberList(loggedInUser, filter = "", includeMembers = True):
     # get list of members/users (depends on logged in user's role)
-    listPrint = dbc.BuildUserAndMemberList(loggedInUser, filter)
+    listPrint = dbc.BuildUserAndMemberList(loggedInUser, filter, includeMembers)
     # listInstances contain only the members & users
     listInstances = []
     noMembers = False
@@ -314,7 +314,7 @@ def UpdateInfo(loggedInUser, target, infoPiece, isMember):
         # make array; depending on infoPiece, specific index gets changed
         arrayToEncrypt = [target.first_name, target.last_name]
         if not isMember:
-            arrayToEncrypt += [target.username, target.password]
+            arrayToEncrypt += [target.username, target.password, ""]
         arrayToEncrypt += [target.address, target.email_address, target.phone_number]
 
         # change info in array
@@ -335,13 +335,13 @@ def UpdateInfo(loggedInUser, target, infoPiece, isMember):
 
         # update entry (process is slightly different for members)
         if isMember:
-            lg.AppendToLog(lg.BuildLogText(loggedInUser, False, f"Successfully updated member's {infoPiece}", f"{target.first_name} {target.last_name}'s has been modified"))
+            lg.AppendToLog(lg.BuildLogText(loggedInUser, False, f"Successfully updated member's {infoPiece}", f"{target.first_name} {target.last_name}'s {infoPiece} has been modified"))
             encryptedArr = enc.EncryptTupleOrArray(arrayToEncrypt) + [target.membership_id]
             db.UpdateMemberEntry(loggedInUser, tuple(encryptedArr))
             print(f"Member's {infoPiece} modified successfully.")
             return "sub-menu"
         else:
-            lg.AppendToLog(lg.BuildLogText(loggedInUser, False, f"Successfully updated user's {infoPiece}", f"{target.username}'s has been modified"))
+            lg.AppendToLog(lg.BuildLogText(loggedInUser, False, f"Successfully updated user's {infoPiece}", f"{target.username}'s {infoPiece} has been modified"))
             encryptedArr = enc.EncryptTupleOrArray(arrayToEncrypt) + [target.id]
             db.UpdateUserEntry(loggedInUser, tuple(encryptedArr))
             print(f"User's {infoPiece} modified successfully.")
@@ -357,6 +357,7 @@ def UpdateInfo(loggedInUser, target, infoPiece, isMember):
         return mo.InvalidSubMenuChoice("sub-menu", choice, True)
     
 def ViewLog(loggedInUser):
+    # check auth
     if loggedInUser.role != 1 and loggedInUser.role != 2:
         # does not have authentication to view log file
         lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to view system's log file", "User is not a System Administrator or higher"))
@@ -368,4 +369,24 @@ def ViewLog(loggedInUser):
     # print logArr individually
     for i in logArr:
         print(i)
+    return
+
+def ResetPassword(loggedInUser, targetUser):
+    # check auth
+    if loggedInUser.role != 1 and loggedInUser.role != 2:
+        # does not have authentication to view log file
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to reset another user's password", "User is not a System Administrator or higher"))
+        return
+
+    # ask for input loop
+    tempPass = ""
+    while not ic.CheckPassword(tempPass):
+        tempPass = input("\nTemporary password: ")
+        if mo.HandleXInput(tempPass): return "sub-menu"
+
+    # input was evaluated as valid; get array of updated entry
+    lg.AppendToLog(lg.BuildLogText(loggedInUser, False, f"Successfully reset user's password", f"{targetUser.username}'s password has been temporarily set to {tempPass}"))
+    updateArr = enc.EncryptTupleOrArray([targetUser.first_name, targetUser.last_name, targetUser.username, targetUser.password, tempPass, targetUser.address, targetUser.email_address, targetUser.phone_number]) + [targetUser.id]
+    db.UpdateUserEntry(loggedInUser, updateArr)
+    print(f"User's password has been temporarily reset to {tempPass} (turns back to normal upon them logging in)")
     return

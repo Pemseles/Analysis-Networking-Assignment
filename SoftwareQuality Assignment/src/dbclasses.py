@@ -27,13 +27,14 @@ class Members:
         return f"[ID: {self.membership_id}] {self.first_name} {self.last_name} - {self.address} - {self.email_address} - {self.phone_number} - registered at {self.registration_date}"
 
 class Users:
-    def __init__(self, id, registration_date, first_name, last_name, username, password, address, email_address, phone_number, role, role_name):
+    def __init__(self, id, registration_date, first_name, last_name, username, password, temp_password, address, email_address, phone_number, role, role_name):
         self.id = id
         self.registration_date = registration_date
         self.first_name = enc.Decrypt(first_name)
         self.last_name = enc.Decrypt(last_name)
         self.username = enc.Decrypt(username)
         self.password = enc.Decrypt(password)
+        self.temp_password = enc.Decrypt(temp_password)
         self.address = enc.Decrypt(address)
         self.email_address = enc.Decrypt(email_address)
         self.phone_number = enc.Decrypt(phone_number)
@@ -64,18 +65,26 @@ class Users:
         
 
 def AuthenticateCredentials(username, password):
+    # for each user, check if they match inputted username & password
     for i in db.SelectAllFromTable("Users"):
-        if i.password == password and i.username.upper() == username.upper():
+        # if user has a temporary password, compare it to the input instead
+        checkTemp = True if i.temp_password != "" else False
+        if not checkTemp and i.password == password and i.username.upper() == username.upper():
+            return i
+        elif checkTemp and (i.temp_password == password or i.password == password) and i.username.upper() == username.upper():
             return i
     return 0
 
-def BuildUserAndMemberList(loggedInUser, filter):
+def BuildUserAndMemberList(loggedInUser, filter, includeMembers = True):
     if loggedInUser.role < 0 or loggedInUser.role > 2:
         # logged in user cannot get list of members/users to delete
         return "Nice try, but you don't have the required authorization to see this."
     # builds a list of members & users that logged in user is able to delete
     if filter == "":
-        membersAndUsers = db.SelectAllFromTable("Members") + db.SelectAllFromTable("Users")
+        if includeMembers:
+            membersAndUsers = db.SelectAllFromTable("Members") + db.SelectAllFromTable("Users")
+        else:
+            membersAndUsers = db.SelectAllFromTable("Users")
     else:
         # check filter
         if filter == " ":
@@ -83,7 +92,10 @@ def BuildUserAndMemberList(loggedInUser, filter):
         filter = filter.lower()
         # get members&users, then apply filter
         membersAndUsers = []
-        beforeFilterMembersAndUsers = db.SelectAllFromTable("Members") + db.SelectAllFromTable("Users")
+        if includeMembers:
+            beforeFilterMembersAndUsers = db.SelectAllFromTable("Members") + db.SelectAllFromTable("Users")
+        else:
+            beforeFilterMembersAndUsers = db.SelectAllFromTable("Users")
         for entry in beforeFilterMembersAndUsers:
             # filters entries based on what the user gets to see (Members pretty much all info, Users only their profiles)
             if isinstance(entry, Members) and (loggedInUser.role >= 0 and loggedInUser.role <= 2):

@@ -5,6 +5,7 @@ import dbclasses as dbc
 import menuoptions as mo
 import menufeatures as mf
 import logfeatures as lg
+import encryption as enc
 
 def ClearTerminal():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -54,6 +55,8 @@ def SystemScreenLoop():
         goToLogin = SystemScreen()
         if goToLogin:
             loginAttempts = LoginScreen(loginAttempts)
+            if loginAttempts == None:
+                loginAttempts = 0
         elif goToLogin == False:
             return
 
@@ -91,7 +94,15 @@ def LoginScreen(loginAttempts):
     else:
         # successfull login result
         print(f"\nLogin successful, welcome {loginResult.first_name} {loginResult.last_name}")
-        lg.AppendToLog(lg.BuildLogText(loginResult, False, "User successfully logged into their account", f"User has logged into their account after {loginAttempts} attempts"))
+        print(f"User has a temporary password currently: {loginResult.temp_password}")
+
+        # reset temp password
+        if loginResult.temp_password != "":
+            lg.AppendToLog(lg.BuildLogText(loginResult, False, "Temporary password has been removed", "User with temporary password has logged into their account using the temporary password"))
+            updateArr = enc.EncryptTupleOrArray([loginResult.first_name, loginResult.last_name, loginResult.username, loginResult.password, "", loginResult.address, loginResult.email_address, loginResult.phone_number]) + [loginResult.id]
+            db.UpdateUserEntry(loginResult, updateArr)
+
+        lg.AppendToLog(lg.BuildLogText(loginResult, False, "User successfully logged into their account", f"User has logged into their account after {loginAttempts + 1} attempt(s)"))
         return MainMenu(loginResult)
 
 def MainMenu(loggedInUser):
@@ -196,9 +207,10 @@ def ViewLogMenu(loggedInUser):
     # check auth
     if loggedInUser.role != 1 and loggedInUser.role != 2:
         # unauthorized
-        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Unauthorized attempt to access view log sub-menu", "User attempted to access view log sub-menu (is only for System Administrators or higher)"))
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to access view log sub-menu", "User attempted to access view log sub-menu (is only for System Administrators or higher)"))
         return
     # provide options
+    LineInTerminal()
     print("Please choose one of the following actions regarding the log file.\n")
     print(f"v ) View the entire log file.\ne ) Erase the log file's contents.\nx ) Return back to the main page.")
     
@@ -208,3 +220,18 @@ def ViewLogMenu(loggedInUser):
         menuChoice = input("\nOption choice: ")
         result = mo.HandleMenuOptionsLog(loggedInUser, menuChoice)
     return
+
+def ResetPassMenu(loggedInUser):
+    # check auth
+    if loggedInUser.role != 1 and loggedInUser.role != 2:
+        # unauthorized
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized attempt to access reset password sub-menu", "User attempted to access reset password sub-menu (is only for System Administrators or higher)"))
+        return
+    # provide options
+    LineInTerminal()
+    print(f"Please choose one of the following users to temporarily reset their password.")
+    # get list of just users
+    resetInstances = mf.PrintUserMemberList(loggedInUser, "", False)
+
+    choice = input("\nOption choice: ")
+    return mo.HandleMenuOptionsReset(loggedInUser, choice, resetInstances)

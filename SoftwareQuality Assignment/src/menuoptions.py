@@ -3,6 +3,7 @@ import menufeatures as mf
 import inputchecks as ic
 import encryption as enc
 import logfeatures as lg
+from msilib.schema import Error
 
 def MainMenuPageShortcut(pagenum, loggedInUser):
     # literally just here so i don't have to write this code 2x
@@ -89,14 +90,15 @@ def HandleMenuOptions(option, loggedInUser):
         return mf.DeleteUserMember(loggedInUser)
     # temp reset existing user's password
     elif option == 6:
-        # TODO: continue here
-        print("implement reset existing user's password temporarily")
+        return cm.ResetPassMenu(loggedInUser)
     # database back-up
     elif option == 7:
         print("implement create database back-up")
+        return 
     # restore database from back-up
     elif option == 8:
         print("implement restore database from back-up")
+        return 
     # view system's log file
     elif option == 9:
         return cm.ViewLogMenu(loggedInUser)
@@ -193,3 +195,23 @@ def HandleMenuOptionsLog(loggedInUser, option):
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when attempting to view log file"))
         print(f"{option} was not recognised as a valid menu choice. (search sub-handler)")
         return
+
+def HandleMenuOptionsReset(loggedInUser, option, instances):
+    if option == "x":
+        # return to main menu
+        print("\nReturning to main page...")
+        return
+    try:
+        if int(option) >= 1 and int(option) <= len(instances):
+            # get user & array
+            chosenUser = instances[int(option) - 1]
+            return mf.ResetPassword(loggedInUser, chosenUser)
+        # invalid menu-option (not within range of instances)
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when deciding which user's password to reset"))
+        return
+    except Exception as e:
+        print(f"Invalid or smtn went wrong: {e}")
+        # invalid menu-option (was not a number)
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when deciding which user's password to reset"))
+        return
+    return

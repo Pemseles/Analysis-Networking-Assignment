@@ -1,4 +1,3 @@
-from msilib.schema import Error
 import dbclasses as dbc
 import encryption as enc
 import logfeatures as lg
@@ -9,7 +8,7 @@ def Create_Connection(db_file):
     conn = None
     try:
         conn = sqlite3.connect(db_file)
-    except Error as e:
+    except Exception as e:
         print(e)
     return conn
 
@@ -46,6 +45,7 @@ def CreateUserTable():
             last_name text NOT NULL,
             username text NOT NULL UNIQUE,
             password text NOT NULL UNIQUE,
+            temp_password text NOT NULL,
             address text NOT NULL,
             email_address text NOT NULL UNIQUE,
             phone_number text NOT NULL,
@@ -73,7 +73,7 @@ def InsertIntoMembersTable(membership_id, registration_date, first_name, last_na
             VALUES(?,?,?,?,?,?,?)""",(membership_id, registration_date, first_name, last_name, address, email_address, phone_number))
 
 # TODO: re-add loggedInUser requirement
-def InsertIntoUsersTable(registration_date, first_name, last_name, username, password, address, email_address, phone_number, role):
+def InsertIntoUsersTable(registration_date, first_name, last_name, username, password, temp_password, address, email_address, phone_number, role):
     # if loggedInUser.role < 1 and loggedInUser.role > 2:
         # unauthorized attempt to insert into user table
         # lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to insert an entry into Users table"))
@@ -95,12 +95,13 @@ def InsertIntoUsersTable(registration_date, first_name, last_name, username, pas
         last_name = enc.Encrypt(last_name)
         username = enc.Encrypt(username.lower())
         password = enc.Encrypt(password)
+        temp_password = enc.Encrypt(temp_password)
         address = enc.Encrypt(address)
         email_address = enc.Encrypt(email_address.lower())
         phone_number = enc.Encrypt(phone_number)
 
-        c.execute(""" INSERT INTO Users (registration_date, first_name, last_name, username, password, address, email_address, phone_number, role, role_name)
-            VALUES(?,?,?,?,?,?,?,?,?,?)""",(registration_date, first_name, last_name, username, password, address, email_address, phone_number, role, role_name))
+        c.execute(""" INSERT INTO Users (registration_date, first_name, last_name, username, password, temp_password, address, email_address, phone_number, role, role_name)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?)""",(registration_date, first_name, last_name, username, password, temp_password, address, email_address, phone_number, role, role_name))
 
 def DeleteFromTable(loggedInUser, target):
     # check auth
@@ -112,7 +113,7 @@ def DeleteFromTable(loggedInUser, target):
     table = ""
     filterDigit = 0
     filter = ""
-    # check if target is member or user
+    # check if target is member or user (determines table, filter & filter's value)
     if isinstance(target, dbc.Members):
         if not loggedInUser.role == 0 and not loggedInUser.role == 1 and not loggedInUser.role == 2:
             # logged in user is not authorized to delete member
@@ -141,13 +142,13 @@ def DeleteFromTable(loggedInUser, target):
 # only here for testing purposes & convenience
 def InsertStaticUsers():
     # insert static super admin (change back username to superadmin & password to Admin321!)
-    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "Super", "Admin", "sa", "sa", "Someplace", "super@admin.com", "+31-6-12345678", 2)
+    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "Super", "Admin", "sa", "sa", "", "Someplace", "super@admin.com", "+31-6-12345678", 2)
     
     # insert static system admin (TODO: remove before delivering)
-    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "System", "Admin", "systemadmin", "System321!", "Someotherplace", "system@admin.com", "+31-6-87654321", 1)
+    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "System", "Admin", "systemadmin", "System321!", "", "Someotherplace", "system@admin.com", "+31-6-87654321", 1)
 
     # insert static advisor (TODO: remove before delivering)
-    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "Ad", "Visor", "advisor", "Advisor321!", "Somerandomplace", "ad@visor.com", "+31-6-11111111", 0)
+    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "Ad", "Visor", "advisor", "Advisor321!", "", "Somerandomplace", "ad@visor.com", "+31-6-11111111", 0)
 
 def ConvertFetchToArray(fetched):
     newArr = []
@@ -175,7 +176,7 @@ def SelectColumnFromTable(table_name, column_name):
         return rows
 
 def UpdateUserEntry(loggedInUser, newEntry):
-    if loggedInUser.role < 1 and loggedInUser.role > 2:
+    if loggedInUser.role < 0 and loggedInUser.role > 2:
         # unauthorized attempt to update user info
         lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to update an entry in Users table"))
         return "Nice Try"
@@ -187,6 +188,7 @@ def UpdateUserEntry(loggedInUser, newEntry):
                         last_name = ? , 
                         username = ? , 
                         password = ? , 
+                        temp_password = ? , 
                         address = ? , 
                         email_address = ? , 
                         phone_number = ? 
