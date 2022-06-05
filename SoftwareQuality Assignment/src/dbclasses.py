@@ -22,10 +22,6 @@ class Members:
         except:
             return "Nice try, but you don't have the required authorization to see this."
 
-    def GetInfo2(self):
-        #TODO: Remove this specific function before delivering, is only here for testing purposes
-        return f"[ID: {self.membership_id}] {self.first_name} {self.last_name} - {self.address} - {self.email_address} - {self.phone_number} - registered at {self.registration_date}"
-
 class Users:
     def __init__(self, id, registration_date, first_name, last_name, username, password, temp_password, address, email_address, phone_number, role, role_name):
         self.id = id
@@ -50,10 +46,6 @@ class Users:
         except:
             return "Nice try, but you don't have the required authorization to see this."
 
-    def GetInfo2(self):
-        #TODO: Remove this specific function before delivering, is only here for testing purposes
-        return f"[{self.id}; {self.role_name}] ({self.registration_date}) {self.first_name} {self.last_name} (username = {self.username}, password = {self.password}) - {self.address} - {self.email_address} - {self.phone_number}"
-    
     def GetProfile(self, loggedInUser):
         try:
             if loggedInUser.role >= 0 and loggedInUser.role <= 2:

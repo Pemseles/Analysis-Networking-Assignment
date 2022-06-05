@@ -18,7 +18,7 @@ x search function
 x database & log backup creation
 x database & log backup restoring
 - user manual
-- protection against sql injection
+x protection against sql injection
 
 POST-Submission:
 

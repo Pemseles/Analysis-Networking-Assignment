@@ -3,8 +3,6 @@ import encryption as enc
 from datetime import date
 import time
 
-# TODO: delete log file before delivering
-
 def BuildLogText(loggedInUser, isSus, description, additionalInfo):
     # builds log text to pass to AppendToLog depending on parameters
     sus = "Suspicious" if isSus else "Not Suspicious"

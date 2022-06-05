@@ -121,6 +121,7 @@ def AddMemberOrUser(loggedInUser, role):
         db.InsertIntoUsersTable(registrationDate, firstName, lastName, username, password, "", address, email, phone, role, loggedInUser)
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Successfully added new user to system", f"New user is {firstName} {lastName}"))
 
+    print(f"Successfully added new {roleName} to system.")
     return "sub-menu"
 
 def PrintUserMemberList(loggedInUser, filter = "", includeMembers = True):
@@ -236,9 +237,7 @@ def ModifyInfoList(loggedInUser):
             lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when selecting member/user to modify"))
             return mo.InvalidSubMenuChoice("sub-menu", choice, True)
     except Exception as e:
-        # still invalid menu option (TODO: remove print statement before submission)
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when selecting member/user to modify"))
-        print(f"Error occured somewhere in ModifyInfoList(): {e}")
         return mo.InvalidSubMenuChoice("sub-menu", choice, True)
 
 def UpdateInfo(loggedInUser, target, infoPiece, isMember):

@@ -6,9 +6,7 @@ import menuoptions as mo
 import menufeatures as mf
 import logfeatures as lg
 import encryption as enc
-
-def ClearTerminal():
-    os.system('cls' if os.name == 'nt' else 'clear')
+import inputchecks as ic
 
 def LineInTerminal():
     print("-------------------------------------------------------------------------------------------\n")
@@ -88,17 +86,14 @@ def LoginScreen(loginAttempts):
     username = input("Username: ")
     password = input("Password: ")
 
-    # TODO; check if username & password inputs are valid with checkUsername() & checkPassword()
-
     loginResult = dbc.AuthenticateCredentials(username, password)
-    if loginResult == 0:
+    if loginResult == 0 or not ic.CheckUsername(username, True) or not ic.CheckPassword(password, True):
         # failed login result
         print("\nLogin failed; incorrect username or password")
         return loginAttempts + 1
     else:
         # successfull login result
         print(f"\nLogin successful, welcome {loginResult.first_name} {loginResult.last_name}")
-        print(f"User has a temporary password currently: {loginResult.temp_password}")
 
         # reset temp password
         if loginResult.temp_password != "":

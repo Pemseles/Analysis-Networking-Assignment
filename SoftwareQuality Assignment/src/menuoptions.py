@@ -24,7 +24,7 @@ def HandleXInput(input):
 
 def HandleSystemScreenOption(choice):
     # will keep user in the loop until they input 1 or 2, 1 brings them to loginscreen, 2 terminates program
-    print(f"Inside HandleSystemScreenOption; choice = {choice}")
+    
     if choice == "1":
         return True
     elif choice == "2":
@@ -34,7 +34,7 @@ def HandleSystemScreenOption(choice):
 
 def HandleMenuOptionBase(choice, pagenum, loggedInUser):
     # handles base option choices
-    print(f"Inside HandleMenuOptionBase; choice = {choice}, page = {pagenum}, user = {loggedInUser.username}")
+    
     if choice == "x":
         print("\nLogging out...")
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "User has logged out of their account", "No additional info required"))
@@ -55,7 +55,6 @@ def HandleMenuOptionBase(choice, pagenum, loggedInUser):
                     choice = str(int(choice) + 4)
                 while result == "sub-menu" or result == "":
                     result = HandleMenuOptions(int(choice), loggedInUser)
-                    print("result:", result)
                 if result == "logout":
                     return
             else:
@@ -69,9 +68,7 @@ def HandleMenuOptionBase(choice, pagenum, loggedInUser):
 
 def HandleMenuOptions(option, loggedInUser):
     # handles options of pages 1 & 2 of main menu
-    print(f"Inside HandleMenuOptions; choice = {option}, user = {loggedInUser.username}")
-    # loopResult is only here for a select few sub-menus
-    loopResult = ""
+    
     # change password of loggedInUser
     if option == 1:
         return mf.ChangePassword(loggedInUser, loggedInUser)
@@ -102,7 +99,6 @@ def HandleMenuOptions(option, loggedInUser):
 
 def HandleMenuOptionsAdd(option, loggedInUser):
     # handles options of sub-menu of adding member/user to system
-    print(f"Inside HandleMenuOptionsAdd; choice = {option}, user = {loggedInUser.username}")
 
     if option == "x":
         # return to page 1
@@ -122,7 +118,6 @@ def HandleMenuOptionsAdd(option, loggedInUser):
 
 def HandleMenuOptionsModify(loggedInUser, target, isMember, option):
     # handles options of sub-menu of modifying information
-    print(f"Inside HandleMenuOptionsModify; choice = {option}, user = {loggedInUser.username}")
     # infoPiece will be passed to UpdateInfo()
     optionNums = ["First name", "Last name", "Address", "Email address", "Phone number", "Registration date"]
     infoPiece = ""
@@ -155,7 +150,6 @@ def DecideCheckFunction(loggedInUser, infoPiece, newInput, houseNum = "", zipCod
 
 def HandleMenuOptionsSearch(loggedInUser, option):
     # handles options of sub-menu of search-results
-    print(f"Inside HandleMenuOptionsSearch; choice = {option}, user = {loggedInUser.username}")
 
     if option == "x":
         # return to page 1
@@ -163,7 +157,6 @@ def HandleMenuOptionsSearch(loggedInUser, option):
         return
     elif option == "r":
         # re-enter search sub-menu
-        print("returning to sub-menu TEMP")
         return "sub-menu"
     else:
         # input was not recognized
@@ -173,7 +166,6 @@ def HandleMenuOptionsSearch(loggedInUser, option):
 
 def HandleMenuOptionsLog(loggedInUser, option):
     # handles options of sub-menu of viewing log file
-    print(f"Inside HandleMenuOptionsLog; choice = {option}, user = {loggedInUser.username}")
 
     if option == "x":
         # return to main menu
@@ -186,6 +178,7 @@ def HandleMenuOptionsLog(loggedInUser, option):
     elif option == "e":
         # erase log file contents
         lg.WipeLog(loggedInUser)
+        print("\nLog file contents have been erased...")
         return "e"
     else:
         # invalid option
@@ -207,7 +200,6 @@ def HandleMenuOptionsReset(loggedInUser, option, instances):
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when deciding which user's password to reset"))
         return
     except Exception as e:
-        print(f"Invalid or smtn went wrong: {e}")
         # invalid menu-option (was not a number)
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Invalid menu option inputted", "User inputted an invalid option when deciding which user's password to reset"))
         return

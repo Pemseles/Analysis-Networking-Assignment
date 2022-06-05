@@ -138,14 +138,8 @@ def DeleteFromTable(loggedInUser, target):
 # only here for testing purposes & convenience
 def InsertStaticUsers():
     # insert static super admin (change back username to superadmin & password to Admin321!)
-    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "Super", "Admin", "sa", "sa", "", "Someplace", "super@admin.com", "+31-6-12345678", 2)
+    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "Super", "Admin", "superadmin", "Admin321!", "", "Someplace", "super@admin.com", "+31-6-12345678", 2)
     
-    # insert static system admin (TODO: remove before delivering)
-    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "System", "Admin", "systemadmin", "System321!", "", "Someotherplace", "system@admin.com", "+31-6-87654321", 1)
-
-    # insert static advisor (TODO: remove before delivering)
-    InsertIntoUsersTable(date.today().strftime("%d-%m-%y"), "Ad", "Visor", "advisor", "Advisor321!", "", "Somerandomplace", "ad@visor.com", "+31-6-11111111", 0)
-
 def ConvertFetchToArray(fetched):
     newArr = []
     for i in fetched:
@@ -153,6 +147,10 @@ def ConvertFetchToArray(fetched):
     return newArr
 
 def SelectAllFromTable(table_name):
+    if table_name != "Members" and table_name != "Users":
+        # invalid table_name
+        lg.AppendToLog(lg.BuildLogText("---", True, "Someone tried to select information using an invalid parameter", f"Parameter given was {table_name} instead of either 'Members' or 'Users'"))
+        return []
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(f"""SELECT * FROM {table_name}""")
@@ -165,6 +163,12 @@ def SelectAllFromTable(table_name):
         return rows
 
 def SelectColumnFromTable(table_name, column_name):
+    # possible columns
+    possibleCols = ["first_name", "last_name", "username", "password", "temp_password", "address", "email_address", "phone_number", "role", "role_name", "registration_date", "id", "membership_id"]
+    if (table_name != "Members" and table_name != "Users") or not column_name in possibleCols:
+        # invalid table_name or column_name
+        lg.AppendToLog(lg.BuildLogText("---", True, "Someone tried to select information using an invalid parameter", f"Parameters given were {table_name} and {column_name}, one of which is invalid"))
+        return []
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(f"""SELECT {column_name} FROM {table_name}""")
@@ -242,11 +246,3 @@ if __name__ == '__main__':
     CreateMemberTable()
     CreateUserTable()
     InsertStaticUsers()
-
-    # print statements for test purposes
-    print("Printing members in db:")
-    for i in SelectAllFromTable("Members"):
-        print(i.GetInfo2())
-    print ("Printing users in db:")
-    for j in SelectAllFromTable("Users"):
-        print(j.GetInfo2())
