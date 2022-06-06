@@ -176,7 +176,7 @@ def ModifyInfoSubmenu(loggedInUser, target, isMember):
     print("4 ) Change email address.")
     print("5 ) Change phone number.")
     print("6 ) Update registration date to today.")
-    print("x ) Return to previous member & user overview.")
+    print("\nx ) Return to previous member & user overview.")
 
     menuChoice = input("\nOption choice: ")
     return mo.HandleMenuOptionsModify(loggedInUser, target, isMember, menuChoice)

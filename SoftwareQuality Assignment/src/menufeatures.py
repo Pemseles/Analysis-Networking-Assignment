@@ -131,6 +131,12 @@ def PrintUserMemberList(loggedInUser, filter = "", includeMembers = True):
     listInstances = []
     noMembers = False
 
+    if len(listPrint) == 0:
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "There are no members or users for the user to see", "No registered members/users in the system"))
+        print("There are no members or users registered in the system to modify.")
+        print("\nx ) Return to main menu.")
+        return listPrint
+
     if listPrint[0] == "There were no results matching your request.":
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "User's search parameter returned no results", "No members/users in the system matched the parameter"))
         print(listPrint[0])
@@ -142,16 +148,24 @@ def PrintUserMemberList(loggedInUser, filter = "", includeMembers = True):
         noMembers = True
     for entry in listPrint:
         # print members
-        if isinstance(entry, dbc.Members):
+        if isinstance(entry, dbc.Members) and filter == "":
             print(f"{listPrint.index(entry)} ) {entry.GetInfo(loggedInUser)}")
+            listInstances.append(entry)
+        elif isinstance(entry, dbc.Members):
+            print(f"{entry.GetInfo(loggedInUser)}")
             listInstances.append(entry)
 
         # print users (if no users, the option offset is -1 to make sure it doesn't start with 0)
         elif isinstance(entry, dbc.Users) and loggedInUser.role > entry.role:
-            if not noMembers:
+            if not noMembers and filter == "":
                 print(f"{listPrint.index(entry) - 1} ) {entry.GetProfile(loggedInUser)}")
-            elif noMembers:
+            elif noMembers and filter == "":
                 print(f"{listPrint.index(entry)} ) {entry.GetProfile(loggedInUser)}")
+            else:
+                if not noMembers:
+                    print(f"{entry.GetProfile(loggedInUser)}")
+                elif noMembers:
+                    print(f"{entry.GetProfile(loggedInUser)}")
             listInstances.append(entry)
         else:
             print(entry)
@@ -182,9 +196,9 @@ def DeleteUserMember(loggedInUser):
             
             # confirmation to delete
             if isMember:
-                print(f"Are you sure you wish to delete\n{chosenEntry.GetInfo(loggedInUser)}\n")
+                print(f"\nAre you sure you wish to delete\n{chosenEntry.GetInfo(loggedInUser)}\n")
             else:
-                print(f"Are you sure you wish to delete\n{chosenEntry.GetProfile(loggedInUser)}\n")
+                print(f"\nAre you sure you wish to delete\n{chosenEntry.GetProfile(loggedInUser)}\n")
             print("1 ) Yes, proceed with deletion.")
             print("2 ) No, end process of deletion.")
 
@@ -286,7 +300,6 @@ def UpdateInfo(loggedInUser, target, infoPiece, isMember):
     print(f"\nTo modify {target.first_name} {target.last_name}'s {infoPiece}, please enter the following:\n(If, at any point, you wish to return to the sub-menu, enter 'x' for any input)\n")
 
     # input-loop
-    print(f"Entering input-loop in UpdateInfo(); checking {infoPiece}")
     newInput = houseNum = zipCode = city = ""
     while not mo.DecideCheckFunction(loggedInUser, infoPiece, newInput, houseNum, zipCode, city):
         if infoPiece == "Phone number":
@@ -433,7 +446,7 @@ def BackupFiles(loggedInUser, targetFile):
         print("Back-up successfully created")
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, f"Back-up created of {targetFile} file", f"Back-up of {targetFile} is located at {absBackupPath}"))
         shutil.copyfile(absCurrentPath, absBackupPath)
-        return "sub-menu"
+        return "logout"
 
     # invalid menu option (was not 1 or 2)
     print(f"{choice} was not recognised as a valid menu choice")
