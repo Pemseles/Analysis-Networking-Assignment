@@ -17,9 +17,12 @@ x superadmin functionalities
 x search function
 x database & log backup creation
 x database & log backup restoring
-- user manual
+x user manual
 x protection against sql injection
 
 POST-Submission:
 
 - Presentation Slides
+
+(presentation is on 22-6-2022, (11:30 - 11:55))
+presentation should be 25 minutes long
