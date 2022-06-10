@@ -115,10 +115,10 @@ def AddMemberOrUser(loggedInUser, role):
 
     # insert new member/user into database & return to sub-menu
     if addingMember:
-        db.InsertIntoMembersTable(memberId, registrationDate, firstName, lastName, address, email, phone, loggedInUser)
+        db.InsertIntoMembersTable(memberId, registrationDate, firstName, lastName, address, email, phone)
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Successfully added new member to system", f"New member is {firstName} {lastName}"))
     else:
-        db.InsertIntoUsersTable(registrationDate, firstName, lastName, username, password, "", address, email, phone, role, loggedInUser)
+        db.InsertIntoUsersTable(registrationDate, firstName, lastName, username, password, "", address, email, phone, role)
         lg.AppendToLog(lg.BuildLogText(loggedInUser, False, "Successfully added new user to system", f"New user is {firstName} {lastName}"))
 
     print(f"Successfully added new {roleName} to system.")

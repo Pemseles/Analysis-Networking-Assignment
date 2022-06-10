@@ -78,8 +78,9 @@ def LoginScreen(loginAttempts):
     # get users from db
     try:
         registeredUsers = db.SelectAllFromTable("Users")
-    except:
+    except Exception as e:
         print("Database was not recognised (possibly the wrong database.db was restored)")
+        print(e)
         return
     LineInTerminal()
     print("Welcome to the Furnicor Administrative system.\nPlease provide your login credentials.\n")

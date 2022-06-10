@@ -12,11 +12,7 @@ def Create_Connection(db_file):
         print(e)
     return conn
 
-def CreateMemberTable(loggedInUser):
-    if loggedInUser.role < 0 and loggedInUser.role > 2:
-        # unauthorized access to create member table
-        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to create Members table"))
-        return "Nice Try"
+def CreateMemberTable():
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(""" CREATE TABLE IF NOT EXISTS Members (
@@ -29,11 +25,7 @@ def CreateMemberTable(loggedInUser):
             phone_number text NOT NULL
             ); """)
 
-def CreateUserTable(loggedInUser):
-    if loggedInUser.role < 0 and loggedInUser.role > 2:
-        # unauthorized attempt to create user table
-        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to create Users table"))
-        return "Nice Try"
+def CreateUserTable():
     with Create_Connection("database.db") as db:
         c = db.cursor()
         c.execute(""" CREATE TABLE IF NOT EXISTS Users (
@@ -51,11 +43,7 @@ def CreateUserTable(loggedInUser):
             role_name text NOT NULL
             ); """) # role defines if user is Advisor (0), System Admin (1) or Super Admin (2)
 
-def InsertIntoMembersTable(membership_id, registration_date, first_name, last_name, address, email_address, phone_number, loggedInUser):
-    if loggedInUser.role < 0 and loggedInUser.role > 2:
-        # unauthorized inserting into member table
-        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to insert an entry into Members table"))
-        return "Nice Try"
+def InsertIntoMembersTable(membership_id, registration_date, first_name, last_name, address, email_address, phone_number):
     with Create_Connection("database.db") as db:
         c = db.cursor()
 
@@ -69,11 +57,7 @@ def InsertIntoMembersTable(membership_id, registration_date, first_name, last_na
         c.execute(""" INSERT INTO Members (membership_id, registration_date, first_name, last_name, address, email_address, phone_number) 
             VALUES(?,?,?,?,?,?,?)""",(membership_id, registration_date, first_name, last_name, address, email_address, phone_number))
 
-def InsertIntoUsersTable(registration_date, first_name, last_name, username, password, temp_password, address, email_address, phone_number, role, loggedInUser):
-    if loggedInUser.role < 1 and loggedInUser.role > 2:
-        # unauthorized attempt to insert into user table
-        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to insert an entry into Users table"))
-        return "Nice Try"
+def InsertIntoUsersTable(registration_date, first_name, last_name, username, password, temp_password, address, email_address, phone_number, role):
     with Create_Connection("database.db") as db:
         c = db.cursor()
 
@@ -113,7 +97,7 @@ def DeleteFromTable(loggedInUser, target):
     if isinstance(target, dbc.Members):
         if not loggedInUser.role == 0 and not loggedInUser.role == 1 and not loggedInUser.role == 2:
             # logged in user is not authorized to delete member
-            # LOG: sus
+            lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "User is not authorized to delete member", f"User attempted to delete {target.first_name} {target.last_name}'s entry"))
             return "Not authorized to delete member."
         table = "Members"
         filterDigit = target.membership_id
@@ -121,11 +105,15 @@ def DeleteFromTable(loggedInUser, target):
     elif isinstance(target, dbc.Users):
         if loggedInUser.role <= target.role and loggedInUser.role > 0 and loggedInUser.role < 3:
             # logged in user is not authorized to delete user
-            # LOG: sus
+            lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "User is not authorized to delete user", f"User attempted to delete {target.first_name} {target.last_name}'s entry"))
             return "Not authorized to delete user."
         table = "Users"
         filterDigit = target.id
         filter = "id"
+    else:
+        # unrecognized thing to delete
+        lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "User attempted to delete an unknown entry", f"This unrecognized entry is as follows: {target}"))
+        return "Nice try"
     # preceed with deleting target
     with Create_Connection("database.db") as db:
         c = db.cursor()
