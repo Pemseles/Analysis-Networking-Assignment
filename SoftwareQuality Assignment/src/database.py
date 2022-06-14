@@ -88,7 +88,7 @@ def DeleteFromTable(loggedInUser, target):
     if loggedInUser.role != 1 and loggedInUser.role != 2:
         # unauthorized attempt to delete from table
         lg.AppendToLog(lg.BuildLogText(loggedInUser, True, "Unauthorized access to database method", "User attempted to delete an entry from Members/Users table"))
-
+        return
     # delete from table
     table = ""
     filterDigit = 0
